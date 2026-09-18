@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.system.dao.AuthRoleDao">
+
+    <!-- 根据角色名称查询 -->
+    <select id="getByRoleName" resultType="com.budaos.system.domain.entity.AuthRoleEntity">
+        SELECT *
+        FROM t_role
+        WHERE role_name = #{roleName}
+        LIMIT 1
+    </select>
+
+    <!-- 根据角色编码查询 -->
+    <select id="getByRoleCode" resultType="com.budaos.system.domain.entity.AuthRoleEntity">
+        SELECT *
+        FROM t_role
+        WHERE role_code = #{roleCode}
+        LIMIT 1
+    </select>
+
+</mapper>

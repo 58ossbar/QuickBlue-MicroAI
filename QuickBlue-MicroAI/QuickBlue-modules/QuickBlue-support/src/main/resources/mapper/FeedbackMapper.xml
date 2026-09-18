@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.dao.SuggestionDao">
+
+    <!-- 分页查询 -->
+    <select id="queryPage" resultType="com.budaos.support.domain.vo.SuggestionVO">
+        SELECT
+            feedback_id,
+            feedback_content,
+            feedback_attachment,
+            user_id,
+            user_name,
+            user_type,
+            create_time,
+            update_time
+        FROM t_feedback
+        <where>
+            <if test="query.searchWord != null and query.searchWord != ''">
+                AND INSTR(feedback_content, #{query.searchWord})
+            </if>
+            <if test="query.startDate != null">
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') >= #{query.startDate}
+            </if>
+            <if test="query.endDate != null">
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{query.endDate}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

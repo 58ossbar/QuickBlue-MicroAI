@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.dao.ReleaseLogDao">
+
+    <!-- 分页查询更新日志 -->
+    <select id="query" resultType="com.budaos.support.domain.vo.ReleaseLogVO">
+        SELECT
+            change_log_id,
+            update_version,
+            type,
+            CASE type
+                WHEN 1 THEN '特大版本功能更新'
+                WHEN 2 THEN '功能更新'
+                WHEN 3 THEN 'bug修复'
+                ELSE '未知'
+            END AS type_name,
+            publish_author,
+            public_date,
+            content,
+            link,
+            create_time,
+            update_time
+        FROM t_change_log
+        <where>
+            <if test="query.updateVersion != null and query.updateVersion != ''">
+                AND update_version = #{query.updateVersion}
+            </if>
+            <if test="query.type != null">
+                AND type = #{query.type}
+            </if>
+            <if test="query.publishAuthor != null and query.publishAuthor != ''">
+                AND INSTR(publish_author, #{query.publishAuthor})
+            </if>
+        </where>
+        ORDER BY public_date DESC, create_time DESC
+    </select>
+
+</mapper>

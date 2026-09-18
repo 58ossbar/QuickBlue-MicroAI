@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.dao.DictionaryDao">
+
+    <!-- 查询结果列 -->
+    <sql id="base_columns">
+        t_dict.dict_id,
+        t_dict.dict_name,
+        t_dict.dict_code,
+        t_dict.remark,
+        t_dict.disabled_flag,
+        t_dict.create_time,
+        t_dict.update_time
+    </sql>
+
+    <!-- 分页查询 -->
+    <select id="queryPage" resultType="com.budaos.support.domain.vo.DictionaryVO">
+        SELECT
+        <include refid="base_columns"/>
+        FROM t_dict
+        <where>
+            <if test="keywords != null and keywords != ''">
+                AND (
+                INSTR(t_dict.dict_name,#{keywords})
+                OR INSTR(t_dict.dict_code,#{keywords})
+                OR INSTR(t_dict.remark,#{keywords})
+                )
+            </if>
+            <if test="disabledFlag != null">
+                AND t_dict.disabled_flag = #{disabledFlag}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        <if test="offset != null and limit != null">
+            LIMIT #{offset}, #{limit}
+        </if>
+    </select>
+
+    <select id="selectByCode" resultType="com.budaos.support.domain.entity.DictionaryEntity">
+        SELECT *
+        FROM t_dict
+        WHERE dict_code = #{code}
+    </select>
+
+</mapper>

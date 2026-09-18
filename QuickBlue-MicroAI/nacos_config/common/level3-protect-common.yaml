@@ -1,0 +1,44 @@
+# 三级等保配置 (公共配置)
+# 该配置适用于所有需要三级等保功能的服务
+# Data ID: level3-protect-common.yaml
+# Group: QuickBlue_GROUP
+# 配置格式: YAML
+
+level3-protect:
+  # 双因子登录配置
+  # 是否开启双因子登录，默认：关闭
+  two-factor-login-enabled: false
+
+  # 登录失败锁定配置
+  # 连续登录失败次数则锁定，-1表示不受限制，可以一直尝试登录
+  # 建议：5次
+  login-fail-max-times: 5
+
+  # 连续登录失败锁定时间（单位：秒），-1表示不锁定
+  # 建议：1800秒（30分钟）
+  login-fail-lock-seconds: 1800
+
+  # 登录活跃超时配置
+  # 最低活跃时间（单位：秒），超过此时间没有操作系统就会被冻结
+  # 默认-1 代表不限制，永不冻结
+  # 建议：1800秒（30分钟）
+  login-active-timeout-seconds: -1
+
+  # 密码复杂度配置
+  # 密码复杂度是否开启，默认：开启
+  password-complexity-enabled: true
+
+  # 定期修改密码配置
+  # 定期修改密码时间间隔（默认：天），默认：建议90天更换密码
+  regular-change-password-days: 90
+
+  # 定期修改密码不允许相同次数，默认：3次以内密码不能相同
+  regular-change-password-not-allow-repeat-times: 3
+
+  # 文件上传配置
+  # 文件大小限制，单位 MB，(默认：50 MB)
+  max-upload-file-size-mb: 50
+
+  # 文件安全检测
+  # 是否开启文件检测，默认：不开启
+  file-detect-flag: false

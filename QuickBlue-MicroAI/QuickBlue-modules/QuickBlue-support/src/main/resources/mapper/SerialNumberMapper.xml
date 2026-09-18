@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.dao.SerialCodeDao">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.budaos.support.domain.entity.SerialCodeEntity">
+        <id column="serial_number_id" property="serialNumberId" jdbcType="INTEGER"/>
+        <result column="business_name" property="businessName" jdbcType="VARCHAR"/>
+        <result column="format" property="format" jdbcType="VARCHAR"/>
+        <result column="rule_type" property="ruleType" jdbcType="VARCHAR"/>
+        <result column="init_number" property="initNumber" jdbcType="BIGINT"/>
+        <result column="step_random_range" property="stepRandomRange" jdbcType="INTEGER"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="secure_mode" property="secureMode" jdbcType="INTEGER"/>
+        <result column="random_range" property="randomRange" jdbcType="INTEGER"/>
+        <result column="encrypt_key" property="encryptKey" jdbcType="VARCHAR"/>
+        <result column="last_number" property="lastNumber" jdbcType="BIGINT"/>
+        <result column="last_time" property="lastTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        serial_number_id, business_name, format, rule_type, init_number, step_random_range,
+        remark, secure_mode, random_range, encrypt_key, last_number, last_time,
+        update_time, create_time
+    </sql>
+
+    <!-- 排他锁查询 -->
+    <select id="selectForUpdate" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_serial_number
+        WHERE serial_number_id = #{serialNumberId}
+        FOR UPDATE
+    </select>
+
+    <!-- 更新上一次的数值和时间 -->
+    <update id="updateLastNumberAndTime">
+        UPDATE t_serial_number
+        SET last_number = #{lastNumber},
+            last_time = #{lastTime},
+            update_time = NOW()
+        WHERE serial_number_id = #{serialNumberId}
+    </update>
+
+</mapper>

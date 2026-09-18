@@ -1,0 +1,348 @@
+/*
+ *  通用工具样式
+ *
+ * @Author: budaos
+ * @Date: 2022-09-12 14:43:01
+ */
+
+/**********************************  宽度 **********************************/
+.qb-width-100 {
+  width: 100%;
+}
+
+/**********************************  左间距 **********************************/
+.qb-margin-left5 {
+  margin-left: 5px;
+}
+
+.qb-margin-left10 {
+  margin-left: 10px;
+}
+
+.qb-margin-left15 {
+  margin-left: 15px;
+}
+
+.qb-margin-left20 {
+  margin-left: 20px;
+}
+
+/**********************************  右间距 **********************************/
+.qb-margin-right5 {
+  margin-right: 5px;
+}
+
+.qb-margin-right10 {
+  margin-right: 10px;
+}
+
+.qb-margin-right15 {
+  margin-right: 15px;
+}
+
+.qb-margin-right20 {
+  margin-right: 20px;
+}
+
+/******************************** 上间距 ********************************/
+.qb-margin-top5 {
+  margin-top: 5px;
+}
+
+.qb-margin-top10 {
+  margin-top: 10px;
+}
+
+/******************************** 下间距 ********************************/
+.qb-margin-bottom5 {
+  margin-bottom: 5px;
+}
+
+.qb-margin-bottom10 {
+  margin-bottom: 10px;
+}
+/******************************** 查询表格样式 ********************************/
+/* 背景色由 App.vue 中 @color-bg-container 动态绑定（随主题/暗色切换） */
+.qb-query-form {
+  padding: 5px 10px;
+  margin-bottom: 10px;
+}
+
+.qb-table-operate {
+  .ant-btn {
+    padding: 0 3px !important;
+    height: auto;
+  }
+}
+
+.qb-table-column-operate {
+  float: right;
+}
+
+.qb-query-form-row:not(:first-child) {
+  margin-top: 8px;
+}
+
+.qb-query-form-row .qb-query-form-item {
+  margin-right: 8px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.qb-query-table-page {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.qb-table-btn-block {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  .qb-table-operate-block {
+    .ant-btn {
+      margin-right: 12px;
+    }
+  }
+  .qb-table-setting-block {
+    float: right;
+  }
+}
+/********************************** 滚动条优化补充 **********************************/
+/* 查询表单滚动条 */
+.qb-query-form {
+  overflow: auto;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+}
+
+/* 表格操作区域滚动条 */
+.qb-table-operate {
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 4px; /* 为滚动条留出空间 */
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+}
+
+/* 带滚动条的容器类 */
+.qb-scrollable {
+  overflow: auto;
+  scroll-behavior: smooth;
+
+  &-x {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  &-y {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  &-both {
+    overflow: auto;
+  }
+}
+
+/* 平滑滚动区域 */
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/********************************** 表格体验增强 **********************************/
+
+/* 列宽拖拽调整手柄 —— 直接复用表格列间竖线 */
+.column-resize-handle {
+  position: absolute;
+  right: -5px;    /* 跨在 th 右侧边框线上 */
+  top: 0;
+  bottom: 0;
+  width: 10px;    /* 足够宽的点击热区 */
+  cursor: col-resize;
+  z-index: 10;
+
+  /* 无默认视觉元素 —— 用户看到的就是表格原有的列分隔竖线 */
+
+  /* hover 时：在原有竖线位置叠加蓝色高亮，像是竖线本身在响应 */
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: transparent;
+    border-radius: 1px;
+    transition: background-color 0.15s, box-shadow 0.15s;
+  }
+
+  &:hover::after {
+    background: #1890ff;
+    box-shadow: 0 0 3px rgba(24, 144, 255, 0.35);
+  }
+
+  &:active::after {
+    background: #096dd9;
+  }
+}
+
+/* 拖拽列宽时禁止文本选中 */
+body.resizing-column {
+  * {
+    cursor: col-resize !important;
+  }
+}
+
+/* 表格表头增强 */
+.ant-table-thead > tr > th {
+  position: relative;
+  background: #fafafa !important;
+  font-weight: 600;
+  font-size: 13px;
+  color: #262626;
+  padding: 10px 12px !important;
+  border-bottom: 2px solid #e8e8e8 !important;
+  transition: background-color 0.2s;
+
+  &::before {
+    display: none !important; /* 移除 ant-design 默认的 resize 伪元素 */
+  }
+}
+
+/* 排序列高亮 */
+.ant-table-column-sort {
+  background: #f0f5ff !important;
+}
+
+/* 表格行增强 */
+.ant-table-tbody > tr {
+  transition: background-color 0.15s;
+
+  > td {
+    padding: 9px 12px !important;
+    font-size: 13px;
+  }
+
+  &:hover > td {
+    background: #f5f8ff !important;
+  }
+
+  /* 选中行 */
+  &.ant-table-row-selected > td {
+    background: #e6f7ff !important;
+  }
+}
+
+/* 斑马纹增强（配合 qb-table-striped 使用） */
+.ant-table-tbody .qb-table-striped {
+  background-color: #fafafa;
+}
+
+/* 表格卡片内边距优化 */
+.ant-card .ant-table-wrapper {
+  .ant-table {
+    border-radius: 4px;
+    overflow: hidden;
+  }
+}
+
+/* 分页器美化 */
+.qb-query-table-page {
+  .ant-pagination {
+    .ant-pagination-item-active {
+      border-color: #1890ff;
+      background: #1890ff;
+
+      a {
+        color: #fff;
+      }
+    }
+
+    .ant-pagination-item:hover {
+      border-color: #1890ff;
+
+      a {
+        color: #1890ff;
+      }
+    }
+  }
+}
+
+/* 表格操作列按钮间距 */
+.qb-table-operate {
+  .ant-btn-link {
+    min-width: auto;
+    padding: 0 6px !important;
+  }
+}
+
+/* 表格边框颜色柔化 */
+.ant-table-bordered {
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    border-color: #f0f0f0 !important;
+  }
+}
+
+/* 隐藏 ant-design-vue 内部 measure-row（水平滚动/固定表头时插入的列宽测量行）
+   注: ant-design-vue 用 inline style 隐藏 measure-row (height:0, padding:0)，
+   但项目全局样式 .ant-table-tbody > tr > td { padding: 9px 12px !important }
+   会用 !important 强制 td 内边距为 9px 12px（!important 优先级 > inline style），
+   导致 measure-row 在表格里被撑成一条可见的空白行，破坏表头与第一行数据
+   之间的网格线连续性。这里用更具体的选择器覆盖。*/
+.ant-table .ant-table-tbody > tr.ant-table-measure-row {
+  height: 0 !important;
+  line-height: 0 !important;
+  font-size: 0 !important;
+}
+.ant-table .ant-table-tbody > tr.ant-table-measure-row > td {
+  height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  line-height: 0 !important;
+  font-size: 0 !important;
+  background: transparent !important;
+}
+.ant-table .ant-table-tbody > tr.ant-table-measure-row > td > div {
+  height: 0 !important;
+  line-height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+/********************************** 暗色模式适配 **********************************/
+[data-theme="dark"] {
+  .ant-table-thead > tr > th {
+    background: #1d1d1d !important;
+    color: rgba(255, 255, 255, 0.85);
+    border-bottom-color: #303030 !important;
+  }
+
+  .ant-table-tbody > tr {
+    &:hover > td {
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    &.ant-table-row-selected > td {
+      background: rgba(24, 144, 255, 0.2) !important;
+    }
+  }
+
+  .ant-table-tbody .qb-table-striped {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+
+  .ant-table-column-sort {
+    background: rgba(24, 144, 255, 0.14) !important;
+  }
+}

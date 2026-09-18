@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.dao.AttachmentDao">
+
+    <!-- 分页查询 -->
+    <select id="queryPage" resultType="com.budaos.support.domain.vo.AttachmentVO">
+        SELECT
+        *
+        FROM t_file
+        <where>
+            <!--文件夹类型-->
+            <if test="queryForm.folderType != null">
+                AND t_file.folder_type = #{queryForm.folderType}
+            </if>
+            <!--文件名词-->
+            <if test="queryForm.fileName != null and queryForm.fileName != ''">
+                AND INSTR(t_file.file_name,#{queryForm.fileName})
+            </if>
+            <!--文件Key-->
+            <if test="queryForm.fileKey != null and queryForm.fileKey != ''">
+                AND INSTR(t_file.file_key,#{queryForm.fileKey})
+            </if>
+            <!--文件类型-->
+            <if test="queryForm.fileType != null">
+                AND t_file.file_type = #{queryForm.fileType}
+            </if>
+            <!--创建人-->
+            <if test="queryForm.creatorName != null and queryForm.creatorName != ''">
+                AND INSTR(t_file.creator_name,#{queryForm.creatorName})
+            </if>
+            <!--创建时间-->
+            <if test="queryForm.createTimeBegin != null">
+                AND DATE_FORMAT(t_file.create_time, '%Y-%m-%d') &gt;= #{queryForm.createTimeBegin}
+            </if>
+            <if test="queryForm.createTimeEnd != null">
+                AND DATE_FORMAT(t_file.create_time, '%Y-%m-%d') &lt;= #{queryForm.createTimeEnd}
+            </if>
+        </where>
+        <if test="queryForm.sortItemList == null or queryForm.sortItemList.size == 0">
+            ORDER BY t_file.create_time DESC
+        </if>
+    </select>
+
+    <select id="getByFileKey" resultType="com.budaos.support.domain.vo.AttachmentVO">
+        SELECT * FROM t_file where file_key = #{fileKey}
+    </select>
+
+    <select id="selectByFileKeyList" resultType="com.budaos.support.domain.vo.AttachmentVO">
+        select * from t_file where file_key in
+        <foreach collection="fileKeyList" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
+
+    <delete id="deleteByFileKey">
+        DELETE FROM t_file WHERE file_key = #{fileKey}
+    </delete>
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" parameterType="list">
+        INSERT INTO t_file (
+        folder_type,
+        file_name,
+        file_size,
+        file_key,
+        file_type,
+        creator_id,
+        creator_name,
+        creator_user_type,
+        create_time,
+        update_time
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.folderType},
+            #{item.fileName},
+            #{item.fileSize},
+            #{item.fileKey},
+            #{item.fileType},
+            #{item.creatorId},
+            #{item.creatorName},
+            #{item.creatorUserType},
+            #{item.createTime},
+            #{item.updateTime}
+            )
+        </foreach>
+    </insert>
+</mapper>

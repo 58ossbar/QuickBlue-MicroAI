@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.dao.SerialCodeRecordDao">
+
+    <update id="updateRecordWithOriginal">
+        UPDATE t_serial_number_record
+        SET last_number = #{lastNumber},
+            last_time = NOW(),
+            count = count + #{count}
+        WHERE serial_number_id = #{serialNumberId}
+          AND record_date = #{recordDate}
+    </update>
+
+    <update id="updateRecord">
+        UPDATE t_serial_number_record
+        SET last_number = #{lastNumber},
+            last_time = NOW(),
+            count = count + #{count}
+        WHERE serial_number_id = #{serialNumberId}
+          AND record_date = #{recordDate}
+    </update>
+
+
+    <select id="selectRecordIdBySerialNumberIdAndDate" resultType="java.lang.Long">
+        SELECT serial_number_id
+        FROM t_serial_number_record
+        WHERE serial_number_id = #{serialNumberId}
+          AND record_date = #{recordDate}
+        LIMIT 1
+    </select>
+
+    <select id="query"
+            resultType="com.budaos.support.domain.entity.SerialCodeRecordEntity">
+        select * from t_serial_number_record
+        where serial_number_id = #{queryForm.serialNumberId}
+        order by last_time desc
+    </select>
+
+</mapper>

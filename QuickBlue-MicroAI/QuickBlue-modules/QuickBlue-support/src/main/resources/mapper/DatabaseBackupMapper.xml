@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.dao.DatabaseBackupDao">
+    <!-- 分页查询备份记录 -->
+    <select id="queryByPage" resultType="com.budaos.support.domain.entity.DatabaseBackupEntity">
+        SELECT *
+        FROM t_database_backup
+        <where>
+            <if test="query.fileName != null and query.fileName != ''">
+                AND INSTR(file_name,#{query.fileName})
+            </if>
+            <if test="query.backupType != null">
+                AND backup_type = #{query.backupType}
+            </if>
+            <if test="query.backupStatus != null">
+                AND backup_status = #{query.backupStatus}
+            </if>
+            <if test="query.operator != null and query.operator != ''">
+                AND INSTR(operator,#{query.operator})
+            </if>
+            <if test="query.createTimeBefore != null">
+                AND create_time &lt;= #{query.createTimeBefore}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.system.dao.JobPostDao">
+
+    <select id="queryPage" resultType="com.budaos.system.domain.vo.JobPostVO">
+        SELECT *
+        FROM t_position
+        <where>
+            <if test="queryForm.deletedFlag != null">
+                AND deleted_flag = #{queryForm.deletedFlag}
+            </if>
+            <if test="queryForm.positionName != null and queryForm.positionName != ''">
+                AND position_name LIKE CONCAT('%', #{queryForm.positionName}, '%')
+            </if>
+            <if test="queryForm.category != null and queryForm.category != ''">
+                AND category = #{queryForm.category}
+            </if>
+            <if test="queryForm.status != null">
+                AND status = #{queryForm.status}
+            </if>
+            <if test="queryForm.positionLevel != null and queryForm.positionLevel != ''">
+                AND position_level = #{queryForm.positionLevel}
+            </if>
+        </where>
+        ORDER BY sort ASC, position_id ASC
+    </select>
+
+    <select id="queryList" resultType="com.budaos.system.domain.vo.JobPostVO">
+        SELECT *
+        FROM t_position
+        WHERE deleted_flag = #{deletedFlag}
+        ORDER BY sort ASC, position_id ASC
+    </select>
+
+</mapper>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.dao.DataChangeTraceDao">
+
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="com.budaos.support.domain.entity.DataChangeTraceEntity">
+        <id column="data_tracer_id" property="dataTracerId" jdbcType="BIGINT"/>
+        <result column="data_id" property="dataId" jdbcType="BIGINT"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="diff_old" property="diffOld" jdbcType="VARCHAR"/>
+        <result column="diff_new" property="diffNew" jdbcType="VARCHAR"/>
+        <result column="extra_data" property="extraData" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="user_type" property="userType" jdbcType="INTEGER"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="ip" property="ip" jdbcType="VARCHAR"/>
+        <result column="ip_region" property="ipRegion" jdbcType="VARCHAR"/>
+        <result column="user_agent" property="userAgent" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="VOResultMap" type="com.budaos.support.domain.vo.DataChangeTraceVO" extends="BaseResultMap">
+        <result column="type_name" property="typeName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        data_tracer_id, data_id, type, content, diff_old, diff_new, extra_data,
+        user_id, user_type, user_name, ip, ip_region, user_agent, create_time, update_time
+    </sql>
+
+    <!-- 分页查询 -->
+    <select id="query" resultMap="VOResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_data_tracer
+        <where>
+            <if test="query.type != null">
+                AND type = #{query.type}
+            </if>
+            <if test="query.dataId != null">
+                AND data_id = #{query.dataId}
+            </if>
+            <if test="query.keywords != null and query.keywords != ''">
+                AND (content LIKE CONCAT('%', #{query.keywords}, '%')
+                OR user_name LIKE CONCAT('%', #{query.keywords}, '%'))
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 操作记录查询 -->
+    <select id="selectRecord" resultMap="VOResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_data_tracer
+        WHERE data_id = #{dataId}
+        <if test="dataType != null">
+            AND type = #{dataType}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

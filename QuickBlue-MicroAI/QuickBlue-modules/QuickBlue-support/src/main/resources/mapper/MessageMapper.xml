@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.dao.NotificationDao">
+
+    <!-- 分页查询消息 -->
+    <select id="query" resultType="com.budaos.support.domain.vo.NotificationVO">
+        SELECT
+            message_id,
+            message_type,
+            receiver_user_type,
+            receiver_user_id,
+            data_id,
+            title,
+            content,
+            read_flag,
+            read_time,
+            create_time
+        FROM t_message
+        <where>
+            <if test="query.searchWord != null and query.searchWord != ''">
+                AND (INSTR(title, #{query.searchWord}) OR INSTR(content, #{query.searchWord}))
+            </if>
+            <if test="query.messageType != null">
+                AND message_type = #{query.messageType}
+            </if>
+            <if test="query.readFlag != null">
+                AND read_flag = #{query.readFlag}
+            </if>
+            <if test="query.receiverUserId != null">
+                AND receiver_user_id = #{query.receiverUserId}
+            </if>
+            <if test="query.receiverUserType != null">
+                AND receiver_user_type = #{query.receiverUserType}
+            </if>
+            <if test="query.startDate != null">
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') >= #{query.startDate}
+            </if>
+            <if test="query.endDate != null">
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{query.endDate}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 更新已读状态 -->
+    <update id="updateReadFlag">
+        UPDATE t_message
+        SET
+            read_flag = #{readFlag},
+            read_time = NOW()
+        WHERE message_id = #{messageId}
+          AND receiver_user_type = #{receiverUserType}
+          AND receiver_user_id = #{receiverUserId}
+    </update>
+
+    <!-- 查询未读消息数 -->
+    <select id="getUnreadCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM t_message
+        WHERE read_flag = 0
+          AND receiver_user_type = #{receiverUserType}
+          AND receiver_user_id = #{receiverUserId}
+    </select>
+
+</mapper>

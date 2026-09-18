@@ -1,0 +1,172 @@
+# Gateway 网关服务配置
+spring:
+  application:
+    name: QuickBlue-gateway
+  cloud:
+    nacos:
+      discovery:
+        metadata:
+          version: 4.0.0
+          environment: dev
+          service-type: gateway
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        # 静态资源路由（优先级最高）
+        - id: static-resources
+          uri: classpath:/static/
+          predicates:
+            - Path=/*.html,/favicon.ico,/css/**,/js/**,/images/**
+          filters:
+            - PreserveHostHeader
+          order: -1
+        # System Service - Login routes
+        - id: QuickBlue-system-login
+          uri: lb://QuickBlue-system
+          predicates:
+            - Path=/api/login/**
+          filters:
+            - StripPrefix=1
+        # System Service
+        - id: QuickBlue-system
+          uri: lb://QuickBlue-system
+          predicates:
+            - Path=/api/system/**
+          filters:
+            - StripPrefix=2
+        # Business Service
+        - id: QuickBlue-business
+          uri: lb://QuickBlue-business
+          predicates:
+            - Path=/api/business/**
+          filters:
+            - StripPrefix=2
+        # Business Service - OA
+        - id: QuickBlue-business-oa
+          uri: lb://QuickBlue-business
+          predicates:
+            - Path=/api/oa/**
+          filters:
+            - StripPrefix=2
+        # AI Service
+        - id: QuickBlue-ai
+          uri: lb://QuickBlue-ai
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - RewritePath=/api/ai/(?<segment>.*), /ai/${segment}
+        # Support Service (通用路由放在最后)
+        - id: QuickBlue-support
+          uri: lb://QuickBlue-support
+          predicates:
+            - Path=/api/support/**
+          filters:
+            - StripPrefix=2
+        # System Service 完整文档路由（优先级低，不能拦截 Knife4j 路由）
+        - id: doc-system-full
+          uri: lb://QuickBlue-system
+          predicates:
+            - Path=/QuickBlue-system/doc.html,/QuickBlue-system/v3/api-docs/**
+          filters:
+            - RewritePath=/QuickBlue-system/?(?<segment>.*), /${segment}
+          order: 100
+        # Business Service 完整文档路由
+        - id: doc-business-full
+          uri: lb://QuickBlue-business
+          predicates:
+            - Path=/QuickBlue-business/doc.html,/QuickBlue-business/v3/api-docs/**
+          filters:
+            - RewritePath=/QuickBlue-business/?(?<segment>.*), /${segment}
+          order: 100
+        # Support Service 完整文档路由
+        - id: doc-support-full
+          uri: lb://QuickBlue-support
+          predicates:
+            - Path=/QuickBlue-support/doc.html,/QuickBlue-support/v3/api-docs/**
+          filters:
+            - RewritePath=/QuickBlue-support/?(?<segment>.*), /${segment}
+          order: 100
+        # AI Service 完整文档路由
+        - id: doc-ai-full
+          uri: lb://QuickBlue-ai
+          predicates:
+            - Path=/QuickBlue-ai/doc.html,/QuickBlue-ai/v3/api-docs/**
+          filters:
+            - RewritePath=/QuickBlue-ai/?(?<segment>.*), /${segment}
+          order: 100
+
+server:
+  port: 8080
+
+# 网关自定义配置
+gateway:
+  custom:
+    whitelist:
+      - /login
+      - /login/**
+      - /api/login/**
+      - /captcha
+      - /api/captcha
+      - /favicon.ico
+      - /api/support/files/**
+      - /api/support/public/**
+      - /api/support/job/**
+      # AI服务白名单
+      - /api/ai/public/**
+      # Knife4j API 文档白名单
+      - /doc.html
+      - /swagger-resources/**
+      - /v3/api-docs
+      - /v3/api-docs/**
+      - /v3/api-docs/default
+      - /webjars/**
+      - /swagger-ui/**
+      - /swagger-ui.html
+      - /QuickBlue-*/v3/api-docs/**
+      - /QuickBlue-*/v3/api-docs/default
+      - /api-docs
+      - /swagger-resources
+
+# Knife4j Gateway 聚合配置
+knife4j:
+  gateway:
+    enabled: true
+    # 排序规则
+    tags-sorter: order
+    operations-sorter: order
+    # 指定服务发现的模式聚合微服务文档
+    strategy: discover
+    # 服务发现模式的配置
+    discover:
+      enabled: true
+      # 指定版本号 (swagger2|openapi3)
+      version: openapi3
+      # 需要排除的微服务 (网关服务)
+      excluded-services:
+        - QuickBlue-gateway
+      # OpenAPI3 个性化配置
+      oas3:
+        url: /v3/api-docs?group=default
+        oauth2-redirect-url: ''
+        validator-url: ''
+      # 各个服务的个性化配置
+      service-config:
+        QuickBlue-system:
+          order: 1
+          group-name: 系统服务
+          context-path: /
+        QuickBlue-business:
+          order: 2
+          group-name: 业务服务
+          context-path: /
+        QuickBlue-support:
+          order: 3
+          group-name: 支撑服务
+          context-path: /
+        QuickBlue-ai:
+          order: 4
+          group-name: AI服务
+          context-path: /

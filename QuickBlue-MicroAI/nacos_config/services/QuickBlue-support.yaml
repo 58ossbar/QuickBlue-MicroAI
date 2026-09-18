@@ -1,0 +1,55 @@
+# Support 服务配置
+
+spring:
+  application:
+    name: QuickBlue-support
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/quickblue_support?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:budaos}
+  cache:
+    type: caffeine
+  cloud:
+    nacos:
+      discovery:
+        metadata:
+          version: 4.0.0
+          environment: dev
+      config:
+        shared-configs:
+          - data-id: level3-protect-common.yaml
+            group: QuickBlue_GROUP
+            refresh: true
+
+server:
+  port: 8083
+
+feign:
+  httpclient:
+    enabled: false
+  okhttp:
+    enabled: true
+  client:
+    config:
+      default:
+        connect-timeout: 10000
+        read-timeout: 30000
+        logger-level: basic
+  compression:
+    request:
+      enabled: true
+      mime-types: application/json,application/xml,text/plain
+      min-request-size: 1024
+    response:
+      enabled: true
+      mime-types: application/json,application/xml
+
+support:
+  config:
+    file-upload-max-size: 100MB
+    allowed-file-types: jpg,jpeg,png,gif,pdf,doc,docx,xls,xlsx
+
+logging:
+  level:
+    feign: INFO
+    okhttp3: INFO

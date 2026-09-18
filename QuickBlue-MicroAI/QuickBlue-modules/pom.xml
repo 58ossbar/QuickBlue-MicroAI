@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.budaos</groupId>
+        <artifactId>QuickBlue-MicroAI</artifactId>
+        <version>4.0.0</version>
+    </parent>
+
+    <artifactId>QuickBlue-modules</artifactId>
+    <packaging>pom</packaging>
+
+    <name>QuickBlue Modules</name>
+    <description>QuickBlue 业务服务模块</description>
+
+    <modules>
+        <module>QuickBlue-system</module>
+        <module>QuickBlue-business</module>
+        <module>QuickBlue-support</module>
+        <module>QuickBlue-ai</module>
+    </modules>
+</project>

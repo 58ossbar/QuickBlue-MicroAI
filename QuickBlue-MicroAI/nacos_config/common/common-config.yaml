@@ -1,0 +1,75 @@
+# Knife4j/Swagger 配置
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+    swagger-model-name: 实体类列表
+  production: false
+  basic:
+    enable: false
+    username: admin
+    password: 123456
+  # Gateway 聚合配置（简化版）
+  gateway:
+    enabled: true
+    strategy: discover
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+# 文件上传配置
+file:
+  storage:
+    mode: local
+    local:
+      upload-path: ./uploads
+      url-prefix: http://localhost:8080/api/support/public
+    cloud:
+      region: oss-cn-hangzhou
+      endpoint: oss-cn-hangzhou.aliyuncs.com
+      bucket-name: QuickBlue-files
+      url-prefix: https://QuickBlue-files.oss-cn-hangzhou.aliyuncs.com/
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.budaos: DEBUG
+    com.baomidou.mybatisplus: DEBUG
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n'
+
+# Actuator 监控端点配置 (供 Spring Boot Admin 采集)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env,loggers
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+# Spring Boot Admin 客户端配置
+spring:
+  boot:
+    admin:
+      client:
+        enabled: true
+        url: ${SPRING_BOOT_ADMIN_URL:http://localhost:9090}
+        instance:
+          prefer-ip: true
+          service-url: http://${spring.cloud.client.ip-address}:${server.port}

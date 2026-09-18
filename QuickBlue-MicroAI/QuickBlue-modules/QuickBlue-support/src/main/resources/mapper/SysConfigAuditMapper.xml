@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.nacos.dao.SysConfigAuditDao">
+
+    <resultMap id="BaseResultMap" type="com.budaos.support.nacos.domain.entity.SysConfigAuditEntity">
+        <id column="audit_id" property="auditId"/>
+        <result column="data_id" property="dataId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="config_name" property="configName"/>
+        <result column="old_content" property="oldContent"/>
+        <result column="new_content" property="newContent"/>
+        <result column="op_type" property="opType"/>
+        <result column="operator_id" property="operatorId"/>
+        <result column="operator_name" property="operatorName"/>
+        <result column="operator_ip" property="operatorIp"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        audit_id, data_id, group_id, tenant_id, config_name, old_content, new_content,
+        op_type, operator_id, operator_name, operator_ip, remark, create_time
+    </sql>
+
+    <select id="queryByPage" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM t_sys_config_audit
+        <where>
+            <if test="query.dataId != null and query.dataId != ''">
+                AND data_id LIKE CONCAT('%', #{query.dataId}, '%')
+            </if>
+            <if test="query.groupId != null and query.groupId != ''">
+                AND group_id = #{query.groupId}
+            </if>
+            <if test="query.tenantId != null and query.tenantId != ''">
+                AND tenant_id = #{query.tenantId}
+            </if>
+            <if test="query.opType != null and query.opType != ''">
+                AND op_type = #{query.opType}
+            </if>
+            <if test="query.operatorName != null and query.operatorName != ''">
+                AND operator_name LIKE CONCAT('%', #{query.operatorName}, '%')
+            </if>
+            <if test="query.startTime != null">
+                AND create_time >= #{query.startTime}
+            </if>
+            <if test="query.endTime != null">
+                AND create_time &lt;= #{query.endTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

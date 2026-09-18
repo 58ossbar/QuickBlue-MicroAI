@@ -1,0 +1,55 @@
+server:
+  port: 9090
+  error:
+    include-message: never
+
+spring:
+  application:
+    name: QuickBlue-admin
+  profiles:
+    active: dev
+  config:
+    import: optional:nacos
+  # Admin Server 配置
+  boot:
+    admin:
+      # Admin Server UI 配置
+      ui:
+        title: "QuickBlue 服务监控中心"
+        brand: "<img src=\"assets/img/icon-spring-boot-admin.svg\"><span>QuickBlue Admin</span>"
+      # 服务发现配置 (通过 Nacos 自动发现服务)
+      discovery:
+        enabled: true
+      # 监控配置
+      monitor:
+        default-timeout: 10000
+        read-timeout: 10000
+        status-interval: 10000
+      # 通知配置 (可按需开启)
+      notify:
+        mail:
+          enabled: false
+
+# Admin 安全配置 (内网环境可关闭认证以便 iframe 嵌入)
+admin:
+  security:
+    enabled: false  # 设为 true 启用登录认证
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    de.codecentric.boot.admin: DEBUG
+    # 忽略客户端断开连接的警告
+    org.apache.catalina.connector: WARN
+    org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver: WARN
+
+# 管理端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

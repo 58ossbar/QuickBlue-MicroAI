@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: QuickBlue-system
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  config:
+    import:
+      # 本地开发：自动加载项目根目录 .env（兼容从模块目录/根目录启动）
+      - optional:file:./.env[.properties]
+      - optional:file:../.env[.properties]
+      - optional:file:../../.env[.properties]
+      # Nacos 配置中心
+      - optional:nacos
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        namespace: ${NACOS_NAMESPACE:QuickBlue-dev}
+        group: ${NACOS_GROUP:QuickBlue_GROUP}
+        service: ${spring.application.name}
+        metadata:
+          version: 4.0.0
+          environment: ${SPRING_PROFILES_ACTIVE:dev}
+        port: 8081
+        naming-load-cache-at-start: true
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:Nq963369!@}
+      config:
+        server-addr: ${NACOS_SERVER_ADDR:localhost:8848}
+        namespace: ${NACOS_NAMESPACE:QuickBlue-dev}
+        group: ${NACOS_GROUP:QuickBlue_GROUP}
+        file-extension: yaml
+        name: ${spring.application.name}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:Nq963369!@}
+        shared-configs:
+          - data-id: common-config.yaml
+            group: ${NACOS_GROUP:QuickBlue_GROUP}
+            refresh: true
+          - data-id: mysql-common.yaml
+            group: ${NACOS_GROUP:QuickBlue_GROUP}
+            refresh: true
+          - data-id: redis-common.yaml
+            group: ${NACOS_GROUP:QuickBlue_GROUP}
+            refresh: true
+          - data-id: sa-token-common.yaml
+            group: ${NACOS_GROUP:QuickBlue_GROUP}
+            refresh: true
+          - data-id: level3-protect-common.yaml
+            group: ${NACOS_GROUP:QuickBlue_GROUP}
+            refresh: true

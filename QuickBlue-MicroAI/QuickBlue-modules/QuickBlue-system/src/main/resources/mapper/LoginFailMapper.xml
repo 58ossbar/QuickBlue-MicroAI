@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.system.dao.LoginAttemptDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.budaos.system.domain.entity.LoginAttemptEntity">
+        <id column="login_fail_id" property="loginFailId" />
+        <result column="user_id" property="userId" />
+        <result column="user_type" property="userType" />
+        <result column="login_name" property="loginName" />
+        <result column="lock_flag" property="lockFlag" />
+        <result column="login_fail_count" property="loginFailCount" />
+        <result column="login_lock_begin_time" property="loginLockBeginTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        login_fail_id, user_id, user_type, login_name, lock_flag, login_fail_count, login_lock_begin_time, update_time, create_time
+    </sql>
+
+    <!-- 分页查询 -->
+    <select id="queryPage" resultType="com.budaos.system.domain.vo.LoginAttemptVO">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_login_fail
+        <where>
+            <if test="queryForm.loginName != null and queryForm.loginName != ''">
+                AND INSTR(login_name, #{queryForm.loginName})
+            </if>
+            <if test="queryForm.lockFlag != null">
+                AND lock_flag = #{queryForm.lockFlag}
+            </if>
+            <if test="queryForm.loginLockBeginTimeBegin != null">
+                AND DATE_FORMAT(login_lock_begin_time, '%Y-%m-%d') &gt;= #{queryForm.loginLockBeginTimeBegin}
+            </if>
+            <if test="queryForm.loginLockBeginTimeEnd != null">
+                AND DATE_FORMAT(login_lock_begin_time, '%Y-%m-%d') &lt;= #{queryForm.loginLockBeginTimeEnd}
+            </if>
+        </where>
+        ORDER BY update_time DESC
+    </select>
+
+    <!-- 根据用户ID和用户类型查询 -->
+    <select id="selectByUserIdAndUserType" resultType="com.budaos.system.domain.entity.LoginAttemptEntity">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_login_fail
+        WHERE user_id = #{userId}
+        AND user_type = #{userType}
+    </select>
+
+    <!-- 根据用户ID和用户类型删除 -->
+    <delete id="deleteByUserIdAndUserType">
+        DELETE FROM t_login_fail
+        WHERE user_id = #{userId}
+        AND user_type = #{userType}
+    </delete>
+
+</mapper>

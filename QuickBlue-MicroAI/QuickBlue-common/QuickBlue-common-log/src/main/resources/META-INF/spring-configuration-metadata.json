@@ -1,0 +1,33 @@
+{
+  "groups": [
+    {
+      "name": "operate-log",
+      "type": "com.budaos.common.log.config.OperateLogProperties",
+      "sourceType": "com.budaos.common.log.config.OperateLogProperties",
+      "description": "操作日志配置属性"
+    }
+  ],
+  "properties": [
+    {
+      "name": "operate-log.enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "是否启用操作日志功能"
+    },
+    {
+      "name": "operate-log.thread-pool.core-size",
+      "type": "java.lang.Integer",
+      "description": "日志线程池核心线程数"
+    },
+    {
+      "name": "operate-log.thread-pool.max-size",
+      "type": "java.lang.Integer",
+      "description": "日志线程池最大线程数"
+    },
+    {
+      "name": "operate-log.thread-pool.queue-capacity",
+      "type": "java.lang.Integer",
+      "description": "日志线程池队列容量"
+    }
+  ]
+}

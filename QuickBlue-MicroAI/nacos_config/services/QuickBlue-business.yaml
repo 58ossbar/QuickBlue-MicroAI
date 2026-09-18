@@ -1,0 +1,68 @@
+# Business 服务配置
+
+spring:
+  application:
+    name: QuickBlue-business
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/quickblue_business?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:budaos}
+  cache:
+    type: caffeine
+  cloud:
+    nacos:
+      discovery:
+        metadata:
+          version: 4.0.0
+          environment: dev
+    loadbalancer:
+      enabled: true
+      cache:
+        ttl: 35
+      retry:
+        enabled: true
+        max-retries-on-same-service-instance: 0
+        max-retries-on-next-service-instance: 1
+        retryable-status-codes: 503, 504
+
+server:
+  port: 8082
+
+feign:
+  httpclient:
+    enabled: false
+  okhttp:
+    enabled: true
+  client:
+    config:
+      default:
+        connect-timeout: 10000
+        read-timeout: 30000
+        logger-level: basic
+      QuickBlue-system:
+        connect-timeout: 5000
+        read-timeout: 10000
+      QuickBlue-support:
+        connect-timeout: 5000
+        read-timeout: 10000
+      QuickBlue-ai:
+        connect-timeout: 30000
+        read-timeout: 120000
+  compression:
+    request:
+      enabled: true
+      mime-types: application/json,application/xml,text/plain
+      min-request-size: 1024
+    response:
+      enabled: true
+      mime-types: application/json,application/xml
+
+business:
+  config:
+    default-page-size: 10
+    max-page-size: 100
+
+logging:
+  level:
+    feign: INFO
+    okhttp3: INFO

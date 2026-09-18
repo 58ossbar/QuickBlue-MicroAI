@@ -1,0 +1,105 @@
+// 全局卡片样式 - 现代化设计
+.ant-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(24, 144, 255, 0.2);
+  }
+}
+
+// 现代化图表卡片
+.chart-card {
+  .ant-card-head {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+    padding: 0 20px !important;
+    min-height: 56px !important;
+  }
+
+  .ant-card-body {
+    padding: 20px !important;
+  }
+}
+
+// 关键指标卡片
+.metric-card {
+  height: 100%;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+
+  &.primary {
+    border-left: 4px solid #1890ff;
+  }
+
+  &.success {
+    border-left: 4px solid #52c41a;
+  }
+
+  &.warning {
+    border-left: 4px solid #faad14;
+  }
+
+  &.info {
+    border-left: 4px solid #13c2c2;
+  }
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .metric-content {
+    padding: 16px;
+  }
+}
+
+// 排名卡片
+.ranking-card {
+  .ant-table {
+    font-size: 13px;
+
+    .ant-table-thead > tr > th {
+      background: #fafafa;
+      font-weight: 600;
+      padding: 12px 16px;
+    }
+
+    .ant-table-tbody > tr > td {
+      padding: 16px;
+    }
+  }
+}
+
+// 工具类
+.text-gradient {
+  background: linear-gradient(135deg, #1890ff, #13c2c2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.shadow-soft {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-medium {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .ant-card {
+    border-radius: 12px;
+  }
+
+  .metric-card {
+    padding: 12px;
+  }
+}

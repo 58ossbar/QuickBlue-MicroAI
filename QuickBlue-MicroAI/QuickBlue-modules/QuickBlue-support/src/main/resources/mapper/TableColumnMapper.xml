@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.dao.ColumnSettingDao">
+    <delete id="deleteTableColumn">
+        delete
+        from t_table_column
+        where user_id = #{userId}
+          and user_type = #{userType}
+          and table_id = #{tableId}
+    </delete>
+    <select id="selectByUserIdAndTableId"
+            resultType="com.budaos.support.domain.entity.ColumnSettingEntity">
+        select *
+        from t_table_column
+        where user_id = #{userId}
+          and user_type = #{userType}
+          and table_id = #{tableId}
+    </select>
+
+</mapper>

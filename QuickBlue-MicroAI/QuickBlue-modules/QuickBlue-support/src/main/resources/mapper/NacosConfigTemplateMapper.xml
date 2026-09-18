@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.nacos.dao.NacosConfigTemplateDao">
+
+    <!-- 分页查询配置模板 -->
+    <select id="queryByPage" resultType="com.budaos.support.nacos.domain.entity.NacosConfigTemplateEntity">
+        SELECT
+            template_id,
+            template_name,
+            template_code,
+            data_id,
+            group_id,
+            content,
+            type,
+            database_type,
+            description,
+            create_user_id,
+            create_user_name,
+            update_time,
+            create_time
+        FROM t_nacos_config_template
+        <where>
+            <if test="query.templateName != null and query.templateName != ''">
+                AND template_name LIKE CONCAT('%', #{query.templateName}, '%')
+            </if>
+            <if test="query.templateCode != null and query.templateCode != ''">
+                AND template_code LIKE CONCAT('%', #{query.templateCode}, '%')
+            </if>
+            <if test="query.type != null and query.type != ''">
+                AND type = #{query.type}
+            </if>
+            <if test="query.databaseType != null and query.databaseType != ''">
+                AND database_type = #{query.databaseType}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 根据模板编码查询 -->
+    <select id="selectByTemplateCode" resultType="com.budaos.support.nacos.domain.entity.NacosConfigTemplateEntity">
+        SELECT
+            template_id,
+            template_name,
+            template_code,
+            data_id,
+            group_id,
+            content,
+            type,
+            database_type,
+            description,
+            create_user_id,
+            create_user_name,
+            update_time,
+            create_time
+        FROM t_nacos_config_template
+        WHERE template_code = #{templateCode}
+        LIMIT 1
+    </select>
+
+    <!-- 根据数据库类型查询模板列表 -->
+    <select id="selectByDatabaseType" resultType="com.budaos.support.nacos.domain.entity.NacosConfigTemplateEntity">
+        SELECT
+            template_id,
+            template_name,
+            template_code,
+            data_id,
+            group_id,
+            content,
+            type,
+            database_type,
+            description,
+            create_user_id,
+            create_user_name,
+            update_time,
+            create_time
+        FROM t_nacos_config_template
+        WHERE database_type = #{databaseType}
+        ORDER BY create_time ASC
+    </select>
+
+    <!-- 根据数据库类型和模板编码查询 -->
+    <select id="selectByDatabaseTypeAndCode" resultType="com.budaos.support.nacos.domain.entity.NacosConfigTemplateEntity">
+        SELECT
+            template_id,
+            template_name,
+            template_code,
+            data_id,
+            group_id,
+            content,
+            type,
+            database_type,
+            description,
+            create_user_id,
+            create_user_name,
+            update_time,
+            create_time
+        FROM t_nacos_config_template
+        WHERE database_type = #{databaseType}
+          AND template_code = #{templateCode}
+        LIMIT 1
+    </select>
+
+</mapper>

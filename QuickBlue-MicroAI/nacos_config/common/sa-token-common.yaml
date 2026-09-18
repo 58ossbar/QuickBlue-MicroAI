@@ -1,0 +1,19 @@
+# Sa-Token 配置
+sa-token:
+  token-name: Authorization
+  timeout: 2592000
+  active-timeout: 1800
+  is-concurrent: true
+  is-share: false
+  token-style: uuid
+  is-log: false
+  is-read-cookie: false
+  is-read-header: true
+  token-prefix: Bearer
+  is-print: false
+  jwt-secret-key: abcdefghijklmnopqrstuvwxyz12345678901234567890
+  # 禁用Sa-Token自动配置的拦截器，使用自定义的SaTokenConfig
+  check-login-servlet-url: ""
+
+# Sa-Token 整合 Redis
+sa-token-dao: spring-redis

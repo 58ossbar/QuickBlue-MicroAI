@@ -1,0 +1,76 @@
+# AI 服务配置
+
+spring:
+  application:
+    name: QuickBlue-ai
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/quickblue_ai?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:budaos}
+  cache:
+    type: caffeine
+  cloud:
+    nacos:
+      discovery:
+        metadata:
+          version: 4.0.0
+          environment: dev
+          service-type: ai
+      config:
+        shared-configs:
+          - data-id: level3-protect-common.yaml
+            group: QuickBlue_GROUP
+            refresh: true
+
+server:
+  port: 8084
+
+feign:
+  httpclient:
+    enabled: false
+  okhttp:
+    enabled: true
+  client:
+    config:
+      default:
+        connect-timeout: 30000
+        read-timeout: 120000
+        logger-level: basic
+  compression:
+    request:
+      enabled: true
+      mime-types: application/json,application/xml,text/plain
+      min-request-size: 1024
+    response:
+      enabled: true
+      mime-types: application/json,application/xml
+
+ai:
+  rag:
+    embed-store:
+      # 注意：如果使用MySQL作为主数据库，向量存储仍需使用PostgreSQL + pgvector扩展
+      # 请单独安装PostgreSQL并配置pgvector扩展
+      host: ${PGVECTOR_HOST:localhost}
+      port: ${PGVECTOR_PORT:5432}
+      database: ${PGVECTOR_DB:quickblue_ai}
+      user: ${PGVECTOR_USER:postgres}
+      password: ${PGVECTOR_PASSWORD:your_password}
+      table: embeddings
+    allow-sensitive-nodes: ""
+  chat:
+    default-model-id: "1"
+    default-history-limit: 10
+    default-system-prompt: |
+      你是一个由QuickBlue开发的智能AI助手。你擅长中英文对话，能够理解并处理各种问题，提供安全、有帮助、准确的回答。
+      请根据用户的提问，提供专业、准确的回复。
+    sse-timeout: 1800000
+    max-concurrent-chats: 100
+
+spring.servlet.multipart:
+  max-file-size: 100MB
+  max-request-size: 100MB
+
+logging:
+  level:
+    feign: INFO
+    okhttp3: INFO

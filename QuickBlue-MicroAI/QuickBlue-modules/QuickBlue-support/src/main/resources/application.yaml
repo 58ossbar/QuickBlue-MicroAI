@@ -1,0 +1,187 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: QuickBlue-support
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  config:
+    import:
+      - optional:nacos
+      - optional:classpath:satoken-redis.yaml  # Sa-Token 独立 Redis 配置
+  main:
+    allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/quickblue_support?autoReconnect=true&useServerPreparedStmts=false&rewriteBatchedStatements=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:budaos}
+    druid:
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      filters: stat,wall
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:budaos}
+      database: ${REDIS_DATABASE:1}  # 业务数据使用数据库 1
+      timeout: 10s
+      lettuce:
+        pool:
+          min-idle: 5
+          max-idle: 10
+          max-active: 20
+          max-wait: -1ms
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600s
+      cache-null-values: false
+      use-key-prefix: true
+      key-prefix: "QuickBlue:"
+
+# MyBatis Plus 配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deletedFlag
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# Sa-Token 配置
+sa-token:
+  token-name: Authorization
+  timeout: 2592000
+  active-timeout: 1800
+  is-concurrent: true
+  is-share: false
+  token-style: uuid
+  is-log: false
+  is-read-cookie: false
+  is-read-header: true
+  token-prefix: Bearer
+  is-print: false
+  jwt-secret-key: abcdefghijklmnopqrstuvwxyz12345678901234567890
+  # 禁用Sa-Token自动配置的拦截器，使用自定义的SaTokenConfig
+  check-login-servlet-url: ""
+
+# Sa-Token 整合 Redis
+sa-token-dao: spring-redis
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.budaos: DEBUG
+    com.baomidou.mybatisplus: DEBUG
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n'
+
+# 文件上传配置
+file:
+  storage:
+    mode: local  # 存储模式: local(本地存储) 或 cloud(云存储)
+    local:
+      upload-path: ./uploads  # 本地文件上传目录
+      url-prefix: http://localhost:8080/api/support/public  # 本地文件访问前缀（通过网关访问静态资源）
+    cloud:
+      region: oss-cn-hangzhou  # 云存储区域
+      endpoint: oss-cn-hangzhou.aliyuncs.com  # 云存储端点
+      bucket-name: QuickBlue-files  # 存储桶名称
+      access-key:  # 云存储访问密钥
+      secret-key:  # 云存储密钥
+      url-prefix: https://${file.storage.cloud.bucket-name}.${file.storage.cloud.endpoint}/  # 云存储访问前缀
+      private-url-expire-seconds: 3600  # 私有文件URL过期时间(秒)
+
+# 管理端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# Redisson 配置
+redisson:
+  address: redis://${REDIS_HOST:localhost}:${REDIS_PORT:6379}
+  password: ${REDIS_PASSWORD:budaos}
+  database: ${REDIS_DATABASE:1}
+  connection-pool-size: 10
+  connection-minimum-idle-size: 5
+  idle-connection-timeout: 10000
+  connect-timeout: 10000
+  timeout: 3000
+  retry-attempts: 3
+  retry-interval: 1500
+
+# 定时任务配置
+quickblue:
+  job:
+    enabled: true  # 暂时禁用，因为 cron 解析有误
+    core-pool-size: 5
+    init-delay: 60
+    db-refresh-enabled: true
+    db-refresh-interval: 600
+
+# 操作日志配置
+operate-log:
+  enabled: true
+
+# 数据库备份配置
+backup:
+  path: ./backups  # 数据库备份文件存储路径
+
+# Knife4j 配置
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+    swagger-model-name: 实体类列表
+  production: false
+  basic:
+    enable: false
+    username: admin
+    password: 123456
+  # 分组配置
+  group:
+    default:
+      group-name: default
+      api-rule: package
+      api-rule-resources:
+        - com.budaos.support.controller
+        - com.budaos.support.jobtask.controller
+
+# SpringDoc 配置
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  server:
+    url: /QuickBlue-support
+    description: Gateway API Server

@@ -1,147 +1,205 @@
-# BudaOS Monolith
+<p align="center">
+  <a href="https://www.creatorblue.com">
+    <img src="https://www.creatorblue.com/favicon.ico" width="70" alt="QuickBlue" />
+  </a>
+</p>
 
-<div align="center">
+<h1 align="center">⚡ QuickBlue · 原生 AI 微服务快速开发平台</h1>
 
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Java](https://img.shields.io/badge/Java-1.8+-green.svg)](https://adoptium.net/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7.18-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)](https://www.mysql.com/)
+<p align="center">
+  <strong>JDK 21 · Spring Cloud 2025 · Vite 8 —— 从 0 到 1 搭建企业级 AI 微服务平台</strong>
+  <br/>
+  开箱即用 · 前后端分离 · AI 原生 · 面向生产
+</p>
 
-**BudaOS Monolith** 是一款专为企业内训和中小型教育培训机构打造的在线学习管理平台（LMS）开源解决方案。采用经典三层架构设计，100% 源代码开放，支持快速部署、灵活定制和深度二次开发。
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white" alt="Java 21"/>
+  <img src="https://img.shields.io/badge/Spring%20Boot-3.5.10-6DB33F?logo=springboot" alt="Spring Boot 3.5.10"/>
+  <img src="https://img.shields.io/badge/Spring%20Cloud-2025.0.1-6DB33F?logo=spring" alt="Spring Cloud 2025.0.1"/>
+  <img src="https://img.shields.io/badge/Spring%20Cloud%20Alibaba-2025.0.0.0-FF6A00" alt="Spring Cloud Alibaba"/>
+  <img src="https://img.shields.io/badge/Nacos-2.4.3-4E9A51" alt="Nacos 2.4.3"/>
+  <img src="https://img.shields.io/badge/Vue-3.5-42B883?logo=vuedotjs" alt="Vue 3.5"/>
+  <img src="https://img.shields.io/badge/Vite-8.2-646CFF?logo=vite" alt="Vite 8"/>
+  <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql" alt="MySQL 8.0"/>
+  <img src="https://img.shields.io/badge/Node.js-24+-339933?logo=nodedotjs" alt="Node.js 24+"/>
+  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License MIT"/>
+</p>
 
-*企业内训首选 | 教培机构利器 | 源码二开无忧*
-
-[![微服务版](https://img.shields.io/badge/-%E5%95%86%E4%B8%9A%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%89%88-FF6B35?style=flat-square)](https://www.budaos.com)
-[![支持我们](https://img.shields.io/badge/-%E6%94%AF%E6%8C%81%E6%88%91%E4%BB%AC-%23FFDD00?style=flat-square)](#支持我们)
-
-</div>
+<p align="center">
+  <a href="https://www.creatorblue.com">🌐 官网</a>
+  &nbsp;|&nbsp;
+  <a href="http://ide.budaos.com">🚀 在线体验</a>
+  &nbsp;|&nbsp;
+  <a href="#快速开始">📖 快速开始</a>
+  &nbsp;|&nbsp;
+  <a href="#系统架构">🏗 系统架构</a>
+  &nbsp;|&nbsp;
+  <a href="#功能模块">🧩 功能模块</a>
+</p>
 
 ---
 
-## 系统预览
+## 🚀 立即在线体验
 
-深入了解 BudaOS 学习平台的完整功能与优雅界面：
+**无需部署，1 分钟上手**，点开即用：
 
-### 管理后台
-<img src="doc/1.png" width="800" alt="管理后台"/>
-*教务管理、用户管理、数据统计*
+| 项 | 内容 |
+| --- | --- |
+| 🌐 体验地址 | **http://ide.budaos.com** |
+| 👤 体验账号 | `admin` |
+| 🔑 体验密码 | `nq963369#` |
 
-### 学习门户
-<img src="doc/2.png" width="800" alt="学习门户"/>
-*课程学习、作业考试、社区互动*
+> 体验环境包含完整功能：系统管理、RBAC 权限、服务监控大盘、AI 模型 / 知识库 / 应用编排等。欢迎 Star ⭐ 支持开源。
 
-### 移动端
-<img src="doc/3.jpg" width="240" alt="移动端"/>
-*随时随地，碎片化学习*
-
-> 💡 更多功能等你探索，立即体验：[在线演示](https://www.budaos.com)
+<p align="center">
+  <img src="docs/images/banner.png" alt="QuickBlue 平台横幅" width="100%" />
+</p>
 
 ---
 
 ## 项目简介
 
-BudaOS Monolith 是一个功能完备、开箱即用的在线学习管理平台（LMS），深度契合企业内训和教培机构的实际业务场景。系统涵盖教学管理、在线课堂、活动互动、社区运营、即时通讯等核心功能模块，帮助企业快速搭建专属的学习培训平台，让知识传递更高效、学习效果更可追踪。
+**QuickBlue** 是一款面向企业级生产环境的**原生 AI 微服务快速开发平台**。基于 **JDK 21 (LTS) + Spring Cloud 2025** 微服务技术栈与 **Vite 8 + Vue 3** 前端工程化方案，内置完整的 **RBAC 权限体系、AI 应用能力（多模型接入 / RAG 知识库 / 应用编排）、服务治理、监控告警、代码生成**，帮助开发者从零快速搭建高可用、可扩展、可商业化的业务系统。
 
-### 适用场景
-
-| 场景 | 核心价值 |
-|------|----------|
-| **企业内训** | 新员工培训、岗位技能提升、产品知识学习、合规培训，降低培训成本，提升人效 |
-| **职业培训** | IT技能培训、职业资格认证、语言学习，支持直播授课、作业批改、在线考试全流程 |
-| **K12教培** | 课程管理、班级管理、家校互动、学习数据分析，提升教学质量和运营效率 |
-| **知识付费** | 内容付费、会员体系、学习社群，快速实现知识变现 |
-
-### 为什么选择 BudaOS？
-
-- **源码完全开放**：100% Java 源代码，无任何加密限制，真正拥有系统所有权
-- **二开成本低**：经典 Spring Boot 架构，技术栈成熟，维护成本低
-- **功能即开即用**：覆盖教学全流程，无需从零开发，缩短上线周期 80%+
-- **商业授权友好**：Apache 2.0 协议，可自由商用，支持私有化部署
-
-### 核心特性
-
-- **源码全开放**：Java 源代码 100% 开放，无加密、无后门，真正拥有系统自主权
-- **极易二开**：经典三层架构 + 详细注释，熟悉 Spring Boot 的开发者即可上手定制
-- **功能完备**：课程管理、在线课堂、作业考试、社区互动一站式解决
-- **教学互动丰富**：签到、投票、问答、头脑风暴、实时讨论，让课堂活起来
-- **多端支持**：教务管理端、学员学习门户、配套小程序（商业版），覆盖全场景
-- **安全可靠**：Spring Security + OAuth2 认证体系，企业级安全防护
-- **实时通信**：T-io WebSocket 支持实时课堂、即时消息、在线互动
-- **部署灵活**：支持单机部署、Docker 部署、云服务器部署，满足不同规模需求
+> 🧩 **双数据库版本**：本仓库开源 **MySQL 版**（各微服务数据库隔离、独立账号）；官方同步提供 **PostgreSQL 版**（含 pgvector 向量检索），数据库层由 Nacos 配置中心集中管理，切换仅调配置，业务代码零侵入。
 
 ---
 
-## 技术架构
+## ✨ 为什么选择 QuickBlue
 
-### 技术栈
+### 🚀 技术栈领跑，不被时代淘汰
+采用**官方最新稳定技术线**：JDK 21 (LTS) 虚拟线程 + Spring Boot 3.5.10 + Spring Cloud 2025.0.1 + **Vite 8**（新一代构建引擎，毫秒级冷启动）。对比大量仍停留在 JDK 8 / Spring Boot 2.x / Webpack 的老牌框架，QuickBlue 从一开始就站在**下一个十年**的起跑线上。
 
-| 类别 | 技术选型 |
-|------|----------|
-| 基础框架 | Spring Boot 2.7.18 |
-| 持久层 | MyBatis 2.3 + PageHelper 1.4 |
-| 数据库 | MySQL 8.0 + Druid 连接池 |
-| 缓存 | Redis (Session 存储) |
-| 安全 | Spring Security + OAuth2 |
-| 实时通信 | T-io WebSocket |
-| 消息队列 | RabbitMQ / Redis MQ |
-| 任务调度 | Quartz |
-| API 文档 | Swagger 3.0 (SpringFox) |
-| 微信生态 | weixin-popular SDK |
-| 构建工具 | Maven |
+### 🤖 AI 原生，不是"PPT 接入"
+平台内置完整的 AI 应用体系，开箱即用：
+- **多模型接入**：OpenAI / 通义千问 / Ollama / 百度文心 / 智谱等供应商统一管理，API Key 加密存储，一键激活切换
+- **RAG 知识库**：知识 / 记忆双类型，向量化检索，让 AI 回答"懂你的业务"
+- **应用编排**：开场白、预设问题、提示词、知识库关联、记忆开关、变量配置，像搭积木一样组装 AI 应用
+- **会话管理**：多轮对话、Markdown 渲染、代码高亮，前端页面齐全
 
-### 项目结构
+### 🏗 真正的微服务，不是"单机改多包"
+网关 + 系统 + 业务 + 支撑 + AI **五大服务按领域边界拆分**，每个服务**独立数据库、独立账号、最小权限授权**。Spring Cloud Gateway 统一路由、白名单与 OpenAPI 3 文档聚合。
 
+### 🔐 企业级安全与合规
+Sa-Token 认证 + RBAC（用户 / 角色 / 菜单 / 按钮）+ 部门数据权限隔离 + 操作审计（`@AuditLog` 含 IP 归属地）+ 防重复提交 + 全局异常统一处理。
+
+### ⚙️ 一份配置，全局生效
+MySQL / Redis / Nacos 等基础设施地址全部环境变量外部化，修改 **1 个 `.env` 文件**即可切换任意环境，告别"改 5 个 yml 才能换库"的痛。
+
+### 📦 开箱即用的生产力工具
+MyBatis-Plus 代码生成（Velocity / FreeMarker 模板）一键产出 CRUD 全套代码；Excel 导入导出、S3 对象存储、定时任务、二维码、多级缓存（Caffeine + Redisson）全部内置。
+
+---
+
+## 技术先进性
+
+### 后端：主流 LTS + 官方最新稳定版
+
+| 技术 | 版本 | 说明 |
+| --- | --- | --- |
+| **JDK** | **21 (LTS)** | 官方最新长期支持版本，虚拟线程 / Record / 模式匹配 |
+| **Spring Boot** | **3.5.10** | 当前最新稳定版，GraalVM / 虚拟线程 / 可观测性原生支持 |
+| **Spring Cloud** | **2025.0.1** | 2025 年度最新版本线 |
+| **Spring Cloud Alibaba** | **2025.0.0.0** | 与 Spring Cloud 2025 完全对齐 |
+| **Nacos** | **2.4.3** | 注册中心 + 配置中心，共享配置 + 服务级配置分离 |
+| **MyBatis-Plus** | **3.5.7** | 逻辑删除、分页、代码生成（Velocity / FreeMarker） |
+| **Druid + p6spy** | **1.2.25** | 连接池监控 + SQL 日志 |
+| **Redisson** | **3.50.0** | 分布式锁、分布式缓存 |
+| **Caffeine** | **3.1.8** | 本地一级缓存（多级缓存架构） |
+| **Sa-Token** | **1.44.0** | 轻量级认证鉴权 |
+| **Knife4j** | **4.6.0** | OpenAPI 3 网关聚合 API 文档 |
+| **Spring Boot Admin** | **3.4.4** | 服务健康监控中心 |
+| **OpenFeign + OkHttp** | **13.1 / 4.12** | 声明式调用 + 高性能客户端 + 请求/响应压缩 |
+| **RocketMQ / Seata / Sentinel** | 可选 | 消息队列 / 分布式事务 / 熔断降级，按需引入 |
+| **EasyExcel + POI** | **4.0.3 / 5.4.1** | 高性能大数据量 Excel 导入导出 |
+| **Hutool / Fastjson2 / Guava** | 全量 | 行业标准工具集 |
+| **ip2region / ZXing / AWS S3** | 周边 | IP 归属地 / 二维码 / S3 兼容对象存储 |
+
+### 前端：Vite 8 新一代构建引擎 + Vue 3.5
+
+| 技术 | 版本 | 说明 |
+| --- | --- | --- |
+| **Vite** | **8.2** | 新一代构建引擎，原生 ESM，毫秒级冷启动、极速热更新 |
+| **Vue** | **3.5.41** | 组合式 API + `<script setup>`，最新稳定版 |
+| **Vue Router / Pinia** | **4.3.2 / 2.1.7** | 官方路由与状态管理 |
+| **Ant Design Vue** | **4.2.6** | 企业级 UI 组件库 |
+| **Node.js** | **≥ 24** | 最新 LTS 要求 |
+| **Vitest** | **4.1** | 开箱即用的单元测试 |
+| **ECharts / ApexCharts** | **5.6 / 5.3** | 大屏与图表可视化 |
+| **ESLint / Prettier / Stylelint** | 全套 | 代码质量工程化 |
+| 工程化 | — | 多环境构建、路由懒加载、手动分包、gzip 自动压缩 |
+
+---
+
+## 系统架构
+
+```mermaid
+graph TB
+    subgraph 客户端
+        A[Web 管理端<br/>Vue 3.5 + Vite 8]
+    end
+
+    subgraph 接入层
+        B[Spring Cloud Gateway<br/>端口 8080]
+    end
+
+    subgraph 微服务层
+        C[QuickBlue-system<br/>系统管理 · 8081]
+        D[QuickBlue-business<br/>业务模块 · 8082]
+        E[QuickBlue-support<br/>支撑能力 · 8083]
+        F[QuickBlue-ai<br/>AI 服务 · 8084]
+        G[QuickBlue-admin<br/>监控中心 · 9090]
+    end
+
+    subgraph 基础设施
+        H[(MySQL 8<br/>每服务独立库)]
+        I[(Redis / Redisson)]
+        J[Nacos 2.4.3<br/>注册 + 配置]
+        K[RocketMQ / Seata / Sentinel]
+    end
+
+    A -->|HTTP /api/**| B
+    B --> C & D & E & F
+    G -.->|Actuator 探测| C & D & E & F
+    C & D & E & F --> H
+    C & D & E & F --> I
+    C & D & E & F --> J
+    C & D & E & F -.-> K
 ```
-budaos-monolith/
-├── budaos-parent/              # 父模块，统一定义依赖版本
-│   └── pom.xml
-├── budaos-common/              # 公共模块
-│   └── src/main/java/          # 工具类、配置类、Domain实体
-├── budaos-service/             # 服务模块
-│   └── src/main/java/          # 业务服务实现、Mapper
-├── budaos-web/                 # Web模块
-│   └── src/main/java/          # REST控制器
-├── budaos-application/         # 应用模块（启动入口）
-│   └── src/main/resources/     # 配置文件
-├── database/                   # 数据库脚本
-│   └── db.sql
-└── pom.xml                     # 项目根 POM
-```
 
-### 模块说明
+### 服务端口
 
-| 模块 | 说明 |
-|------|------|
-| `budaos-parent` | 统一管理依赖版本、插件配置、公共属性 |
-| `budaos-common` | 公共代码：工具类、枚举、常量、Domain实体、配置类 |
-| `budaos-service` | 业务逻辑层：Service实现、Mapper接口、Mapper XML、定时任务 |
-| `budaos-web` | 控制器层：REST API、拦截器、安全配置 |
-| `budaos-application` | 应用打包模块，包含主启动类和配置 |
+| 服务 | 端口 | 说明 |
+| --- | --- | --- |
+| QuickBlue-gateway | 8080 | 微服务网关（路由 / 鉴权 / 文档聚合） |
+| QuickBlue-system | 8081 | 系统管理服务（RBAC / 组织 / 字典等） |
+| QuickBlue-business | 8082 | 业务服务（OA 等业务模块） |
+| QuickBlue-support | 8083 | 支撑服务（监控 / 文件 / 任务等公共能力） |
+| QuickBlue-ai | 8084 | AI 服务（模型 / 知识库 / 应用 / 会话） |
+| QuickBlue-admin | 9090 | 管理端聚合服务 + Spring Boot Admin 监控中心 |
 
 ---
 
 ## 功能模块
 
-### 教学管理
-- **课堂管理**：创建/管理虚拟教室，设置课程表
-- **活动管理**：支持签到、头脑风暴、投票问卷、问答讨论、课后作业、在线测试等多种教学活动
-- **资源管理**：课程资源上传下载、云盘文件管理
-- **成绩管理**：学生评分、作业批改
-
-### 社区互动
-- **博客论坛**：文章发布、评论互动、点赞收藏
-- **好友系统**：关注好友、学习圈
-- **即时通讯**：私信聊天、群组讨论（WebSocket 实时推送）
-
-### 平台管理
-- **用户管理**：教师/学生账号管理、第三方登录
-- **微信集成**：微信登录、素材管理、消息推送
-- **系统配置**：数据字典、站点设置、SEO优化
-
-### 开发支持
-- **API 文档**：Swagger UI 自动生成
-- **日志管理**：统一日志记录、异常追踪
-- **定时任务**：灵活的 Cron 表达式配置
+| 模块 | 归属服务 | 功能说明 |
+| --- | --- | --- |
+| 用户管理 | system | 用户 CRUD、状态管理、密码策略（登录失败锁定） |
+| 角色管理 | system | 角色 CRUD、菜单授权、按钮权限 |
+| 菜单管理 | system | 菜单 / 路由 / 按钮动态配置，前端路由权限联动 |
+| 组织管理 | system | 部门树、负责人、排序、数据权限范围 |
+| 员工管理 | system | 员工档案、部门归属、删除校验 |
+| 字典管理 | system | 数据字典维护 |
+| 操作日志 | log | 全链路操作审计（异步落库，含 IP 归属地） |
+| 服务监控 | support | 各实例健康 / JVM 内存 / 线程 / QPS 聚合大盘 |
+| 文件管理 | support | 文件上传下载、S3 兼容对象存储 |
+| 定时任务 | support | 任务调度管理 |
+| **AI 模型管理** | ai | 多供应商（OpenAI / 通义千问 / Ollama 等）统一接入、API Key 加密、激活切换 |
+| **AI 知识库** | ai | 知识 / 记忆双类型、向量化检索（RAG） |
+| **AI 应用编排** | ai | 开场白 / 提示词 / 知识库关联 / 记忆开关 / 变量配置 |
+| **AI 会话管理** | ai | 多轮对话、Markdown 渲染、代码高亮 |
+| 业务模块 | business | OA 等业务功能 |
+| 安装部署 | admin-web | 前端安装配置向导页面 |
 
 ---
 
@@ -149,258 +207,117 @@ budaos-monolith/
 
 ### 环境要求
 
-| 软件 | 版本要求 | 说明 |
-|------|----------|------|
-| JDK | 1.8+ | 推荐 OpenJDK 11 |
-| MySQL | 8.0+ | 支持 5.7+ |
-| Redis | 3.0+ | 用于缓存和 Session |
-| Maven | 3.0+ | 构建工具 |
+| 组件 | 版本要求 |
+| --- | --- |
+| JDK | **21+** |
+| Maven | 3.9+ |
+| Node.js | **24+** |
+| MySQL | 8.0+ |
+| Redis | 6+ |
+| Nacos | 2.4.3（独立部署） |
+| RocketMQ / Seata / Sentinel | 可选，按需启用 |
 
-### 部署步骤
+### 1. 初始化数据库
 
-#### 1. 准备数据库
+执行 `QuickBlue-parent/database/mysql/` 下的脚本（按编号顺序）：
+
+```sql
+-- 01_create_databases.sql   创建 4 个数据库及专用账号（utf8mb4）
+-- 02_migrate_support.sql    Support 服务表结构与数据
+-- 03_migrate_system.sql     System 服务表结构与数据
+-- 04_migrate_business.sql   Business 服务表结构与数据
+-- 05_create_ai_tables.sql   AI 服务表结构
+```
+
+### 2. 配置环境变量（一处配置，全局生效）
 
 ```bash
-# 登录 MySQL
-mysql -u root -p
+cd QuickBlue-parent
+copy .env.example .env    # Linux/Mac: cp .env.example .env
 
-# 创建数据库
-CREATE DATABASE budaos DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-# 导入数据脚本
-USE budaos;
-SOURCE database/db.sql;
+# 按需修改 .env：MySQL / Redis / Nacos / pgvector 地址
+# 之后改任何基础设施地址，只动这一个文件，重启服务即生效
 ```
 
-#### 2. 配置 Redis
+> 所有服务通过 `spring.config.import` 自动加载根目录 `.env`，也支持系统环境变量 / IDE 启动配置覆盖。
 
-确保 Redis 服务已启动，默认配置：
-- 端口：6379
-- 密码：在 `application.yml` 中配置
+### 3. 导入 Nacos 配置
 
-#### 3. 修改配置文件
+将 `QuickBlue-parent/nacos_config/` 目录下的配置导入 Nacos：
 
-编辑 `budaos-application/src/main/resources/application.yml`：
+- `common/` 下的共享配置（`mysql-common.yaml`、`redis-common.yaml`、`sa-token-common.yaml` 等）
+- `services/` 下的服务配置（按服务名导入）
 
-```yaml
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/budaos?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: your_username
-    password: your_password
-  
-  redis:
-    host: your_redis_host
-    password: your_redis_password
-```
+详细步骤见 [Nacos配置手册.md](QuickBlue-parent/nacos_config/Nacos配置手册.md)。
 
-#### 4. 构建项目
+### 4. 启动中间件
+
+启动 MySQL、Redis（默认 `localhost:6379`，密码按 `redis-common.yaml` 配置）与 Nacos。
+
+### 5. 启动后端服务
+
+在 `QuickBlue-parent` 目录下按顺序启动：
 
 ```bash
-# 进入项目目录
-cd budaos-monolith
+mvn compile
 
-# Maven 打包（跳过测试）
-mvn clean package -DskipTests
+# 服务启动顺序
+java -jar QuickBlue-gateway/target/QuickBlue-gateway-4.0.0.jar      # 8080 网关
+java -jar QuickBlue-modules/QuickBlue-system/target/QuickBlue-system-4.0.0.jar   # 8081
+java -jar QuickBlue-modules/QuickBlue-business/target/...            # 8082
+java -jar QuickBlue-modules/QuickBlue-support/target/...            # 8083
+java -jar QuickBlue-modules/QuickBlue-ai/target/...                 # 8084
+java -jar QuickBlue-admin/target/QuickBlue-admin-4.0.0.jar          # 9090 监控中心
 ```
 
-#### 5. 启动服务
+### 6. 启动前端
 
 ```bash
-# Windows 环境
-.\start.bat
-
-# Linux/Mac 环境
-java -jar budaos-application/target/budaos-monolith.jar --spring.profiles.active=dev
+cd QuickBule-admin-web
+npm install
+npm run dev        # 默认 http://localhost:5173，/api 代理到网关 8080
 ```
 
-#### 6. 访问系统
+生产构建：
 
-启动成功后访问：
-- 访问地址：http://localhost:9080
-- Swagger 文档：http://localhost:9080/swagger-ui/index.html
-
----
-
-## 默认账号（体验环境搭建中）
-
-| 角色 | 账号 | 密码      |
-|------|------|---------|
-| 管理员 | admin | 88888888 |
-
-> ⚠️ **注意**：首次使用请及时修改默认密码
-
----
-
-## 配置说明
-
-### 核心配置项
-
-```yaml
-server:
-  port: 9080                    # 服务端口
-
-spring:
-  datasource:
-    url: jdbc:mysql://...        # 数据库连接
-  redis:
-    host: localhost              # Redis 主机
-    port: 6379                   # Redis 端口
-
-com.budaos:
-  file-upload-path: /uploads    # 文件上传路径
-  is-cors: true                  # 是否允许跨域
-  captcha-enabled: true          # 验证码开关
+```bash
+npm run build:prod      # 产物输出到 dist/，Vite 自动 gzip 压缩 + 路由分包
 ```
 
-### 微信配置
+### 7. 访问 API 文档
 
-```yaml
-# 第三方登录配置
-com.budaos:
-  wxAppId: your_wx_appid         # 微信 AppID
-  wxAppKey: your_wx_appkey       # 微信 AppKey
+网关聚合了全部微服务的 OpenAPI 3 文档：
+
+```
+http://localhost:8080/doc.html        # Knife4j 聚合文档
+http://localhost:8080/QuickBlue-system/v3/api-docs
 ```
 
 ---
-## 商业合作
 
-如果您需要更强大的企业级功能，我们提供**原生微服务架构版本**，为您的业务增长提供坚实的技术底座。
+## 相关文档
 
-### 微服务版本优势
-
-| 对比项 | 开源单体版 | 商业微服务版 |
-|--------|-------|-------------|
-| 架构模式 | 单体架构  | 微服务架构（10+ 独立服务） |
-| 部署方式 | 单机部署  | 集群/K8S 部署 |
-| 扩展能力 | 垂直扩展  | 水平扩展，按需扩容 |
-| 性能上限 | 千人级并发 | 十万级并发支持 |
-| 运维成本 | 较低    | 自动化运维，持续集成 |
-| 技术支持 | 社区支持  | 7×24 专业技术支持 |
-| 功能更新 | 社区迭代  | 持续功能迭代，优先体验 |
-| 数据安全 | 基础防护  | 企业级安全加固 |
-
-### 技术栈对比
-
-| 技术组件        | 开源版 | 微服务版 |
-|-------------| ------ | -------- |
-| **Java**    | 1.8+ | 21 (LTS，支持到2031年) |
-| **基础框架**    | Spring Boot 2.7 | Spring Boot 3.5.10 |
-| **微服务框架**   | — | Spring Cloud 2025.0.1 |
-| **微服务生态**   | — | Spring Cloud Alibaba 2025.0.0.0 |
-| **服务注册/配置** | — | Nacos 2.4.3 |
-| **链路追踪**    | — | Micrometer Tracing 
-| **持久层**     | MyBatis 2.3 | MyBatis Plus 3.5.7 |
-| **数据库**     | MySQL 8.0 | MySQL 8.0 / PostgreSQL |
-| **缓存**      | Redis | Redisson 3.50.0 |
-| **消息队列**    | RabbitMQ | Kafka 3.0.0 | 
-| **安全框架**    | Spring Security | Sa-Token 1.44.0 (轻量级) |
-| **熔断降级**    | — | Sentinel 1.8.8 |
-| **分布式事务**   | — | Seata 2.0.0 |
-| **连接池**     | Druid 1.2.25 | Druid 1.2.25 |
-| **API 文档**  | Swagger 3.0 | Knife4j 4.5.0 |
-| **工具库**     | Hutool | Hutool 5.8.39 |
-
-> 💡 **微服务版采用 2024-2025 最新技术栈，性能更强、特性更多、生命周期更长**
-
-### 商业版核心能力
-
-- **弹性伸缩**：基于容器化部署，支持自动扩缩容，轻松应对流量高峰
-- **高可用架构**：多副本部署、熔断降级、故障自动恢复，保障业务连续性
-- **DevOps 流水线**：自动化构建、测试、部署，提升研发效率
-- **全链路监控**：APM 链路追踪、日志聚合、告警通知
-- **数据中台**：统一数据治理，BI 分析报表，用户行为洞察
-- **私有化部署**：支持完全私有化，数据自主可控
-- **定制开发**：根据业务需求深度定制，快速交付
-
-### AI 智能教育（核心亮点）
-
-微服务版本深度集成 **AI 大模型**能力，赋能教育全场景：
-
-| AI 功能 | 说明 |
-|---------|------|
-| **智能出题** | 根据知识点自动生成选择题、填空题、简答题，支持难度分级 |
-| **AI 阅卷** | 客观题自动批改，主观题 AI 辅助评分，准确率高达 95%+ |
-| **智能辅导** | 24小时 AI 问答助手，个性化学习路径推荐，因材施教 |
-| **教材生成** | 一键生成教学大纲、教案、课件，解放教师双手 |
-| **学情分析** | AI 分析学习数据，生成学生画像，预警学习困难 |
-| **智能排课** | 基于 AI 算法优化排课方案，提升教室资源利用率 |
-| **内容审核** | 自动审核违规内容，营造健康学习环境 |
-| **多模态支持** | 支持图文、音频、视频等多种格式的 AI 问答 |
-
-> 🚀 **AI 加持，让教育更智能、更高效、更公平**
-
-### 服务内容
-
-- 源码授权（永久使用）
-- 架构设计咨询
-- 部署实施指导
-- 技术培训服务
-- 持续版本升级
-- 专属技术支持
-
-> 📞 **有意向？请联系我们获取详细的解决方案和报价**
-> 
-> 官网：www.budaos.com | 邮箱：contact@budaos.com 
->
-> <div align="left">
->   <img src="doc/img_1.png" width="160" alt="商务合作微信"/>
-> </div>
-
----
-
-## 支持我们
-
-开源不易，如果这个项目对您有帮助，欢迎通过以下方式支持我们：
-
-### 捐赠方式
-
-| 方式 | 说明 |
-|------|------|
-| ☕ 喝杯咖啡 | 一杯咖啡，一份鼓励 |
-| 💝 任意打赏 | 量力而行，感恩有你 |
-<img src="doc/img_2.png" width="160" alt="微信收款码"/></br>
-> 捐赠时请备注「BudaOS 开源支持」，您的名字将出现在[致谢名单](SUPPORTERS.md)中（可选）。
-
-### 感谢每一份支持
-
-您的每一份捐赠都是对我们最大的鼓励，让我们能够持续维护和迭代开源项目，为社区提供更好的教育资源平台。
+| 文档 | 说明 |
+| --- | --- |
+| [Nacos配置手册.md](QuickBlue-parent/nacos_config/Nacos配置手册.md) | Nacos 配置导入与命名空间说明 |
+| [QuickBlue微服务架构评估报告 v5.0](QuickBlue-parent/doc/QuickBlue微服务架构评估报告_qoder_v5.0.md) | 架构评审与演进建议 |
+| [OpenFeign优化完整指南.md](QuickBlue-parent/doc/OpenFeign优化完整指南.md) | 服务调用性能优化实践 |
+| [AI功能开发清单.md](QuickBlue-parent/doc/AI功能开发清单.md) | AI 服务能力清单 |
+| [JQ两平台对比分析报告.md](QuickBlue-parent/doc/JQ两平台对比分析报告.md) | 平台选型对比 |
 
 ---
 
 ## 开源协议
 
-本项目采用 [Apache License 2.0](LICENSE) 开源协议。
+本项目基于 [MIT](LICENSE) 协议开源，遵循开放、共享的开源精神，可免费用于商业与学习场景。
 
-- ✅ 可免费用于个人学习、企业内部培训
-- ✅ 可用于商业项目，打造自有品牌的教育平台
-- ✅ 支持深度二次开发，定制专属功能
-- ✅ 支持私有化部署，数据完全自主可控
-- ⚠️ 需要保留版权声明和 LICENSE 文件
+**版本说明**：当前开源为 **MySQL 版**；官方同步提供 **PostgreSQL 版**（含 pgvector 向量检索），数据库类型通过 Nacos 配置中心切换，业务代码零侵入。
 
 ---
 
-## 参与贡献
+## 联系我们
 
-欢迎提交 Issue 和 Pull Request！
+- 🌐 官网：<https://www.creatorblue.com>
+- ✉️ 邮箱：28449472@163.com
 
-1. Fork 本仓库
-2. 创建分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add AmazingFeature'`)
-4. 推送分支 (`git push origin feature/AmazingFeature`)
-5. 创建 Pull Request
-
----
-
-## 联系方式
-
-- **官网**：https://www.budaos.com
-- **邮箱**：contact@budaos.com
-
----
-
-<div align="center">
-
-**如果这个项目对您有帮助，欢迎 Star！**
-
-</div>
+> 如果你觉得这个项目对你有帮助，欢迎 **Star ⭐** 支持，感谢开源路上每一位同行者。

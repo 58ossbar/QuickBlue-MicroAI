@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.system.dao.AuthRoleDataPermissionDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.budaos.system.domain.entity.AuthRoleDataPermissionEntity">
+        <id column="id" property="id" />
+        <result column="data_scope_type" property="dataScopeType" />
+        <result column="view_type" property="viewType" />
+        <result column="role_id" property="roleId" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, data_scope_type, view_type, role_id, update_time, create_time
+    </sql>
+
+    <!-- 获取某个角色的设置信息 -->
+    <select id="listByRoleId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_role_data_scope
+        WHERE role_id = #{roleId}
+        ORDER BY data_scope_type
+    </select>
+
+    <!-- 获取某批角色的所有数据范围配置信息 -->
+    <select id="listByRoleIdList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_role_data_scope
+        WHERE role_id IN
+        <foreach item="item" index="index" collection="roleIdList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        ORDER BY role_id, data_scope_type
+    </select>
+
+    <!-- 删除某个角色的设置信息 -->
+    <delete id="deleteByRoleId">
+        DELETE FROM t_role_data_scope
+        WHERE role_id = #{roleId}
+    </delete>
+
+</mapper>

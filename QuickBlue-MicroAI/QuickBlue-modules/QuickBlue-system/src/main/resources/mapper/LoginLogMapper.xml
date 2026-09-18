@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.system.dao.LoginRecordDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.budaos.system.domain.entity.LoginRecordEntity">
+        <id column="login_log_id" property="loginLogId" />
+        <result column="user_id" property="userId" />
+        <result column="user_type" property="userType" />
+        <result column="user_name" property="userName" />
+        <result column="login_ip" property="loginIp" />
+        <result column="login_ip_region" property="loginIpRegion" />
+        <result column="user_agent" property="userAgent" />
+        <result column="login_device" property="loginDevice" />
+        <result column="login_result" property="loginResult" />
+        <result column="remark" property="remark" />
+        <result column="update_time" property="updateTime" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        login_log_id, user_id, user_type, user_name, login_ip, login_ip_region, user_agent, login_device, login_result, remark, update_time, create_time
+    </sql>
+
+    <!-- 分页查询 -->
+    <select id="queryByPage" resultType="com.budaos.system.domain.vo.LoginRecordVO">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_login_log
+        <where>
+            <if test="query.userId != null">
+                AND user_id = #{query.userId}
+            </if>
+            <if test="query.userType != null">
+                AND user_type = #{query.userType}
+            </if>
+            <if test="query.ip != null and query.ip != ''">
+                AND INSTR(login_ip, #{query.ip})
+            </if>
+            <if test="query.startDate != null and query.startDate != ''">
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') &gt;= #{query.startDate}
+            </if>
+            <if test="query.endDate != null and query.endDate != ''">
+                AND DATE_FORMAT(create_time, '%Y-%m-%d') &lt;= #{query.endDate}
+            </if>
+            <if test="query.userName != null and query.userName != ''">
+                AND INSTR(user_name, #{query.userName})
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 查询上一个登录记录 -->
+    <select id="queryLastByUserId" resultType="com.budaos.system.domain.vo.LoginRecordVO">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM t_login_log
+        WHERE user_id = #{userId}
+        AND user_type = #{userType}
+        AND login_result = #{loginLogResult}
+        ORDER BY login_log_id DESC
+        LIMIT 1
+    </select>
+
+</mapper>

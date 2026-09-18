@@ -1,0 +1,358 @@
+/*
+ * 默认样式的修改
+ *
+ * @Author:
+ * @Date:      2022-09-12 14:41:59
+ * @Wechat:
+ * @Email:
+ * @Copyright
+ */
+// 覆盖表单变量
+@form-item-margin-bottom: 48rpx; // 默认16px
+@form-vertical-label-padding: 0 0 24rpx; // 标签与控件的间距
+@form-item-label-font-size: 28rpx; // 标签字体大小
+
+// 重新引入Ant Design样式（确保变量生效）
+@import 'ant-design-vue/dist/reset.css';
+@import './budaos.less';
+
+/**********************************  基础样式 **********************************/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  outline: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  background-color: #f8f8f8;
+  font-size: 14px;
+  position: relative;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+/**********************************  ant design spin **********************************/
+.ant-spin-blur{
+  opacity: 0.2;
+}
+
+/**********************************  ant design table **********************************/
+.ant-table-tbody :deep(.qb-table-striped) {
+  background-color: #fafafa;
+}
+
+/**********************************  ant design form **********************************/
+.ant-form-inline .ant-form-item-with-help {
+  margin-bottom: 0px !important;
+}
+
+/**********************************  ant design spin **********************************/
+.ant-spin-nested-loading {
+  width: 100%;
+  height: 100%;
+}
+
+.ant-spin-container {
+  width: 100%;
+  height: 100%;
+}
+
+/**********************************  富文本HTML样式 **********************************/
+.ant-modal-root div[aria-hidden="true"] {
+  display: none !important;
+}
+
+/**********************************  富文本HTML样式 **********************************/
+.html-content {
+  /* table 样式 */
+  table {
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+  }
+  table td,
+  table th {
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    padding: 3px 5px;
+  }
+  table th {
+    border-bottom: 2px solid #ccc;
+    text-align: center;
+  }
+
+  /* blockquote 样式 */
+  blockquote {
+    display: block;
+    border-left: 8px solid #d0e5f2;
+    padding: 5px 10px;
+    margin: 10px 0;
+    line-height: 1.4;
+    font-size: 100%;
+    background-color: #f1f1f1;
+  }
+
+  /* code 样式 */
+  code {
+    display: inline-block;
+    background-color: #f1f1f1;
+    border-radius: 3px;
+    padding: 3px 5px;
+    margin: 0 3px;
+  }
+  pre code {
+    display: block;
+  }
+
+  /* ul ol 样式 */
+  ul,
+  ol {
+    margin: 10px 0 10px 20px;
+  }
+}
+// 高级Modal样式
+.ant-modal {
+  border-radius: 14px;
+  overflow: hidden;
+  // 新增：上移40px
+  top: 40px !important;
+  // 新增：确保水平居中
+  margin: 0 auto;
+
+  .ant-modal-content {
+    border-radius: 14px;
+    overflow: hidden;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border: none;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #1890ff, #722ed1);
+    }
+  }
+
+  .ant-modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    background: transparent;
+
+    .ant-modal-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.9);
+      letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+
+      &::before {
+        content: '';
+        display: inline-block;
+        width: 4px;
+        height: 18px;
+        background: @primary-color;
+        margin-right: 12px;
+        border-radius: 2px;
+      }
+    }
+  }
+
+  .ant-modal-close {
+    top: 20px;
+    right: 24px;
+
+    .ant-modal-close-x {
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      color: rgba(0, 0, 0, 0.45);
+      transition: all 0.2s;
+
+      &:hover {
+        color: rgba(0, 0, 0, 0.85);
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+    color: rgba(0, 0, 0, 0.8);
+    line-height: 1.6;
+    // 调整最大高度以适应上移
+    max-height: calc(80vh - 40px);
+  }
+
+  .ant-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    background: transparent;
+    text-align: right;
+
+    .ant-btn {
+      min-width: 90px;
+      border-radius: 8px;
+      padding: 8px 20px;
+      height: auto;
+      font-weight: 500;
+      transition: all 0.25s cubic-bezier(0.645, 0.045, 0.355, 1);
+
+      &:not(.ant-btn-primary) {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background: white;
+
+        &:hover {
+          border-color: @primary-color;
+          color: @primary-color;
+        }
+      }
+
+      &-primary {
+        box-shadow: 0 2px 6px rgba(24, 144, 255, 0.3);
+
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
+
+      + .ant-btn {
+        margin-left: 12px;
+      }
+    }
+  }
+
+  // 处理垂直居中模态框
+  &.ant-modal-centered {
+    top: calc(50% - 40px) !important; // 在垂直居中基础上再上移40px
+  }
+}
+
+// 适配不同尺寸的模态框
+.ant-modal-sm {
+  &.ant-modal-centered {
+    top: calc(50% - 40px) !important;
+  }
+}
+
+.ant-modal-lg {
+  &.ant-modal-centered {
+    top: calc(50% - 40px) !important;
+  }
+}
+
+.ant-modal-xl {
+  &.ant-modal-centered {
+    top: calc(50% - 40px) !important;
+  }
+}
+
+/**********************************  滚动条优化 **********************************/
+/* 全局滚动条样式 - 支持Webkit内核 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+  border: 2px solid transparent;
+  background-clip: content-box;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+  border-radius: 10px;
+}
+
+/* Firefox滚动条样式 */
+@supports (-moz-appearance: none) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+}
+
+/* 特定容器滚动条优化 */
+.scroll-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* 表格区域滚动条优化 */
+.ant-table-body {
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* 模态框滚动条优化 */
+.ant-modal-body {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+}
+
+/* 暗色模式滚动条适配 */
+[data-theme="dark"] {
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  @supports (-moz-appearance: none) {
+    * {
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+  }
+}
+
+/* 暗色模式页面底色（配合 App.vue 中 data-theme 属性切换） */
+[data-theme="dark"] {
+  html,
+  body {
+    background-color: #0f0f0f;
+  }
+}

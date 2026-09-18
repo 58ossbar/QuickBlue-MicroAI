@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.business.region.dao.RegionDao">
+
+    <resultMap id="RegionVOMap" type="com.budaos.business.region.domain.vo.RegionVO">
+        <result column="id" property="id" />
+        <result column="region_code" property="regionCode" />
+        <result column="region_name" property="regionName" />
+        <result column="region_short_name" property="regionShortName" />
+        <result column="parent_id" property="parentId" />
+        <result column="parent_path" property="parentPath" />
+        <result column="level" property="level" />
+        <result column="sort_order" property="sortOrder" />
+        <result column="status" property="status" />
+        <result column="region_manager_name" property="regionManagerName" />
+        <result column="contact_phone" property="contactPhone" />
+        <result column="remark" property="remark" />
+        <result column="leaf_flag" property="leafFlag" />
+        <result column="create_user_id" property="createUserId" />
+        <result column="create_time" property="createTime" />
+        <result column="update_user_id" property="updateUserId" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 分页查询 -->
+    <select id="queryPage" resultMap="RegionVOMap">
+        SELECT * FROM t_region
+        WHERE delete_flag = 0
+        <if test="queryForm.regionName != null and queryForm.regionName != ''">
+            AND (region_name LIKE CONCAT('%', #{queryForm.regionName}, '%')
+            OR region_short_name LIKE CONCAT('%', #{queryForm.regionName}, '%'))
+        </if>
+        <if test="queryForm.status != null and queryForm.status != ''">
+            AND status = #{queryForm.status}
+        </if>
+        <if test="queryForm.regionManagerName != null and queryForm.regionManagerName != ''">
+            AND region_manager_name LIKE CONCAT('%', #{queryForm.regionManagerName}, '%')
+        </if>
+        <if test="queryForm.contactPhone != null and queryForm.contactPhone != ''">
+            AND contact_phone LIKE CONCAT('%', #{queryForm.contactPhone}, '%')
+        </if>
+        ORDER BY level ASC, sort_order DESC, create_time DESC
+    </select>
+
+    <!-- 获取所有区域列表 -->
+    <select id="listAll" resultMap="RegionVOMap">
+        SELECT * FROM t_region
+        WHERE delete_flag = 0
+        ORDER BY level ASC, sort_order DESC
+    </select>
+
+    <!-- 根据父ID查询子区域 -->
+    <select id="selectByParentId" resultType="com.budaos.business.region.domain.entity.RegionEntity">
+        SELECT * FROM t_region
+        WHERE delete_flag = 0 AND parent_id = #{parentId}
+        ORDER BY sort_order DESC
+    </select>
+
+    <!-- 统计子区域数量 -->
+    <select id="countChildren" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM t_region
+        WHERE delete_flag = 0 AND parent_id = #{parentId}
+    </select>
+
+    <!-- 检查区域编码是否存在 -->
+    <select id="existsByRegionCode" resultType="java.lang.Boolean">
+        SELECT COUNT(*) > 0 FROM t_region
+        WHERE delete_flag = 0 AND region_code = #{regionCode}
+    </select>
+
+    <!-- 检查区域编码是否存在（排除自身） -->
+    <select id="existsByRegionCodeAndIdNot" resultType="java.lang.Boolean">
+        SELECT COUNT(*) > 0 FROM t_region
+        WHERE delete_flag = 0 AND region_code = #{regionCode} AND id != #{id}
+    </select>
+
+    <!-- 统计区域关联的影城数量 -->
+    <select id="countCinemaByRegionId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM t_cinema
+        WHERE delete_flag = 0 AND region_id = #{regionId}
+    </select>
+</mapper>

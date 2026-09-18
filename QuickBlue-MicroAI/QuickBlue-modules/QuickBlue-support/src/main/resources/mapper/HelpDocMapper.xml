@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.budaos.support.dao.HelpCenterDao">
+
+    <!-- 查询全部帮助文档 -->
+    <select id="queryAllHelpDocList" resultType="com.budaos.support.domain.vo.HelpCenterVO">
+        SELECT
+            h.help_doc_id,
+            h.title,
+            h.help_doc_catalog_id,
+            c.name AS help_doc_catalog_name,
+            h.author,
+            h.sort,
+            h.page_view_count,
+            h.user_view_count,
+            h.create_time,
+            h.update_time
+        FROM t_help_doc h
+        LEFT JOIN t_help_doc_catalog c ON h.help_doc_catalog_id = c.help_doc_catalog_id
+        ORDER BY h.sort ASC, h.create_time DESC
+    </select>
+
+    <!-- 查询全部帮助文档详情 -->
+    <select id="queryAllHelpDocDetailList" resultType="com.budaos.support.domain.vo.HelpCenterDetailVO">
+        SELECT * FROM t_help_doc ORDER BY sort ASC, create_time DESC
+    </select>
+
+    <!-- 后管分页查询帮助文档 -->
+    <select id="query" resultType="com.budaos.support.domain.vo.HelpCenterVO">
+        SELECT
+            h.help_doc_id,
+            h.title,
+            h.help_doc_catalog_id,
+            c.name AS help_doc_catalog_name,
+            h.author,
+            h.sort,
+            h.page_view_count,
+            h.user_view_count,
+            h.create_time,
+            h.update_time
+        FROM t_help_doc h
+        LEFT JOIN t_help_doc_catalog c ON h.help_doc_catalog_id = c.help_doc_catalog_id
+        <where>
+            <if test="query.title != null and query.title != ''">
+                AND INSTR(h.title, #{query.title})
+            </if>
+            <if test="query.helpDocCatalogId != null">
+                AND h.help_doc_catalog_id = #{query.helpDocCatalogId}
+            </if>
+            <if test="query.author != null and query.author != ''">
+                AND INSTR(h.author, #{query.author})
+            </if>
+        </where>
+        ORDER BY h.sort ASC, h.create_time DESC
+    </select>
+
+    <!-- 更新阅读量 -->
+    <update id="updateViewCount">
+        UPDATE t_help_doc
+        SET
+            page_view_count = page_view_count + #{pageViewCountIncrease},
+            user_view_count = user_view_count + #{userViewCountIncrease}
+        WHERE help_doc_id = #{helpDocId}
+    </update>
+
+    <!-- 根据目录查询文档 -->
+    <select id="queryHelpDocByCatalogId" resultType="com.budaos.support.domain.vo.HelpCenterVO">
+        SELECT
+            h.help_doc_id,
+            h.title,
+            h.help_doc_catalog_id,
+            c.name AS help_doc_catalog_name,
+            h.author,
+            h.sort,
+            h.page_view_count,
+            h.user_view_count,
+            h.create_time,
+            h.update_time
+        FROM t_help_doc h
+        LEFT JOIN t_help_doc_catalog c ON h.help_doc_catalog_id = c.help_doc_catalog_id
+        WHERE h.help_doc_catalog_id = #{helpDocCatalogId}
+        ORDER BY h.sort ASC, h.create_time DESC
+    </select>
+
+    <!-- 根据关联文档id，查询文档 -->
+    <select id="queryHelpDocByRelationId" resultType="com.budaos.support.domain.vo.HelpCenterVO">
+        SELECT
+            h.help_doc_id,
+            h.title,
+            h.help_doc_catalog_id,
+            c.name AS help_doc_catalog_name,
+            h.author,
+            h.sort,
+            h.page_view_count,
+            h.user_view_count,
+            h.create_time,
+            h.update_time
+        FROM t_help_doc_relation r
+        LEFT JOIN t_help_doc h ON h.help_doc_id = r.help_doc_id
+        LEFT JOIN t_help_doc_catalog c ON h.help_doc_catalog_id = c.help_doc_catalog_id
+        WHERE r.relation_id = #{relationId}
+        ORDER BY h.sort ASC, h.create_time DESC
+    </select>
+
+    <!-- 查询浏览记录数量 -->
+    <select id="viewRecordCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM t_help_doc_view_record
+        WHERE help_doc_id = #{helpDocId} AND user_id = #{userId}
+    </select>
+
+    <!-- 插入浏览记录 -->
+    <insert id="insertViewRecord">
+        INSERT INTO t_help_doc_view_record (help_doc_id, user_id, user_name, first_ip, first_user_agent, page_view_count, create_time)
+        VALUES (#{helpDocId}, #{userId}, #{userName}, #{ip}, #{userAgent}, #{viewCount}, NOW())
+    </insert>
+
+    <!-- 更新浏览记录 -->
+    <update id="updateViewRecord">
+        UPDATE t_help_doc_view_record
+        SET
+            last_ip = #{ip},
+            last_user_agent = #{userAgent},
+            page_view_count = page_view_count + 1,
+            update_time = NOW()
+        WHERE help_doc_id = #{helpDocId} AND user_id = #{userId}
+    </update>
+
+    <!-- 分页查询浏览记录 -->
+    <select id="queryViewRecordList" resultType="com.budaos.support.domain.vo.HelpCenterViewRecordVO">
+        SELECT
+            user_id,
+            user_name,
+            page_view_count,
+            first_ip,
+            first_user_agent,
+            create_time,
+            last_ip,
+            last_user_agent,
+            update_time
+        FROM t_help_doc_view_record
+        <where>
+            <if test="query.helpDocId != null">
+                AND help_doc_id = #{query.helpDocId}
+            </if>
+            <if test="query.userId != null">
+                AND user_id = #{query.userId}
+            </if>
+            <if test="query.keywords != null and query.keywords != ''">
+                AND INSTR(user_name, #{query.keywords})
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>
