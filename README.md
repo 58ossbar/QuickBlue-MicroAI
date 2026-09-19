@@ -133,39 +133,9 @@ EasyExcel 大数据量导入导出、S3 兼容对象存储、定时任务调度�
 
 ## 系统架构
 
-```mermaid
-graph TB
-    subgraph 客户端
-        A[Web 管理端<br/>Vue 3.5 + Vite 8]
-    end
-
-    subgraph 接入层
-        B[Spring Cloud Gateway<br/>端口 8080]
-    end
-
-    subgraph 微服务层
-        C[QuickBlue-system<br/>系统管理 · 8081]
-        D[QuickBlue-business<br/>业务模块 · 8082]
-        E[QuickBlue-support<br/>支撑能力 · 8083]
-        F[QuickBlue-ai<br/>AI 服务 · 8084]
-        G[QuickBlue-admin<br/>监控中心 · 9090]
-    end
-
-    subgraph 基础设施
-        H[(MySQL 8<br/>每服务独立库)]
-        I[(Redis / Redisson)]
-        J[Nacos 2.4.3<br/>注册 + 配置]
-        K[RocketMQ / Seata / Sentinel]
-    end
-
-    A -->|HTTP /api/**| B
-    B --> C & D & E & F
-    G -.->|Actuator 探测| C & D & E & F
-    C & D & E & F --> H
-    C & D & E & F --> I
-    C & D & E & F --> J
-    C & D & E & F -.-> K
-```
+<p align="center">
+  <img src="QuickBlue-MicroAI/doc/images/system.png" alt="QuickBlue 微服务架构" width="100%" />
+</p>
 
 ### 服务端口
 
