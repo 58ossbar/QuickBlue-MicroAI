@@ -74,7 +74,7 @@
         <div class="arch-box admin-web">
           <div class="arch-icon">🎨</div>
           <div class="arch-name">Admin Web</div>
-          <div class="arch-desc">管理前端 (3000)</div>
+          <div class="arch-desc">管理前端 (5173)</div>
         </div>
       </div>
 
@@ -84,7 +84,7 @@
         <div class="tree-content">
           <div class="tree-item root">
             <span class="tree-icon">📂</span>
-            <span class="tree-name">QuickBlue-parent/</span>
+            <span class="tree-name">QuickBlue-MicroAI/</span>
           </div>
 
           <div class="tree-branch">

@@ -123,11 +123,12 @@ export const DEFAULT_CONFIG = {
   service: {
     gatewayUrl: 'http://localhost:8080',
     gatewayPort: 8080,
-    supportPort: 8083,
-    systemPort: 8086,
+    systemPort: 8081,
     businessPort: 8082,
+    supportPort: 8083,
     aiPort: 8084,
-    adminPort: 3000,
+    adminPort: 9090,
+    webDevPort: 5173,
   },
   // 存储配置
   storage: {

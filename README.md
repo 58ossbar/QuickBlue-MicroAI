@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://www.creatorblue.com">
-    <img src="QuickBule-MicroAI-web/public/favicon.ico" width="70" alt="QuickBlue" />
+    <img src="QuickBlue-MicroAI/doc/images/favicon.png" width="75" height="70" alt="QuickBlue" />
   </a>
 </p>
 
@@ -52,7 +52,7 @@
 > 体验环境包含完整功能：系统管理、RBAC 权限、服务监控大盘、AI 模型 / 知识库 / 应用编排等。欢迎 Star ⭐ 支持开源。
 
 <p align="center">
-  <img src="QuickBlue-MicroAI/doc/images/banner.png" alt="QuickBlue 平台横幅" width="100%" />
+  <img src="QuickBlue-MicroAI/doc/images/logon.png" alt="QuickBlue 平台横幅" width="100%" />
 </p>
 
 ---
@@ -66,6 +66,30 @@
 ---
 
 ## ✨ 为什么选择 QuickBlue
+
+### 🎯 向导式安装：不懂运维也能 10 分钟装好
+
+这是 QuickBlue 与绝大多数开源框架**最不一样的地方**——别人给你一堆 yml 和 SQL 让你自己拼装，QuickBlue 直接给你一个**浏览器安装向导**。
+
+启动前端后访问 `http://localhost:5173`，系统自动检测安装状态，未安装则直接进入可视化向导：**填地址 → 点"测试连接" → 下一步 → 开始安装**。全程鼠标操作，**不用敲命令、不用手写一行配置、不用手工粘贴 Nacos 配置**。
+
+| 传统开源框架的落地方式 | QuickBlue 向导式安装 |
+| --- | --- |
+| 手工执行 SQL 建库、建账号、授权 | ✅ 自动创建 4 个库 + 4 个最小权限专用账号 |
+| 手工按序导入建表脚本，顺序错了就翻车 | ✅ 自动按 01~05 顺序导入表结构与初始化数据 |
+| 手工往 Nacos 一条条粘贴十几个配置 | ✅ 自动生成并导入共享配置 + 各服务配置 |
+| 换环境要挨个改 yml | ✅ 自动生成 `.env`，一处配置全局生效 |
+| 出错只能翻日志猜原因 | ✅ 逐步连通性测试 + 实时进度条 + 可展开安装日志 |
+
+**向导流程（10 步）**：欢迎 → 环境检查 → 数据库 → Redis → 服务端口 → Nacos → 文件存储 → 管理员 → 安装 → 完成。
+
+每一步都提供"测试连接"即时验证，且**允许跳过未通过项继续安装**；安装完成后直接给出后台地址、网关文档地址、监控中心地址与管理员账号，开箱即可登录。
+
+<p align="center">
+  <img src="QuickBlue-MicroAI/doc/images/install.png" alt="QuickBlue 安装向导" width="100%" />
+</p>
+
+> 想完全掌控每一步？也保留了[手动部署](#快速开始)方式，两种路径任选。
 
 ### 🚀 技术栈领跑，不被时代淘汰
 采用**官方最新稳定技术线**：JDK 21 (LTS) 虚拟线程 + Spring Boot 3.5.10 + Spring Cloud 2025.0.1 + **Vite 8**（新一代构建引擎，毫秒级冷启动）。对比大量仍停留在 JDK 8 / Spring Boot 2.x / Webpack 的老牌框架，QuickBlue 从一开始就站在**下一个十年**的起跑线上。
@@ -135,6 +159,7 @@ EasyExcel 大数据量导入导出、S3 兼容对象存储、定时任务调度�
 
 <p align="center">
   <img src="QuickBlue-MicroAI/doc/images/system.png" alt="QuickBlue 微服务架构" width="100%" />
+<img src="QuickBlue-MicroAI/doc/images/service.png" alt="QuickBlue 微服务监控中心" width="100%" />
 </p>
 
 ### 服务端口
@@ -235,7 +260,9 @@ QuickBlue-MicroAI/
 | 模块 | 说明 |
 | --- | --- |
 | 安装部署向导（`views/install`） | `install-check.vue` / `install-wizard.vue` 环境检测与初始化引导 |
-
+| 后端网关服务启动 | `QuickBlue-gateway` | 8080 |  
+| 前端服务启动 | `QuickBule-MicroAI-web` | 5173 | 
+http://localhost:5173/#/install
 ---
 
 ## 快速开始
@@ -251,6 +278,30 @@ QuickBlue-MicroAI/
 | Redis | 6+ |
 | Nacos | 2.4.3（独立部署） |
 | RocketMQ / Seata / Sentinel | 可选，按需启用 |
+
+### 方式一：向导式安装（推荐，零门槛）
+
+只需启动**网关**与**前端**，其余全部交给浏览器向导：
+
+```bash
+# 1. 启动网关（向导的全部后端接口都在网关里）
+cd QuickBlue-MicroAI
+mvn clean package -DskipTests
+java -jar QuickBlue-gateway/target/QuickBlue-gateway-4.0.0.jar     # 8080
+
+# 2. 启动前端
+cd ../QuickBule-MicroAI-web
+npm install
+npm run dev                                                        # 5173
+```
+
+浏览器打开 `http://localhost:5173`，自动进入安装向导，按提示填写 MySQL / Redis / Nacos 地址并逐步"测试连接"，最后点击**开始安装**即可。向导会自动完成建库、建账号、导入表结构、初始化数据、生成导入 Nacos 配置、创建管理员账号。
+
+> 前置条件：MySQL、Redis、Nacos 已启动；其余微服务可在安装完成后再逐个启动。
+
+---
+
+### 方式二：手动部署（逐步可控）
 
 ### 1. 初始化数据库
 

@@ -525,14 +525,15 @@ public class InstallServiceImpl implements InstallService {
 
         try {
             String version = System.getProperty("java.version");
-            if (version != null && (version.startsWith("17") || version.startsWith("18") || version.startsWith("21"))) {
+            if (version != null && (version.startsWith("21") || version.startsWith("22") || version.startsWith("23")
+                    || version.startsWith("24") || version.startsWith("25"))) {
                 item.setStatus("success");
                 item.setStatusText("通过");
                 item.setMessage("Java " + version);
             } else {
                 item.setStatus("warning");
                 item.setStatusText("警告");
-                item.setMessage("Java " + version + " (建议使用Java 17+)");
+                item.setMessage("Java " + version + " (QuickBlue 4.0 要求 JDK 21+)");
             }
         } catch (Exception e) {
             item.setStatus("error");
@@ -550,7 +551,7 @@ public class InstallServiceImpl implements InstallService {
         // TODO: 实际项目中应该检查数据库连接
         item.setStatus("success");
         item.setStatusText("通过");
-        item.setMessage("PostgreSQL 18.3");
+        item.setMessage("MySQL 8.0");
 
         return item;
     }
@@ -1261,7 +1262,7 @@ public class InstallServiceImpl implements InstallService {
         // 尝试从文件系统加载
         Path[] possiblePaths = {
             Paths.get(scriptPath).toAbsolutePath(),
-            Paths.get("QuickBlue-parent", scriptPath).toAbsolutePath(),
+            Paths.get("QuickBlue-MicroAI", scriptPath).toAbsolutePath(),
             Paths.get("..", scriptPath).toAbsolutePath()
         };
 
@@ -1444,7 +1445,7 @@ public class InstallServiceImpl implements InstallService {
         Path[] possiblePaths = {
             Paths.get(templatePath).toAbsolutePath(),
             Paths.get("QuickBlue-gateway/src/main/resources", templatePath).toAbsolutePath(),
-            Paths.get("QuickBlue-parent/QuickBlue-gateway/src/main/resources", templatePath).toAbsolutePath()
+            Paths.get("QuickBlue-MicroAI/QuickBlue-gateway/src/main/resources", templatePath).toAbsolutePath()
         };
 
         for (Path path : possiblePaths) {

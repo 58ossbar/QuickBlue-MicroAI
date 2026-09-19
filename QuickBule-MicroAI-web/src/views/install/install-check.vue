@@ -4,6 +4,7 @@
       <div class="logo">
         <span class="logo-icon">⚡</span>
         <span class="logo-text">QuickBlue</span>
+        <span class="version-badge">v4.0.0 · MySQL 版</span>
       </div>
 
       <div class="check-content">
@@ -17,7 +18,7 @@
             <a-result
               status="success"
               title="系统已安装"
-              sub-title="QuickBlue系统已经安装完成，您可以直接登录使用"
+              sub-title="QuickBlue v4.0.0（MySQL 版）已经安装完成，您可以直接登录使用"
             >
               <template #icon>
                 <span class="success-icon">✅</span>
@@ -34,7 +35,7 @@
             <a-result
               status="info"
               title="欢迎使用 QuickBlue"
-              sub-title="系统尚未安装，点击下方按钮开始安装向导"
+              sub-title="系统尚未安装，点击下方按钮开始 v4.0.0（MySQL 版）安装向导"
             >
               <template #icon>
                 <span class="install-icon">🚀</span>
@@ -61,6 +62,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { RightOutlined, RocketOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
+import installApi from '/@/api/install/install-api';
 
 const router = useRouter();
 const checking = ref(true);
@@ -72,15 +74,9 @@ onMounted(async () => {
 
 async function checkInstalled() {
   try {
-    // 这里调用后端API检查系统是否已安装
-    // const response = await installApi.checkInstalled();
-    // installed.value = response.data.installed;
-
-    // 模拟检查结果 - 开发时可以修改此值来测试不同场景
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    // 临时设置：为了演示，设置为未安装
-    installed.value = false;
+    // 调用网关 /install/check-installed 获取真实安装状态
+    const response = await installApi.checkInstalled();
+    installed.value = !!(response && response.data);
 
     // 如果已安装，自动跳转到登录页面
     if (installed.value) {
@@ -91,7 +87,7 @@ async function checkInstalled() {
     }
   } catch (error) {
     console.error('检查安装状态失败:', error);
-    // 检查失败时，默认视为未安装
+    // 检查失败时（例如网关未启动），默认视为未安装，交由用户进入安装向导
     installed.value = false;
   } finally {
     checking.value = false;
@@ -146,6 +142,17 @@ function goToLogin() {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.version-badge {
+  align-self: center;
+  margin-left: 10px;
+  font-size: 12px;
+  color: #764ba2;
+  background: rgba(118, 75, 162, 0.1);
+  padding: 2px 10px;
+  border-radius: 10px;
+  white-space: nowrap;
 }
 
 .check-content {

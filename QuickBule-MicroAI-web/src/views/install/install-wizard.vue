@@ -6,7 +6,16 @@
           <span class="logo-icon">⚡</span>
           <span class="logo-text">QuickBlue</span>
         </div>
-        <div class="version">v1.0.0</div>
+        <div class="version">v4.0.0 · MySQL 版</div>
+        <div class="tech-stack">
+          <a-tag color="blue">JDK 21</a-tag>
+          <a-tag color="green">Spring Boot 3.5.10</a-tag>
+          <a-tag color="green">Spring Cloud 2025.0.1</a-tag>
+          <a-tag color="orange">MySQL 8.0</a-tag>
+          <a-tag color="red">Redis 6+</a-tag>
+          <a-tag color="purple">Nacos 2.4.3</a-tag>
+          <a-tag color="cyan">Vue 3.5 + Vite 8</a-tag>
+        </div>
       </div>
 
       <div class="install-content">
@@ -40,7 +49,7 @@
                 <div class="welcome-info">
                   <a-alert
                     message="安装前准备"
-                    description="请确保您的服务器已安装以下软件：Java 17+、PostgreSQL 18.3+、Redis 6.0+"
+                    description="请确保您的服务器已安装以下软件：JDK 21+、MySQL 8.0+、Redis 6.0+、Nacos 2.4.3（前端开发另需 Node.js 24+）"
                     type="info"
                     show-icon
                     style="margin-bottom: 16px; text-align: left;"
@@ -48,11 +57,20 @@
                   <div class="feature-list">
                     <h4>系统功能：</h4>
                     <ul>
-                      <li>✅ 支持服务 - 配置管理、字典管理、文件管理、定时任务等</li>
-                      <li>✅ 系统服务 - 用户管理、角色权限、菜单管理等</li>
-                      <li>✅ 业务服务 - 通知管理、区域管理等</li>
-                      <li>✅ AI服务 - AI应用、模型管理、知识库等</li>
+                      <li>✅ 网关服务 gateway（8080）- 统一路由、鉴权白名单、Knife4j 文档聚合</li>
+                      <li>✅ 系统服务 system（8081）- 认证登录、员工 / 组织 / 岗位、菜单、角色授权、数据权限、审计日志</li>
+                      <li>✅ 业务服务 business（8082）- 公告通知、区域管理</li>
+                      <li>✅ 支撑服务 support（8083）- 数据字典、服务监控、文件管理、定时任务、数据库备份、安全合规</li>
+                      <li>✅ AI 服务 ai（8084）- 模型管理（OpenAI / 通义千问 / 智谱 / Ollama）、RAG 知识库、应用编排、会话管理</li>
+                      <li>✅ 监控中心 admin（9090）- Spring Boot Admin 服务健康大盘</li>
                     </ul>
+                    <a-alert
+                      message="AI 向量检索说明"
+                      description="MySQL 版的关系数据存储在 MySQL 8.0；若需使用 AI 知识库的向量检索（RAG），需另外准备一套 PostgreSQL + pgvector 实例，在环境变量中配置 PGVECTOR_* 即可，业务代码零侵入。"
+                      type="warning"
+                      show-icon
+                      style="margin-top: 12px; text-align: left;"
+                    />
                   </div>
                   <div class="install-type">
                     <h4>安装类型：</h4>
@@ -149,10 +167,13 @@
 
                 <a-form-item label="数据库类型" name="dbType">
                   <a-radio-group v-model:value="dbConfig.dbType" button-style="solid">
-                    <a-radio-button value="postgresql">
-                      PostgreSQL
+                    <a-radio-button value="mysql">
+                      MySQL 8.0
                     </a-radio-button>
                   </a-radio-group>
+                  <div style="margin-top: 4px; color: #8c8c8c; font-size: 12px;">
+                    当前开源版本为 MySQL 版；PostgreSQL 版由官方单独提供
+                  </div>
                 </a-form-item>
 
                 <a-form-item label="主机地址" name="host">
@@ -164,7 +185,7 @@
                 </a-form-item>
 
                 <a-form-item label="管理员账号" name="adminUser">
-                  <a-input v-model:value="dbConfig.adminUser" placeholder="sdgs2026" />
+                  <a-input v-model:value="dbConfig.adminUser" placeholder="root" />
                 </a-form-item>
 
                 <a-form-item label="管理员密码" name="adminPassword">
@@ -217,9 +238,8 @@
                 </a-form-item>
 
                 <a-alert
-                  v-if="dbConfig.dbType === 'postgresql'"
-                  message="PostgreSQL 优化说明"
-                  description="系统已自动生成优化后的PostgreSQL脚本，性能经过验证，可直接用于生产环境。"
+                  message="MySQL 建库说明"
+                  description="将按 database/mysql 下的脚本依次创建 4 个库（utf8mb4 字符集）与 4 个最小权限专用账号，并导入 02~05 号建表脚本（support / system / business / ai）。"
                   type="success"
                   show-icon
                   style="margin-bottom: 16px;"
@@ -326,18 +346,7 @@
 
                 <a-separator>微服务端口配置</a-separator>
 
-                <a-form-item label="支撑服务">
-                  <a-row :gutter="8">
-                    <a-col :span="16">
-                      <a-input v-model:value="serviceConfig.supportPort" :min="1" :max="65535" type="number" addon-after="端口" />
-                    </a-col>
-                    <a-col :span="8">
-                      <a-button size="small">检查端口</a-button>
-                    </a-col>
-                  </a-row>
-                </a-form-item>
-
-                <a-form-item label="系统服务">
+                <a-form-item label="system 系统服务">
                   <a-row :gutter="8">
                     <a-col :span="16">
                       <a-input v-model:value="serviceConfig.systemPort" :min="1" :max="65535" type="number" addon-after="端口" />
@@ -348,7 +357,7 @@
                   </a-row>
                 </a-form-item>
 
-                <a-form-item label="业务服务">
+                <a-form-item label="business 业务服务">
                   <a-row :gutter="8">
                     <a-col :span="16">
                       <a-input v-model:value="serviceConfig.businessPort" :min="1" :max="65535" type="number" addon-after="端口" />
@@ -359,7 +368,18 @@
                   </a-row>
                 </a-form-item>
 
-                <a-form-item label="AI服务">
+                <a-form-item label="support 支撑服务">
+                  <a-row :gutter="8">
+                    <a-col :span="16">
+                      <a-input v-model:value="serviceConfig.supportPort" :min="1" :max="65535" type="number" addon-after="端口" />
+                    </a-col>
+                    <a-col :span="8">
+                      <a-button size="small">检查端口</a-button>
+                    </a-col>
+                  </a-row>
+                </a-form-item>
+
+                <a-form-item label="ai AI 服务">
                   <a-row :gutter="8">
                     <a-col :span="16">
                       <a-input v-model:value="serviceConfig.aiPort" :min="1" :max="65535" type="number" addon-after="端口" />
@@ -370,10 +390,23 @@
                   </a-row>
                 </a-form-item>
 
-                <a-form-item label="管理后台">
+                <a-form-item label="admin 监控中心">
                   <a-row :gutter="8">
                     <a-col :span="16">
                       <a-input v-model:value="serviceConfig.adminPort" :min="1" :max="65535" type="number" addon-after="端口" />
+                    </a-col>
+                    <a-col :span="8">
+                      <a-button size="small">检查端口</a-button>
+                    </a-col>
+                  </a-row>
+                </a-form-item>
+
+                <a-separator>前端（仅开发调试）</a-separator>
+
+                <a-form-item label="Web 开发端口">
+                  <a-row :gutter="8">
+                    <a-col :span="16">
+                      <a-input v-model:value="serviceConfig.webDevPort" :min="1" :max="65535" type="number" addon-after="端口" />
                     </a-col>
                     <a-col :span="8">
                       <a-button size="small">检查端口</a-button>
@@ -400,7 +433,7 @@
 
               <a-alert
                 message="Nacos说明"
-                description="Nacos是一个更易于构建云原生应用的动态服务发现、配置管理和服务管理平台。配置中心将统一管理系统各微服务的配置文件。"
+                description="Nacos 2.4.3 同时承担注册中心与配置中心。配置中心将统一管理系统各微服务的配置文件，切换 MySQL / Redis 等基础设施地址只需改动配置，无需重启业务代码。"
                 type="info"
                 show-icon
                 style="margin-bottom: 16px;"
@@ -473,10 +506,11 @@
                   style="margin-top: 16px;"
                 >
                   <template #description>
-                    <div>系统将使用PostgreSQL数据库连接配置的模板：</div>
+                    <div>安装时将按 <strong>QuickBlue_GROUP</strong> 分组导入以下配置（对应仓库 <code>nacos_config/</code> 目录）：</div>
                     <ul style="margin-top: 8px; padding-left: 20px;">
-                      <li><strong>PostgreSQL：</strong>使用PostgreSQL数据库连接配置的模板</li>
-                      <li><strong>通用：</strong>使用不包含数据库特定配置的通用模板</li>
+                      <li><strong>共享配置：</strong>common-config、mysql-common、redis-common、sa-token-common、level3-protect-common</li>
+                      <li><strong>服务配置：</strong>QuickBlue-gateway / system / business / support / ai / admin</li>
+                      <li><strong>MySQL：</strong>数据源按上面填写的 MySQL 地址与专用账号生成</li>
                     </ul>
                     <div style="margin-top: 8px;">安装时会自动替换配置中的占位符并导入到Nacos服务器。</div>
                   </template>
@@ -664,25 +698,34 @@
                 <template #description>
                   <div>点击"开始安装"后将执行以下操作：</div>
                   <ul style="margin-top: 8px; padding-left: 20px;">
-                    <li>✅ 创建4个数据库（quickblue_support、quickblue_system、quickblue_business、quickblue_ai）</li>
-                    <li>✅ 创建4个独立数据库账号并授权</li>
-                    <li>✅ 导入数据库表结构（包含所有表和索引）</li>
+                    <li>✅ 创建4个 MySQL 数据库（quickblue_support、quickblue_system、quickblue_business、quickblue_ai，utf8mb4）</li>
+                    <li>✅ 创建4个独立数据库账号（support_user / system_user / business_user / ai_user）并最小权限授权</li>
+                    <li>✅ 导入数据库表结构（02_migrate_support、03_migrate_system、04_migrate_business、05_create_ai_tables）</li>
                     <li>✅ 初始化基础数据（包括菜单、权限、默认管理员账号等）</li>
-                    <li>✅ 根据数据库类型自动生成并导入Nacos配置（PostgreSQL）</li>
+                    <li>✅ 生成并导入 Nacos 配置（MySQL 数据源模板，Group: QuickBlue_GROUP）</li>
                   </ul>
                   <div style="margin-top: 8px;">安装过程可能需要几分钟时间，请耐心等待。安装期间请勿关闭浏览器窗口。</div>
                 </template>
               </a-alert>
 
               <a-descriptions title="安装配置确认" bordered :column="2">
+                <a-descriptions-item label="产品版本">
+                  QuickBlue v4.0.0（MySQL 版）
+                </a-descriptions-item>
                 <a-descriptions-item label="数据库类型">
-                  PostgreSQL
+                  MySQL {{ dbConfig.port === 3306 ? '8.0' : '' }}
                 </a-descriptions-item>
                 <a-descriptions-item label="数据库地址">
                   {{ dbConfig.host }}:{{ dbConfig.port }}
                 </a-descriptions-item>
                 <a-descriptions-item label="Redis地址">
-                  {{ redisConfig.host }}:{{ redisConfig.port }}
+                  {{ redisConfig.host }}:{{ redisConfig.port }} (DB{{ redisConfig.database }})
+                </a-descriptions-item>
+                <a-descriptions-item label="Nacos地址">
+                  {{ nacosConfig.serverAddr }}
+                </a-descriptions-item>
+                <a-descriptions-item label="网关端口">
+                  {{ serviceConfig.gatewayPort }}
                 </a-descriptions-item>
                 <a-descriptions-item label="存储模式">
                   {{ storageConfig.mode === 'local' ? '本地存储' : '云存储' }}
@@ -796,6 +839,8 @@
 
                   <a-card title="访问信息" style="margin-bottom: 16px;">
                     <p><strong>管理后台地址：</strong> {{ serviceConfig.gatewayUrl }}/admin</p>
+                    <p><strong>网关聚合文档：</strong> {{ serviceConfig.gatewayUrl }}/doc.html</p>
+                    <p><strong>监控中心：</strong> http://{{ gatewayHost }}:{{ serviceConfig.adminPort }}</p>
                     <p><strong>管理员账号：</strong> {{ adminConfig.username }}</p>
                     <p><strong>初始密码：</strong> ********** (请妥善保管)</p>
                   </a-card>
@@ -812,9 +857,9 @@
                   <a-card title="帮助文档">
                     <p>如需帮助，请查看：</p>
                     <ul>
-                      <li>用户手册</li>
-                      <li>开发文档</li>
-                      <li>API文档: {{ serviceConfig.gatewayUrl }}/doc.html</li>
+                      <li>Nacos 配置手册（仓库 QuickBlue-MicroAI/nacos_config/Nacos配置手册.md）</li>
+                      <li>环境唯一配置源：QuickBlue-MicroAI/.env（由 .env.example 复制而来）</li>
+                      <li>API 文档（Knife4j 聚合 OpenAPI 3）: {{ serviceConfig.gatewayUrl }}/doc.html</li>
                     </ul>
                   </a-card>
                 </div>
@@ -850,7 +895,8 @@
           <div v-if="currentStep === 2" class="tips">
             <p>• 建议测试连接后继续下一步</p>
             <p>• 即使测试未通过也可以继续</p>
-            <p>• PostgreSQL性能更优</p>
+            <p>• MySQL 8.0 + utf8mb4 字符集</p>
+            <p>• 管理员账号需有建库授权权限</p>
           </div>
           <div v-if="currentStep === 3" class="tips">
             <p>• Redis用于缓存和会话</p>
@@ -859,13 +905,14 @@
           </div>
           <div v-if="currentStep === 4" class="tips">
             <p>• 确保端口未被占用</p>
-            <p>• 可以使用默认端口</p>
-            <p>• 不同服务使用不同端口</p>
+            <p>• 默认端口：8080/8081/8082/8083/8084/9090</p>
+            <p>• 前端开发端口 5173</p>
           </div>
           <div v-if="currentStep === 5" class="tips">
-            <p>• Nacos用于配置中心管理</p>
+            <p>• Nacos 2.4.3 注册 + 配置中心</p>
+            <p>• 命名空间 QuickBlue-dev</p>
+            <p>• 分组 QuickBlue_GROUP</p>
             <p>• 建议测试连接后继续下一步</p>
-            <p>• 即使测试未通过也可以继续</p>
           </div>
           <div v-if="currentStep === 6" class="tips">
             <p>• 本地存储适合小规模</p>
@@ -905,10 +952,11 @@
         <h3>安装向导使用指南</h3>
         <h4>1. 环境要求</h4>
         <ul>
-          <li>Java 17+</li>
-          <li>PostgreSQL 18.3+</li>
-          <li>Redis 6.0+</li>
-          <li>Node.js 18+ (仅开发环境)</li>
+          <li>JDK 21+（后端，Spring Boot 3.5.10 / Spring Cloud 2025.0.1）</li>
+          <li>MySQL 8.0+（四个微服务各自独立库与专用账号）</li>
+          <li>Redis 6.0+（Redisson 3.50.0 分布式锁与缓存）</li>
+          <li>Nacos 2.4.3（注册中心 + 配置中心）</li>
+          <li>Node.js 24+（仅前端开发，Vite 8 构建）</li>
         </ul>
         <h4>2. 安装步骤</h4>
         <ul>
@@ -918,9 +966,11 @@
         </ul>
         <h4>3. 常见问题</h4>
         <ul>
-          <li>数据库连接失败：检查地址、端口、账号密码</li>
-          <li>Redis连接失败：检查Redis服务是否启动</li>
-          <li>端口被占用：修改服务端口配置</li>
+          <li>数据库连接失败：检查地址、端口、账号密码，MySQL 管理员账号需具备建库与授权权限</li>
+          <li>Redis连接失败：检查Redis服务是否启动、密码与库号是否正确</li>
+          <li>Nacos连接失败：检查 8848 端口、命名空间 QuickBlue-dev 与分组 QuickBlue_GROUP</li>
+          <li>端口被占用：网关 8080、system 8081、business 8082、support 8083、ai 8084、admin 9090</li>
+          <li>AI 知识库向量检索不可用：需额外准备 PostgreSQL + pgvector 并配置 PGVECTOR_*</li>
         </ul>
       </div>
     </a-modal>
@@ -972,11 +1022,11 @@ const envChecks = ref([
 // 数据库配置
 const dbFormRef = ref();
 const dbConfig = reactive({
-  dbType: 'postgresql',
+  dbType: 'mysql',
   host: '127.0.0.1',
-  port: 5432,
-  adminUser: 'postgres',
-  adminPassword: 'sdgs2026',
+  port: 3306,
+  adminUser: 'root',
+  adminPassword: 'budaos',
   databases: []
 });
 
@@ -1046,7 +1096,7 @@ const redisFormRef = ref();
 const redisConfig = reactive({
   host: '127.0.0.1',
   port: 6379,
-  password: 'Nq963369',
+  password: 'budaos',
   database: 1,
   timeout: 10,
   testing: false,
@@ -1091,11 +1141,12 @@ const serviceFormRef = ref();
 const serviceConfig = reactive({
   gatewayUrl: 'http://localhost:8080',
   gatewayPort: 8080,
-  supportPort: 8083,
-  systemPort: 8086,
+  systemPort: 8081,
   businessPort: 8082,
+  supportPort: 8083,
   aiPort: 8084,
-  adminPort: 5173
+  adminPort: 9090,
+  webDevPort: 5173
 });
 
 // 存储配置
@@ -1176,6 +1227,11 @@ const installTasks = ref([
   { title: '验证安装结果', status: 'pending', progress: 0, error: null, message: '' }
 ]);
 
+// 网关地址中的主机部分，用于拼接各服务访问地址
+const gatewayHost = computed(() => {
+  return String(serviceConfig.gatewayUrl || '').replace(/^https?:\/\//, '').split(':')[0] || 'localhost';
+});
+
 const overallProgress = computed(() => {
   const completed = installTasks.value.filter(task => task.status === 'completed').length;
   const total = installTasks.value.length;
@@ -1214,17 +1270,46 @@ function prevStep() {
 async function checkEnvironment() {
   checking.value = true;
 
-  // 模拟环境检查
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  envChecks.value.forEach(item => {
+    item.status = 'pending';
+    item.statusText = '检查中';
+    item.message = '';
+  });
 
-  envChecks.value[0] = { name: 'Java 版本', status: 'success', statusText: '通过', message: 'Java 17.0.9' };
-  envChecks.value[1] = { name: '数据库', status: 'success', statusText: '通过', message: 'PostgreSQL 18.3' };
-  envChecks.value[2] = { name: 'Redis', status: 'success', statusText: '通过', message: 'Redis 7.0.5' };
-  envChecks.value[3] = { name: '磁盘空间', status: 'success', statusText: '通过', message: '可用: 256GB' };
-  envChecks.value[4] = { name: '网络连接', status: 'success', statusText: '通过', message: '网络正常' };
+  try {
+    // 调用网关 /install/check-environment 获取真实检查结果
+    const resp = await installApi.checkEnvironment();
+    const data = resp && resp.data ? resp.data : null;
 
-  checking.value = false;
-  envCheckPassed.value = true;
+    if (data && Array.isArray(data.items) && data.items.length > 0) {
+      envChecks.value = data.items.map(item => ({
+        name: item.name,
+        status: item.status,
+        statusText: item.statusText,
+        message: item.message
+      }));
+      envCheckPassed.value = !!data.passed;
+      addLog('INFO', `环境检查完成，是否通过: ${data.passed}`);
+    } else {
+      addLog('WARNING', '后端未返回环境检查项，展示为待确认');
+      envChecks.value.forEach(item => {
+        item.status = 'warning';
+        item.statusText = '未检测';
+        item.message = '后端未返回该项检测结果';
+      });
+      envCheckPassed.value = true;
+    }
+  } catch (error) {
+    addLog('ERROR', `环境检查失败: ${error.msg || error.message || '未知错误'}`);
+    envChecks.value.forEach(item => {
+      item.status = 'warning';
+      item.statusText = '未检测';
+      item.message = '无法连接网关检测接口，请确认网关已启动后重新检查';
+    });
+    envCheckPassed.value = true;
+  } finally {
+    checking.value = false;
+  }
 }
 
 function recheckEnvironment() {
@@ -1242,7 +1327,8 @@ async function testAdminConnection() {
       port: dbConfig.port,
       adminUser: dbConfig.adminUser,
       adminPassword: dbConfig.adminPassword,
-      databaseName: 'postgres',
+      // MySQL 用默认系统库 mysql 探测连通性；库尚未创建时后端会自动回退到管理员连接
+      databaseName: dbConfig.dbType === 'mysql' ? 'mysql' : 'postgres',
       databaseUser: dbConfig.adminUser,
       databasePassword: dbConfig.adminPassword
     });
@@ -1711,6 +1797,18 @@ onMounted(() => {
   padding: 4px 12px;
   border-radius: 12px;
   align-self: flex-start;
+}
+
+.tech-stack {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  :deep(.ant-tag) {
+    margin-inline-end: 0;
+    font-size: 11px;
+  }
 }
 
 .install-content {
