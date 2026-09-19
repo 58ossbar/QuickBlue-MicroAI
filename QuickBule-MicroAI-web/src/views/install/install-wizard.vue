@@ -839,10 +839,28 @@
 
                   <a-card title="访问信息" style="margin-bottom: 16px;">
                     <p><strong>管理后台地址：</strong> {{ serviceConfig.gatewayUrl }}/admin</p>
+                    <p><strong>统一网关地址：</strong> {{ serviceConfig.gatewayUrl }}</p>
                     <p><strong>网关聚合文档：</strong> {{ serviceConfig.gatewayUrl }}/doc.html</p>
                     <p><strong>监控中心：</strong> http://{{ gatewayHost }}:{{ serviceConfig.adminPort }}</p>
                     <p><strong>管理员账号：</strong> {{ adminConfig.username }}</p>
                     <p><strong>初始密码：</strong> ********** (请妥善保管)</p>
+                  </a-card>
+
+                  <a-card title="统一 API 入口" style="margin-bottom: 16px;">
+                    <p>所有微服务接口统一由网关暴露，业务调用无需直连各服务端口：</p>
+                    <ul>
+                      <li>系统服务：<code>{{ serviceConfig.gatewayUrl }}/api/system/**</code></li>
+                      <li>业务服务：<code>{{ serviceConfig.gatewayUrl }}/api/business/**</code>、<code>{{ serviceConfig.gatewayUrl }}/api/oa/**</code></li>
+                      <li>支撑服务：<code>{{ serviceConfig.gatewayUrl }}/api/support/**</code></li>
+                      <li>AI 服务：<code>{{ serviceConfig.gatewayUrl }}/api/ai/**</code></li>
+                    </ul>
+                    <p style="margin-top: 8px;">OpenAPI 3 独立文档：</p>
+                    <ul>
+                      <li><code>{{ serviceConfig.gatewayUrl }}/QuickBlue-system/v3/api-docs</code></li>
+                      <li><code>{{ serviceConfig.gatewayUrl }}/QuickBlue-business/v3/api-docs</code></li>
+                      <li><code>{{ serviceConfig.gatewayUrl }}/QuickBlue-support/v3/api-docs</code></li>
+                      <li><code>{{ serviceConfig.gatewayUrl }}/QuickBlue-ai/v3/api-docs</code></li>
+                    </ul>
                   </a-card>
 
                   <a-card title="后续步骤" style="margin-bottom: 16px;">
@@ -964,7 +982,14 @@
           <li>每步都可以点击上一步返回</li>
           <li>安装完成后可登录系统</li>
         </ul>
-        <h4>3. 常见问题</h4>
+        <h4>3. 统一接口访问</h4>
+        <ul>
+          <li>所有微服务接口统一由网关暴露，前端与第三方调用均走 <code>{{ serviceConfig.gatewayUrl }}</code></li>
+          <li>业务路由前缀：<code>/api/system/**</code>、<code>/api/business/**</code>、<code>/api/support/**</code>、<code>/api/ai/**</code></li>
+          <li>API 文档聚合页：<code>{{ serviceConfig.gatewayUrl }}/doc.html</code>（Knife4j/OpenAPI 3）</li>
+          <li>独立 OpenAPI 文档：<code>/QuickBlue-system|business|support|ai/v3/api-docs</code></li>
+        </ul>
+        <h4>4. 常见问题</h4>
         <ul>
           <li>数据库连接失败：检查地址、端口、账号密码，MySQL 管理员账号需具备建库与授权权限</li>
           <li>Redis连接失败：检查Redis服务是否启动、密码与库号是否正确</li>

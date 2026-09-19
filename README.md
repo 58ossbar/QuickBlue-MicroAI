@@ -166,12 +166,31 @@ EasyExcel 大数据量导入导出、S3 兼容对象存储、定时任务调度�
 
 | 服务 | 端口 | 说明 |
 | --- | --- | --- |
-| QuickBlue-gateway | 8080 | 微服务网关（路由 / 鉴权 / 文档聚合） |
+| QuickBlue-gateway | 8080 | **统一服务访问入口**：微服务网关（路由 / 鉴权 / 文档聚合），所有微服务接口均由此统一暴露 |
 | QuickBlue-system | 8081 | 系统管理服务（认证 / RBAC / 组织 / 岗位 / 数据权限） |
 | QuickBlue-business | 8082 | 业务服务（公告通知 / 区域等业务模块） |
 | QuickBlue-support | 8083 | 支撑服务（字典 / 监控 / 文件 / 定时任务 / 备份 / 安全等公共能力） |
 | QuickBlue-ai | 8084 | AI 服务（模型 / 知识库 / 应用编排 / 会话） |
 | QuickBlue-admin | 9090 | Spring Boot Admin 监控中心 |
+
+### 统一服务访问入口（QuickBlue-gateway 8080）
+
+**网关是所有服务的唯一访问入口**，业务调用与前端请求只需记住 `http://localhost:8080`，无需直连各服务端口：
+
+```
+http://localhost:8080                  # 统一服务访问入口
+http://localhost:8080/doc.html         # API 文档中心（聚合全部微服务接口）
+```
+
+| 服务 | 统一业务接口入口 | 统一 API 文档入口 |
+| --- | --- | --- |
+| 系统服务 | `http://localhost:8080/api/system/**` | `http://localhost:8080/QuickBlue-system/v3/api-docs` |
+| 业务服务 | `http://localhost:8080/api/business/**`、`/api/oa/**` | `http://localhost:8080/QuickBlue-business/v3/api-docs` |
+| 支撑服务 | `http://localhost:8080/api/support/**` | `http://localhost:8080/QuickBlue-support/v3/api-docs` |
+| AI 服务 | `http://localhost:8080/api/ai/**` | `http://localhost:8080/QuickBlue-ai/v3/api-docs` |
+
+> 网关通过 Knife4j 自动聚合上述服务的 OpenAPI 3 文档，`/doc.html` 一个页面即可切换查看系统 / 业务 / 支撑 / AI 全部接口。
+> 独立文档路径由网关自动转发到对应服务，并经过 `OpenApiServerFilter` 修正 `servers` 字段，确保调试请求仍统一走网关。
 
 ### 目录结构
 
@@ -378,12 +397,17 @@ npm run build:prod      # 产物输出到 dist/，生产模式 base 为 /admin�
 
 ### 7. 访问 API 文档
 
-网关聚合了全部微服务的 OpenAPI 3 文档：
+网关聚合了全部微服务的 OpenAPI 3 文档，无需记住各服务端口：
 
-```
-http://localhost:8080/doc.html        # Knife4j 聚合文档
-http://localhost:8080/QuickBlue-system/v3/api-docs
-```
+| 入口 | 地址 | 说明 |
+| --- | --- | --- |
+| Knife4j 聚合文档 | `http://localhost:8080/doc.html` | 一个页面查看系统 / 业务 / 支撑 / AI 全部接口 |
+| 系统服务文档 | `http://localhost:8080/QuickBlue-system/v3/api-docs` | 认证 / RBAC / 组织 / 岗位 / 审计等 |
+| 业务服务文档 | `http://localhost:8080/QuickBlue-business/v3/api-docs` | 公告 / 区域 / OA 等 |
+| 支撑服务文档 | `http://localhost:8080/QuickBlue-support/v3/api-docs` | 字典 / 文件 / 任务 / 监控 / 安全等 |
+| AI 服务文档 | `http://localhost:8080/QuickBlue-ai/v3/api-docs` | 模型 / 知识库 / 应用编排 / 会话 |
+
+> 实际业务调用请统一使用网关路由，例如：`POST http://localhost:8080/api/system/auth/login`。
 
 ---
 
