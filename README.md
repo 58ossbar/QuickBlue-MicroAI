@@ -22,7 +22,7 @@
   <img src="https://img.shields.io/badge/Vite-8.2-646CFF?logo=vite" alt="Vite 8"/>
   <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql" alt="MySQL 8.0"/>
   <img src="https://img.shields.io/badge/Node.js-24+-339933?logo=nodedotjs" alt="Node.js 24+"/>
-  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License MIT"/>
+  <img src="https://img.shields.io/badge/License-Apache%202.0-D22128?logo=apache&logoColor=white" alt="License Apache 2.0"/>
 </p>
 
 <p align="center">
@@ -39,6 +39,8 @@
   <a href="#modules">🧩 功能模块</a>
   &nbsp;|&nbsp;
   <a href="#docs">📚 相关文档</a>
+  &nbsp;|&nbsp;
+  <a href="#support">💝 支持我们</a>
 </p>
 
 ---
@@ -502,7 +504,7 @@ QuickBlue-MicroAI/
 | 前端开发指南 | 目录约定、路由与权限联动、多环境构建 | 待补充 |
 | 接口规范与网关说明 | 统一路由前缀、鉴权白名单、OpenAPI 3 聚合规则 | 待补充 |
 | 常见问题排查（FAQ） | 安装与运行期高频问题的定位与解决 | 待补充 |
-| 开源协议（LICENSE） | MIT 开源协议 | 待补充 |
+| 开源协议（LICENSE） | Apache License 2.0 开源协议，可免费用于商业与学习场景 | 待补充 |
 
 ---
 
@@ -528,9 +530,36 @@ QuickBlue-MicroAI/
 
 ---
 
-## 联系我们
+## 联系我们<a id="contact"></a>
 
-- 🌐 官网：<https://www.creatorblue.com>
-- ✉️ 邮箱：28449472@QQ.com
+- 🌐 官网：www.creatorblue.com
+- ✉️ 技术邮箱：28449472@qq.com
 
-> 如果你觉得这个项目对你有帮助，欢迎 **Star ⭐** 支持，感谢开源路上每一位同行者。
+> 📞 **有意向？请联系我们获取详细的解决方案和报价**
+
+<div align="left">
+  <img src="QuickBlue-MicroAI/doc/images/img_1.png" width="160" alt="商务合作微信"/>
+</div>
+
+---
+
+## 支持我们<a id="support"></a>
+
+开源不易，如果这个项目对您有帮助，欢迎通过以下方式支持我们：
+
+### 捐赠方式
+
+| 方式 | 说明 |
+|------|------|
+| ☕ 喝杯咖啡 | 一杯咖啡，一份鼓励 |
+| 💝 任意打赏 | 量力而行，感恩有你 |
+
+<img src="QuickBlue-MicroAI/doc/images/img_2.png" width="160" alt="微信收款码"/></br>
+
+> 捐赠时请备注「QuickBlue 开源支持」，您的名字将出现在致谢名单中（可选）。
+
+### 感谢每一份支持
+
+您的每一份捐赠都是对我们最大的鼓励，让我们能够持续维护和迭代开源项目，为社区提供更好的开源平台。
+
+> 如果暂不方便捐赠，也欢迎 **Star ⭐** 支持，感谢开源路上每一位同行者。
