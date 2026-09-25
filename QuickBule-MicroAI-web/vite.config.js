@@ -9,8 +9,11 @@ import customVariables from './src/theme/custom-variables.js';
 const pathResolve = (dir) => {
     return resolve(import.meta.dirname, dir);
 };
-export default {
-    base: process.env.NODE_ENV === 'production' ? '/admin' : '/',
+export default ({ mode }) => {
+    // desktop 模式：产物被打进 Tauri 桌面端，必须走相对路径（协议为 http://tauri.localhost，无 /admin 前缀）
+    const base = mode === 'desktop' ? './' : mode === 'production' ? '/admin' : '/';
+    return {
+    base,
     root: process.cwd(),
     resolve: {
         alias: [
@@ -82,7 +85,8 @@ export default {
             },
         },
         target: 'esnext',
-        outDir: 'dist', // 指定输出路径
+        // 桌面端单独输出，避免覆盖用于 Nginx 部署的 dist
+        outDir: mode === 'desktop' ? 'dist-desktop' : 'dist', // 指定输出路径
         assetsDir: 'assets', // 指定生成静态文件目录
         assetsInlineLimit: '4096', // 小于此阈值的导入或引用资源将内联为 base64 编码
         chunkSizeWarningLimit: 500, // chunk 大小警告的限制
@@ -100,4 +104,5 @@ export default {
     define: {
         __INTLIFY_PROD_DEVTOOLS__: false,
     },
+    };
 };

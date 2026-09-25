@@ -14,6 +14,7 @@
     "build:test": "vite build  --base=/admin/ --mode test",
     "build:pre": "vite build  --mode pre",
     "build:prod": "vite build  --mode production",
+    "build:desktop": "vite build --mode desktop",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage"
@@ -54,6 +55,9 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@tauri-apps/api": "^2.11.1",
+    "@tauri-apps/plugin-dialog": "^2.7.3",
+    "@tauri-apps/plugin-fs": "^2.5.2",
     "@vitejs/plugin-vue": "6.0.8",
     "@vitest/coverage-v8": "^4.1.10",
     "@vue/compiler-sfc": "3.5.41",

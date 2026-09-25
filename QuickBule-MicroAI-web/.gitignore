@@ -2,6 +2,8 @@ node_modules
 .DS_Store
 **/.DS_Store
 dist
+dist-desktop
 dist-ssr
+node_modules_broken_bak
 *.local
 .idea

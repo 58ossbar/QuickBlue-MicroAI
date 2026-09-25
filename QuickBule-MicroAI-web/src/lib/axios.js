@@ -492,25 +492,10 @@ function handleDownloadError(error) {
   }
 }
 
-function handleDownloadData(response) {
-  if (!response) {
-    return;
-  }
-
-  // 获取返回类型
-  let contentType = _.isUndefined(response.headers['content-type']) ? response.headers['Content-Type'] : response.headers['content-type'];
-
-  // 构建下载数据
-  let url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
-  let link = document.createElement('a');
-  link.style.display = 'none';
-  link.href = url;
-
-  // 从消息头获取文件名
-  let disposition = _.isUndefined(response.headers['content-disposition'])
-    ? response.headers['Content-Disposition']
-    : response.headers['content-disposition'];
-
+/**
+ * 从 Content-Disposition 消息头解析文件名
+ */
+function parseFilename(disposition) {
   let filename = 'download.sql';
   if (disposition) {
     let strArr = disposition.split(';');
@@ -524,7 +509,66 @@ function handleDownloadData(response) {
       }
     }
   }
+  return filename;
+}
 
+/**
+ * 是否为 Tauri 桌面端运行环境（Tauri v2 会向页面注入 __TAURI_INTERNALS__）
+ */
+function isDesktopRuntime() {
+  return typeof window !== 'undefined' && !!window.__TAURI_INTERNALS__;
+}
+
+/**
+ * 桌面端保存文件：WebView 中 <a download> 不会触发下载，改为系统保存对话框 + 写本地文件
+ */
+async function desktopSaveBlob(blob, filename) {
+  const [{ save }, { writeFile }] = await Promise.all([import('@tauri-apps/plugin-dialog'), import('@tauri-apps/plugin-fs')]);
+  const path = await save({ defaultPath: filename });
+  if (!path) {
+    return null;
+  }
+  await writeFile(path, new Uint8Array(await blob.arrayBuffer()));
+  return path;
+}
+
+function handleDownloadData(response) {
+  if (!response) {
+    return;
+  }
+
+  // 获取返回类型
+  let contentType = _.isUndefined(response.headers['content-type']) ? response.headers['Content-Type'] : response.headers['content-type'];
+
+  // 从消息头获取文件名
+  let disposition = _.isUndefined(response.headers['content-disposition'])
+    ? response.headers['Content-Disposition']
+    : response.headers['content-disposition'];
+
+  let filename = parseFilename(disposition);
+  let blob = new Blob([response.data], { type: contentType });
+
+  // 桌面端（Tauri）：弹系统保存对话框落盘
+  if (isDesktopRuntime()) {
+    desktopSaveBlob(blob, filename)
+      .then((path) => {
+        if (path) {
+          message.destroy();
+          message.success('已保存：' + path);
+        }
+      })
+      .catch((e) => {
+        message.destroy();
+        message.error('保存失败：' + (e && e.message ? e.message : e));
+      });
+    return;
+  }
+
+  // 浏览器：构建下载数据并触发点击下载
+  let url = window.URL.createObjectURL(blob);
+  let link = document.createElement('a');
+  link.style.display = 'none';
+  link.href = url;
   link.setAttribute('download', filename);
 
   // 触发点击下载
