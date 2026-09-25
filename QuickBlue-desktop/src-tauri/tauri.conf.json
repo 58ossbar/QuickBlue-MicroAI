@@ -1,0 +1,63 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "QuickBlue",
+  "version": "4.0.0",
+  "identifier": "com.budaos.quickblue.desktop",
+  "build": {
+    "beforeDevCommand": "cd ../QuickBule-MicroAI-web && npm run dev",
+    "beforeBuildCommand": "cd ../QuickBule-MicroAI-web && npm run build:desktop",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../../QuickBule-MicroAI-web/dist-desktop"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "QuickBlue",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1100,
+        "minHeight": 700,
+        "center": true,
+        "resizable": true,
+        "fullscreen": false,
+        "dragDropEnabled": false,
+        "visible": true
+      }
+    ],
+    "trayIcon": {
+      "id": "main",
+      "iconPath": "icons/tray.png",
+      "iconAsTemplate": false,
+      "title": "QuickBlue",
+      "tooltip": "QuickBlue 桌面客户端",
+      "showMenuOnLeftClick": true
+    },
+    "security": {
+      "csp": null,
+      "assetProtocol": {
+        "enable": false
+      }
+    },
+    "withGlobalTauri": false
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": ["icons/icon.png", "icons/icon.ico"],
+    "category": "Business",
+    "shortDescription": "QuickBlue 桌面客户端",
+    "longDescription": "原生 AI 微服务应用底座 QuickBlue 的桌面客户端",
+    "copyright": "Copyright (c) 2026 budaos",
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["SimpChinese"],
+        "displayLanguageSelector": false
+      }
+    }
+  }
+}

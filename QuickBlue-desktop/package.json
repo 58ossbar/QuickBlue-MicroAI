@@ -1,0 +1,19 @@
+{
+  "name": "QuickBlue-desktop",
+  "version": "4.0.0",
+  "private": true,
+  "description": "QuickBlue 桌面客户端（Tauri 2 + 现有 Vue3 前端产物）",
+  "type": "module",
+  "scripts": {
+    "icons": "node scripts/prepare-icons.mjs",
+    "web:build": "cd ../QuickBule-MicroAI-web && npm run build:desktop",
+    "tauri": "tauri",
+    "dev": "npm run icons && tauri dev",
+    "build": "npm run icons && tauri build",
+    "build:debug": "npm run icons && tauri build --debug",
+    "build:web-only": "npm run web:build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}
