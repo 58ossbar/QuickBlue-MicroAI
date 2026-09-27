@@ -9,6 +9,7 @@ import com.budaos.support.nacos.domain.vo.ConfigAuditVO;
 import com.budaos.support.nacos.domain.vo.ConfigHistoryVO;
 import com.budaos.support.nacos.domain.vo.NacosConfigVO;
 import com.budaos.support.nacos.domain.vo.NacosNamespaceVO;
+import com.budaos.support.nacos.domain.vo.NacosSyncResultVO;
 import com.budaos.support.nacos.service.NacosConfigService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -177,5 +178,17 @@ public class NacosConfigController {
     @SaCheckPermission("system:nacos-config:edit")
     public ApiResult<String> importConfigs(@RequestBody List<NacosConfigForm> configs) {
         return nacosConfigService.importConfigs(configs);
+    }
+
+    /**
+     * 从本地 nacos_config 目录一键同步配置到 Nacos
+     * 同名配置将被覆盖，内容一致的配置自动跳过
+     */
+    @Operation(summary = "一键同步本地配置到Nacos")
+    @PostMapping("/sync-from-local")
+    @SaCheckPermission("system:nacos-config:edit")
+    public ApiResult<NacosSyncResultVO> syncFromLocal(
+            @Parameter(description = "命名空间ID") @RequestParam(required = false) String tenantId) {
+        return nacosConfigService.syncFromLocal(tenantId);
     }
 }

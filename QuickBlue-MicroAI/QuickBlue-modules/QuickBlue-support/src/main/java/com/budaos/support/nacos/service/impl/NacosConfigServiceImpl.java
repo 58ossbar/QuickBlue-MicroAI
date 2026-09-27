@@ -18,15 +18,25 @@ import com.budaos.support.nacos.domain.vo.ConfigAuditVO;
 import com.budaos.support.nacos.domain.vo.ConfigHistoryVO;
 import com.budaos.support.nacos.domain.vo.NacosConfigVO;
 import com.budaos.support.nacos.domain.vo.NacosNamespaceVO;
+import com.budaos.support.nacos.domain.vo.NacosSyncItemVO;
+import com.budaos.support.nacos.domain.vo.NacosSyncResultVO;
 import com.budaos.support.nacos.service.NacosConfigService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.http.*;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -38,6 +48,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 /**
  * Nacos配置管理服务实现
@@ -53,6 +68,7 @@ public class NacosConfigServiceImpl implements NacosConfigService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private final SysConfigAuditDao sysConfigAuditDao;
+    private final ApplicationContext applicationContext;
 
     @Value("${spring.cloud.nacos.config.server-addr:}")
     private String nacosServerAddr;
@@ -63,10 +79,50 @@ public class NacosConfigServiceImpl implements NacosConfigService {
     @Value("${spring.cloud.nacos.config.password:}")
     private String nacosPassword;
 
+    /** 本地 nacos_config 目录（为空时自动探测，找不到则回退 classpath:nacos-config/） */
+    @Value("${quickblue.nacos.sync.local-dir:}")
+    private String localConfigDir;
+
+    /** 一键同步的目标分组 */
+    @Value("${quickblue.nacos.sync.group:${NACOS_GROUP:QuickBlue_GROUP}}")
+    private String syncGroup;
+
     /**
-     * 获取accessToken
+     * Nacos 鉴权开关：
+     * auto(默认，先尝试登录，失败则按未开启鉴权访问) / true(必须鉴权) / false(明确不鉴权，不发起登录)
+     */
+    @Value("${quickblue.nacos.auth.enabled:auto}")
+    private String nacosAuthEnabled;
+
+    /** 缓存的 accessToken（Nacos 默认有效期 18 小时） */
+    private volatile String accessTokenCache;
+
+    /** 已判定为"未开启鉴权"，后续请求不再带 token */
+    private volatile boolean authDisabled;
+
+    /** classpath 内内置配置的存放位置（由构建打包 nacos_config 目录而来） */
+    private static final String CLASSPATH_CONFIG_PREFIX = "nacos-config/";
+
+    /**
+     * 获取 accessToken
+     * <p>
+     * Nacos 2.x 默认不开启鉴权，此时不存在 nacos 用户，登录接口返回 500 "User nacos not found"。
+     * 因此登录失败时降级为不带 token 访问，保证配置管理功能在两种环境下都可用。
+     *
+     * @return accessToken，未开启鉴权或登录失败时返回 null
      */
     private String getAccessToken() {
+        if (authDisabled) {
+            return null;
+        }
+        if (StringUtils.hasText(accessTokenCache)) {
+            return accessTokenCache;
+        }
+        if ("false".equalsIgnoreCase(nacosAuthEnabled)) {
+            authDisabled = true;
+            return null;
+        }
+
         try {
             String url = getNacosUrl() + "/nacos/v1/auth/login";
             HttpHeaders headers = new HttpHeaders();
@@ -81,12 +137,41 @@ public class NacosConfigServiceImpl implements NacosConfigService {
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
-                return jsonNode.has("accessToken") ? jsonNode.get("accessToken").asText() : null;
+                if (jsonNode.has("accessToken")) {
+                    accessTokenCache = jsonNode.get("accessToken").asText();
+                    return accessTokenCache;
+                }
             }
         } catch (Exception e) {
-            log.error("获取Nacos accessToken失败", e);
+            if ("true".equalsIgnoreCase(nacosAuthEnabled)) {
+                log.error("获取Nacos accessToken失败，已强制开启鉴权，请检查 spring.cloud.nacos.config.username/password 配置", e);
+                return null;
+            }
+            log.warn("Nacos 登录失败，按「未开启鉴权」继续访问（如实际已开启鉴权，请配置正确的 Nacos 账号）: {}",
+                    e.getMessage());
+            authDisabled = true;
+            return null;
         }
+
+        log.warn("Nacos 登录接口未返回 accessToken，按「未开启鉴权」继续访问");
+        authDisabled = true;
         return null;
+    }
+
+    /**
+     * 拼接 accessToken 参数（以 &amp; 开头），未鉴权时返回空串
+     */
+    private String tokenParam() {
+        String token = getAccessToken();
+        return StringUtils.hasText(token) ? "&accessToken=" + token : "";
+    }
+
+    /**
+     * 拼接 accessToken 参数（以 ? 开头），未鉴权时返回空串
+     */
+    private String tokenQuery() {
+        String token = getAccessToken();
+        return StringUtils.hasText(token) ? "?accessToken=" + token : "";
     }
 
     /**
@@ -157,7 +242,7 @@ public class NacosConfigServiceImpl implements NacosConfigService {
     @Override
     public ApiResult<List<NacosNamespaceVO>> listNamespaces() {
         try {
-            String url = getNacosUrl() + "/nacos/v1/console/namespaces?accessToken=" + getAccessToken();
+            String url = getNacosUrl() + "/nacos/v1/console/namespaces" + tokenQuery();
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
@@ -187,7 +272,7 @@ public class NacosConfigServiceImpl implements NacosConfigService {
                     "&tenant=" + targetTenantId + 
                     "&pageNo=" + (pageNo != null ? pageNo : 1) +
                     "&pageSize=" + (pageSize != null ? pageSize : 100) +
-                    "&accessToken=" + getAccessToken();
+                    tokenParam();
             
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
             
@@ -265,7 +350,7 @@ public class NacosConfigServiceImpl implements NacosConfigService {
             String url = getNacosUrl() + "/nacos/v1/cs/configs?dataId=" + dataId +
                     "&group=" + groupId +
                     "&tenant=" + (tenantId != null ? tenantId : "") +
-                    "&accessToken=" + getAccessToken();
+                    tokenParam();
 
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
@@ -295,7 +380,7 @@ public class NacosConfigServiceImpl implements NacosConfigService {
                 oldContent = oldConfig.getData().getContent();
             }
 
-            String url = getNacosUrl() + "/nacos/v1/cs/configs?accessToken=" + getAccessToken();
+            String url = getNacosUrl() + "/nacos/v1/cs/configs" + tokenQuery();
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -345,7 +430,7 @@ public class NacosConfigServiceImpl implements NacosConfigService {
             String url = getNacosUrl() + "/nacos/v1/cs/configs?dataId=" + dataId +
                     "&group=" + groupId +
                     "&tenant=" + (tenantId != null ? tenantId : "") +
-                    "&accessToken=" + getAccessToken();
+                    tokenParam();
 
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, null, String.class);
 
@@ -369,7 +454,7 @@ public class NacosConfigServiceImpl implements NacosConfigService {
                     "&tenant=" + (tenantId != null ? tenantId : "") +
                     "&pageNo=" + (pageNo != null ? pageNo : 1) +
                     "&pageSize=" + (pageSize != null ? pageSize : 10) +
-                    "&accessToken=" + getAccessToken();
+                    tokenParam();
 
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
@@ -406,7 +491,7 @@ public class NacosConfigServiceImpl implements NacosConfigService {
                     "&dataId=" + dataId +
                     "&group=" + groupId +
                     "&tenant=" + (tenantId != null ? tenantId : "") +
-                    "&accessToken=" + getAccessToken();
+                    tokenParam();
 
             ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
@@ -546,5 +631,232 @@ public class NacosConfigServiceImpl implements NacosConfigService {
         } else {
             return ApiResult.error(SystemErrorCodes.BUSINESS_ERROR, "导入失败: " + errorMsg.toString());
         }
+    }
+
+    @Override
+    public ApiResult<NacosSyncResultVO> syncFromLocal(String tenantId) {
+        List<LocalConfigFile> files = new ArrayList<>();
+        String source = loadLocalConfigFiles(files);
+
+        if (files.isEmpty()) {
+            return ApiResult.error(SystemErrorCodes.BUSINESS_ERROR,
+                    "未扫描到本地配置文件。请设置 quickblue.nacos.sync.local-dir 指向 nacos_config 目录，或重新打包以内置 classpath:nacos-config/");
+        }
+
+        String groupId = StringUtils.hasText(syncGroup) ? syncGroup : "QuickBlue_GROUP";
+        int successCount = 0;
+        int failCount = 0;
+        int skipCount = 0;
+        List<NacosSyncItemVO> results = new ArrayList<>();
+
+        for (LocalConfigFile file : files) {
+            String dataId = file.getFileName();
+            try {
+                String oldContent = fetchRemoteContent(dataId, groupId, tenantId);
+                if (oldContent != null && normalizeContent(oldContent).equals(normalizeContent(file.getContent()))) {
+                    skipCount++;
+                    results.add(NacosSyncItemVO.builder()
+                            .fileName(file.getFileName())
+                            .dataId(dataId)
+                            .success(true)
+                            .message("内容无变化，已跳过")
+                            .build());
+                    continue;
+                }
+
+                NacosConfigForm form = new NacosConfigForm();
+                form.setDataId(dataId);
+                form.setGroupId(groupId);
+                form.setTenantId(tenantId);
+                form.setContent(file.getContent());
+                form.setType(resolveConfigType(dataId));
+                form.setConfigName(inferConfigName(dataId));
+                form.setRemark("一键同步（来源: " + source + "）");
+
+                ApiResult<String> publishResult = publishConfig(form);
+                boolean published = Boolean.TRUE.equals(publishResult.getOk());
+                if (published) {
+                    successCount++;
+                } else {
+                    failCount++;
+                }
+                results.add(NacosSyncItemVO.builder()
+                        .fileName(file.getFileName())
+                        .dataId(dataId)
+                        .success(published)
+                        .message(published
+                                ? (oldContent == null ? "新增成功" : "更新成功")
+                                : StringUtils.hasText(publishResult.getMsg()) ? publishResult.getMsg() : "发布失败")
+                        .build());
+            } catch (Exception e) {
+                failCount++;
+                log.error("同步配置失败: {}", dataId, e);
+                results.add(NacosSyncItemVO.builder()
+                        .fileName(file.getFileName())
+                        .dataId(dataId)
+                        .success(false)
+                        .message(e.getMessage())
+                        .build());
+            }
+        }
+
+        NacosSyncResultVO vo = new NacosSyncResultVO();
+        vo.setTotalFiles(files.size());
+        vo.setSuccessCount(successCount);
+        vo.setFailCount(failCount);
+        vo.setSkipCount(skipCount);
+        vo.setTenantId(tenantId == null ? "" : tenantId);
+        vo.setGroupId(groupId);
+        vo.setSource(source);
+        vo.setResults(results);
+
+        log.info("一键同步完成，来源={}，共{}个文件，成功{}，失败{}，跳过{}",
+                source, files.size(), successCount, failCount, skipCount);
+        return ApiResult.ok(vo);
+    }
+
+    /**
+     * 加载本地配置文件：优先文件系统目录，找不到则回退 classpath 内置配置
+     *
+     * @param files 输出参数，收集到的配置文件
+     * @return 配置来源描述
+     */
+    private String loadLocalConfigFiles(List<LocalConfigFile> files) {
+        Path dir = resolveLocalConfigDir();
+        if (dir != null) {
+            try (Stream<Path> stream = Files.walk(dir, 2)) {
+                List<Path> paths = stream
+                        .filter(Files::isRegularFile)
+                        .filter(p -> isConfigFile(p.getFileName().toString()))
+                        .sorted(Comparator.comparing(p -> p.getFileName().toString()))
+                        .toList();
+                for (Path path : paths) {
+                    files.add(new LocalConfigFile(path.getFileName().toString(),
+                            Files.readString(path, StandardCharsets.UTF_8)));
+                }
+            } catch (Exception e) {
+                log.error("读取本地配置目录失败: {}", dir, e);
+                files.clear();
+            }
+        }
+        if (!files.isEmpty()) {
+            return dir != null ? dir.toString() : "";
+        }
+        files.addAll(loadConfigFilesFromClasspath());
+        return "classpath:" + CLASSPATH_CONFIG_PREFIX;
+    }
+
+    /**
+     * 探测本地 nacos_config 目录：优先取配置的路径，否则按常见相对位置依次探测
+     *
+     * @return 命中的目录，未找到返回 null
+     */
+    private Path resolveLocalConfigDir() {
+        List<String> candidates = new ArrayList<>();
+        if (StringUtils.hasText(localConfigDir)) {
+            candidates.add(localConfigDir);
+        }
+        candidates.addAll(List.of(
+                "nacos_config",
+                "../nacos_config",
+                "../../nacos_config",
+                "../../../nacos_config",
+                "../QuickBlue-MicroAI/nacos_config",
+                "../../QuickBlue-MicroAI/nacos_config"
+        ));
+
+        for (String candidate : candidates) {
+            try {
+                Path path = Paths.get(candidate).toAbsolutePath().normalize();
+                if (Files.isDirectory(path) && containsConfigFile(path)) {
+                    return path;
+                }
+            } catch (Exception e) {
+                log.debug("候选配置目录不可用: {}", candidate);
+            }
+        }
+        return null;
+    }
+
+    private boolean containsConfigFile(Path dir) {
+        try (Stream<Path> stream = Files.walk(dir, 2)) {
+            return stream.anyMatch(p -> Files.isRegularFile(p) && isConfigFile(p.getFileName().toString()));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 读取打包时内置到 classpath 的配置（nacos_config 目录）
+     */
+    private List<LocalConfigFile> loadConfigFilesFromClasspath() {
+        List<LocalConfigFile> files = new ArrayList<>();
+        try {
+            ResourcePatternResolver resolver = ResourcePatternUtils.getResourcePatternResolver(applicationContext);
+            Resource[] resources = resolver.getResources("classpath*:" + CLASSPATH_CONFIG_PREFIX + "**/*");
+            for (Resource resource : resources) {
+                String name = resource.getFilename();
+                if (name == null || !isConfigFile(name)) {
+                    continue;
+                }
+                String content = StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
+                files.add(new LocalConfigFile(name, content));
+            }
+            files.sort(Comparator.comparing(LocalConfigFile::getFileName));
+        } catch (Exception e) {
+            log.error("读取 classpath 内置配置失败", e);
+        }
+        return files;
+    }
+
+    /**
+     * 查询 Nacos 上已有的配置内容，不存在时返回 null（不抛异常、不打错误日志）
+     */
+    private String fetchRemoteContent(String dataId, String groupId, String tenantId) {
+        try {
+            String url = getNacosUrl() + "/nacos/v1/cs/configs?dataId=" + dataId +
+                    "&group=" + groupId +
+                    "&tenant=" + (tenantId != null ? tenantId : "") +
+                    tokenParam();
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return response.getBody();
+            }
+            return null;
+        } catch (HttpClientErrorException.NotFound e) {
+            return null;
+        } catch (Exception e) {
+            log.debug("查询Nacos配置未命中，按新增处理: group={}, dataId={}", groupId, dataId);
+            return null;
+        }
+    }
+
+    private String normalizeContent(String content) {
+        return content == null ? "" : content.replace("\r\n", "\n").trim();
+    }
+
+    private String resolveConfigType(String dataId) {
+        if (dataId.endsWith(".yaml") || dataId.endsWith(".yml")) {
+            return "yaml";
+        }
+        if (dataId.endsWith(".properties")) {
+            return "properties";
+        }
+        return "text";
+    }
+
+    private boolean isConfigFile(String name) {
+        String lower = name.toLowerCase(Locale.ROOT);
+        return lower.endsWith(".yaml") || lower.endsWith(".yml") || lower.endsWith(".properties");
+    }
+
+    /**
+     * 本地配置文件（文件名即 Nacos 的 dataId）
+     */
+    @Getter
+    @AllArgsConstructor
+    private static class LocalConfigFile {
+        private final String fileName;
+        private final String content;
     }
 }

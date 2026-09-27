@@ -8,6 +8,7 @@ import com.budaos.support.nacos.domain.vo.ConfigAuditVO;
 import com.budaos.support.nacos.domain.vo.ConfigHistoryVO;
 import com.budaos.support.nacos.domain.vo.NacosConfigVO;
 import com.budaos.support.nacos.domain.vo.NacosNamespaceVO;
+import com.budaos.support.nacos.domain.vo.NacosSyncResultVO;
 
 import java.util.List;
 
@@ -132,4 +133,12 @@ public interface NacosConfigService {
      * @return 导入结果
      */
     ApiResult<String> importConfigs(List<NacosConfigForm> configs);
+
+    /**
+     * 从本地 nacos_config 目录一键同步配置到 Nacos
+     *
+     * @param tenantId 命名空间ID（为空则同步到 public 命名空间）
+     * @return 同步结果（含每个文件的成功/失败/跳过明细）
+     */
+    ApiResult<NacosSyncResultVO> syncFromLocal(String tenantId);
 }

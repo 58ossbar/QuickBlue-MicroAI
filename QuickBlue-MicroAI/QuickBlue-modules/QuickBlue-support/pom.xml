@@ -208,6 +208,24 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- 打包时内置 nacos_config 目录，供"一键同步"在任意环境读取 -->
+            <resource>
+                <directory>${project.basedir}/../../nacos_config</directory>
+                <targetPath>nacos-config</targetPath>
+                <includes>
+                    <include>common/*.yaml</include>
+                    <include>common/*.yml</include>
+                    <include>common/*.properties</include>
+                    <include>services/*.yaml</include>
+                    <include>services/*.yml</include>
+                    <include>services/*.properties</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

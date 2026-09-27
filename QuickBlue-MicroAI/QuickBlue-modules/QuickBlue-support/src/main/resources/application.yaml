@@ -137,10 +137,20 @@ redisson:
   retry-attempts: 3
   retry-interval: 1500
 
-# 定时任务配置
+# 定时任务配置 & Nacos 配置同步
 quickblue:
   job:
     enabled: true  # 暂时禁用，因为 cron 解析有误
+  nacos:
+    # Nacos 鉴权开关：auto(自动探测，登录失败则按未鉴权访问) / true(必须鉴权) / false(明确未开启鉴权)
+    auth:
+      enabled: ${QUICKBLUE_NACOS_AUTH_ENABLED:auto}
+    # Nacos 配置同步（一键同步）
+    sync:
+      # 本地 nacos_config 目录；留空则自动探测，探测不到回退 classpath:nacos-config/
+      local-dir: ${QUICKBLUE_NACOS_SYNC_LOCAL_DIR:}
+      # 同步目标分组
+      group: ${NACOS_GROUP:QuickBlue_GROUP}
     core-pool-size: 5
     init-delay: 60
     db-refresh-enabled: true

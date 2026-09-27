@@ -1684,14 +1684,13 @@ public class InstallServiceImpl implements InstallService {
         log.info("Nacos服务器地址: http://{}/nacos", nacosServerAddr);
         log.info("Nacos用户名: {}", nacosUsername);
 
-        // 先获取accessToken
-        String accessToken;
+        // 先获取accessToken（Nacos 未开启鉴权时登录接口不可用，此处降级为不带 token 访问）
+        String accessToken = null;
         try {
             accessToken = getNacosAccessToken(nacosServerAddr, nacosUsername, nacosPassword);
             log.info("成功获取Nacos accessToken");
         } catch (Exception e) {
-            log.error("获取Nacos accessToken失败", e);
-            throw new RuntimeException("获取Nacos accessToken失败: " + e.getMessage(), e);
+            log.warn("获取Nacos accessToken失败，按「未开启鉴权」继续导入配置: {}", e.getMessage());
         }
 
         int successCount = 0;
@@ -1717,8 +1716,10 @@ public class InstallServiceImpl implements InstallService {
                         "?dataId=" + urlEncode(config.dataId) +
                         "&group=" + urlEncode(processedGroupId) +
                         "&content=" + urlEncode(config.content) +
-                        "&type=" + urlEncode(config.type) +
-                        "&accessToken=" + urlEncode(accessToken);
+                        "&type=" + urlEncode(config.type);
+                if (accessToken != null && !accessToken.isEmpty()) {
+                    url += "&accessToken=" + urlEncode(accessToken);
+                }
 
                 // 使用POST方法发布配置
                 HttpHeaders headers = new HttpHeaders();

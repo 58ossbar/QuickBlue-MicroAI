@@ -412,7 +412,12 @@
       }
     } catch (e) {
       sentry.captureError(e);
-      message.error('一键同步失败，请检查 Nacos 连接');
+      const status = e?.response?.status;
+      message.error(
+        status === 404
+          ? '同步接口不存在，请确认后端已部署最新版本'
+          : `一键同步失败${status ? `（HTTP ${status}）` : ''}，请检查 Nacos 连接`
+      );
     } finally {
       syncLoading.value = false;
     }

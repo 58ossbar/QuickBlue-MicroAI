@@ -488,7 +488,9 @@ public class EnvironmentConfigServiceImpl implements EnvironmentConfigService {
             params.add("group", nacosGroup);
             params.add("content", content);
             params.add("type", "yaml");
-            params.add("accessToken", accessToken);
+            if (accessToken != null && !accessToken.isEmpty()) {
+                params.add("accessToken", accessToken);
+            }
 
             if (StringUtils.hasText(nacosNamespace)) {
                 params.add("tenant", nacosNamespace);
@@ -510,24 +512,29 @@ public class EnvironmentConfigServiceImpl implements EnvironmentConfigService {
     /**
      * 获取Nacos访问令牌
      */
-    private String getNacosAccessToken() throws Exception {
+    private String getNacosAccessToken() {
         String url = "http://" + nacosServerAddr + "/nacos/v1/auth/login";
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            org.springframework.util.MultiValueMap<String, String> params = new org.springframework.util.LinkedMultiValueMap<>();
+            params.add("username", nacosUsername);
+            params.add("password", nacosPassword);
 
-        org.springframework.util.MultiValueMap<String, String> params = new org.springframework.util.LinkedMultiValueMap<>();
-        params.add("username", nacosUsername);
-        params.add("password", nacosPassword);
+            HttpEntity<org.springframework.util.MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 
-        HttpEntity<org.springframework.util.MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-
-        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(response.getBody());
-            return jsonNode.has("accessToken") ? jsonNode.get("accessToken").asText() : null;
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                com.fasterxml.jackson.databind.JsonNode jsonNode = objectMapper.readTree(response.getBody());
+                return jsonNode.has("accessToken") ? jsonNode.get("accessToken").asText() : null;
+            }
+        } catch (Exception e) {
+            log.warn("获取Nacos accessToken失败，按「未开启鉴权」继续更新配置: {}", e.getMessage());
+            return null;
         }
 
-        throw new RuntimeException("获取Nacos访问令牌失败");
+        log.warn("Nacos 登录接口未返回 accessToken，按「未开启鉴权」继续更新配置");
+        return null;
     }
 }
