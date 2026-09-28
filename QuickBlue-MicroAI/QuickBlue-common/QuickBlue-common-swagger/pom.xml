@@ -28,10 +28,10 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- API 文档 -->
+        <!-- API 文档 - Knife4j Next (com.baizhukui)，适配 Spring Boot 4.x -->
         <dependency>
-            <groupId>com.github.xingfudeshi</groupId>
-            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+            <groupId>com.baizhukui</groupId>
+            <artifactId>knife4j-openapi3-boot4-spring-boot-starter</artifactId>
             <exclusions>
                 <!-- 排除旧版本的 swagger 依赖 -->
                 <exclusion>

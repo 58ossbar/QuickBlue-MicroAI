@@ -5,6 +5,7 @@ import com.budaos.system.dao.DataPermissionConfigDao;
 import com.budaos.system.dao.StaffDao;
 import com.budaos.system.constant.DataPermissionTypeEnum;
 import com.budaos.system.constant.DataPermissionViewTypeEnum;
+import com.budaos.common.core.constant.StringConstants;
 import com.budaos.common.core.enums.DataPermissionInTypeEnum;
 import com.budaos.system.domain.dto.DataPermissionSqlConfig;
 import com.budaos.system.domain.entity.DataPermissionConfigEntity;
@@ -246,8 +247,8 @@ public class DataPermissionSqlConfigService {
         try {
             // 从Sa-Token获取当前登录用户ID
             String loginId = cn.dev33.satoken.stp.StpUtil.getLoginIdAsString();
-            if (loginId != null && loginId.contains(":")) {
-                String[] parts = loginId.split(":");
+            if (loginId != null && loginId.contains(StringConstants.LOGIN_ID_SEPARATOR)) {
+                String[] parts = loginId.split(StringConstants.LOGIN_ID_SEPARATOR);
                 if (parts.length == 2) {
                     return Long.parseLong(parts[1]);
                 }

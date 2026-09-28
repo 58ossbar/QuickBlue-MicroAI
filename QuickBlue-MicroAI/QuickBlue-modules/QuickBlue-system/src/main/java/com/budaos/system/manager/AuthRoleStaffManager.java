@@ -1,6 +1,6 @@
 package com.budaos.system.manager;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.budaos.system.dao.AuthRoleStaffDao;
 import com.budaos.system.domain.entity.AuthRoleStaffEntity;
 import lombok.RequiredArgsConstructor;

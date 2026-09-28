@@ -2,7 +2,7 @@ package com.budaos.ai.llm.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.budaos.ai.app.service.IAiragAppService;
 import com.budaos.ai.llm.entity.AiragKnowledge;
 import com.budaos.ai.llm.mapper.AiragKnowledgeMapper;

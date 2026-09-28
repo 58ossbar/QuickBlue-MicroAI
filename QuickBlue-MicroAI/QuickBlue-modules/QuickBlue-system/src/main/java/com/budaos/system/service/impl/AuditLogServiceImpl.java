@@ -93,6 +93,11 @@ public class AuditLogServiceImpl implements AuditLogService {
             entity.setOperateUserType(0);
             entity.setOperateUserName("系统");
         }
+        // operate_user_name 在库中为 NOT NULL 且无默认值，取不到操作人名称时必须兜底，
+        // 否则整条操作日志写入失败，并会让调用方（如登录接口）一起报错
+        if (entity.getOperateUserName() == null || entity.getOperateUserName().isEmpty()) {
+            entity.setOperateUserName("系统");
+        }
         operateLogDao.insert(entity);
     }
 }

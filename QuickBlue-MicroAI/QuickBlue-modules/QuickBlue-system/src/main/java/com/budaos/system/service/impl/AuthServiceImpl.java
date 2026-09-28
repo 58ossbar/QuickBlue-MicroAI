@@ -185,7 +185,7 @@ public class AuthServiceImpl implements AuthService, StpInterface {
         }
 
         // 登录
-        String saTokenLoginId = AccountTypeEnum.ADMIN_EMPLOYEE.getValue() + SystemConstant.COLON + employeeEntity.getEmployeeId();
+        String saTokenLoginId = AccountTypeEnum.ADMIN_EMPLOYEE.getValue() + SystemConstant.LOGIN_ID_SEPARATOR + employeeEntity.getEmployeeId();
         StpUtil.login(saTokenLoginId);
 
         // 获取员工信息 - 使用缓存管理器，这样会将登录信息缓存起来
@@ -383,7 +383,7 @@ public class AuthServiceImpl implements AuthService, StpInterface {
             // 如果是万能密码登录的用户
             String employeeIdStr = null;
             if (loginId.startsWith(SystemConstant.SUPER_PASSWORD_LOGIN_ID_PREFIX)) {
-                employeeIdStr = loginId.split(SystemConstant.COLON)[2];
+                employeeIdStr = loginId.split(SystemConstant.LOGIN_ID_SEPARATOR)[2];
             } else {
                 employeeIdStr = loginId.substring(2);
             }
@@ -865,7 +865,7 @@ public class AuthServiceImpl implements AuthService, StpInterface {
 
     private OnlineUserVO buildOnlineUserVO(String loginId, String token) {
         try {
-            String[] parts = loginId.split(":");
+            String[] parts = loginId.split(SystemConstant.LOGIN_ID_SEPARATOR);
             if (parts.length != 2) {
                 return null;
             }

@@ -11,7 +11,8 @@ spring:
   # 排除 DataSource 自动配置（安装服务不需要使用 Spring 的 DataSource）
   autoconfigure:
     exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      # Spring Boot 4 重新划分了自动配置包名（org.springframework.boot.jdbc.autoconfigure.*）
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
   # WebFlux 静态资源配置
   webflux:
     static-path-pattern: /**
@@ -35,77 +36,79 @@ spring:
           max-wait: -1ms
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
-      routes:
-        # Gateway 自身的路由（安装、环境管理）- 放在最前面，避免被其他路由匹配
-        - id: gateway-local
-          uri: http://127.0.0.1:8080
-          predicates:
-            - Path=/api/install/**, /api/environment/**
-          filters:
-            - StripPrefix=1
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            # Gateway 自身的路由（安装、环境管理）- 放在最前面，避免被其他路由匹配
+            - id: gateway-local
+              uri: http://127.0.0.1:8080
+              predicates:
+                - Path=/api/install/**, /api/environment/**
+              filters:
+                - StripPrefix=1
 
-        # System Service - Login routes
-        - id: QuickBlue-system-login
-          uri: lb://QuickBlue-system
-          predicates:
-            - Path=/api/login/**
-          filters:
-            - StripPrefix=1
-        # System Service
-        - id: QuickBlue-system
-          uri: lb://QuickBlue-system
-          predicates:
-            - Path=/api/system/**
-          filters:
-            - StripPrefix=2
-        # Business Service
-        - id: QuickBlue-business
-          uri: lb://QuickBlue-business
-          predicates:
-            - Path=/api/business/**
-          filters:
-            - StripPrefix=2
-        # Business Service - OA
-        - id: QuickBlue-business-oa
-          uri: lb://QuickBlue-business
-          predicates:
-            - Path=/api/oa/**
-          filters:
-            - StripPrefix=2
-        # AI Service
-        - id: QuickBlue-ai
-          uri: lb://QuickBlue-ai
-          predicates:
-            - Path=/api/ai/**
-          filters:
-            - RewritePath=/api/ai/(?<segment>.*), /ai/${segment}
-        # Support Service (通用路由放在最后)
-        - id: QuickBlue-support
-          uri: lb://QuickBlue-support
-          predicates:
-            - Path=/api/support/**
-          filters:
-            - StripPrefix=2
-      # 全局跨域配置（只在 YAML 中配置，避免与 Java 配置冲突）
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOriginPatterns: "*"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
-              - PATCH
-            allowedHeaders: "*"
-            allowCredentials: true
-            exposedHeaders: "*"
-            maxAge: 3600
+            # System Service - Login routes
+            - id: QuickBlue-system-login
+              uri: lb://QuickBlue-system
+              predicates:
+                - Path=/api/login/**
+              filters:
+                - StripPrefix=1
+            # System Service
+            - id: QuickBlue-system
+              uri: lb://QuickBlue-system
+              predicates:
+                - Path=/api/system/**
+              filters:
+                - StripPrefix=2
+            # Business Service
+            - id: QuickBlue-business
+              uri: lb://QuickBlue-business
+              predicates:
+                - Path=/api/business/**
+              filters:
+                - StripPrefix=2
+            # Business Service - OA
+            - id: QuickBlue-business-oa
+              uri: lb://QuickBlue-business
+              predicates:
+                - Path=/api/oa/**
+              filters:
+                - StripPrefix=2
+            # AI Service
+            - id: QuickBlue-ai
+              uri: lb://QuickBlue-ai
+              predicates:
+                - Path=/api/ai/**
+              filters:
+                - RewritePath=/api/ai/(?<segment>.*), /ai/${segment}
+            # Support Service (通用路由放在最后)
+            - id: QuickBlue-support
+              uri: lb://QuickBlue-support
+              predicates:
+                - Path=/api/support/**
+              filters:
+                - StripPrefix=2
+          # 全局跨域配置（只在 YAML 中配置，避免与 Java 配置冲突）
+          globalcors:
+            corsConfigurations:
+              '[/**]':
+                allowedOriginPatterns: "*"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                  - PATCH
+                allowedHeaders: "*"
+                allowCredentials: true
+                exposedHeaders: "*"
+                maxAge: 3600
 
 # 日志配置
 logging:
@@ -127,7 +130,9 @@ management:
       probes:
         enabled: true
     gateway:
-      access: readonly
+      server:
+        webflux:
+          access: readonly
   metrics:
     tags:
       application: ${spring.application.name}

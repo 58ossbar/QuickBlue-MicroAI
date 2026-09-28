@@ -181,10 +181,17 @@ public class MyBatisDataPermissionPlugin extends DataPermissionPlugin {
      * @return DataPermissionSqlConfigService
      */
     public DataPermissionSqlConfigService dataScopeSqlConfigService() {
+        if (applicationContext == null) {
+            log.warn("ApplicationContext 未注入，跳过数据权限处理");
+            return null;
+        }
         try {
-            return (DataPermissionSqlConfigService) applicationContext.getBean("dataScopeSqlConfigService");
+            // 按类型获取：bean 默认名为 dataPermissionSqlConfigService，
+            // 早期写死的 "dataScopeSqlConfigService" 在类重命名后已失效，会永远取不到 bean
+            return applicationContext.getBean(DataPermissionSqlConfigService.class);
         } catch (Exception e) {
-            // 如果Spring容器还未完全刷新，返回null
+            // Spring 容器还未完全刷新
+            log.debug("获取 DataPermissionSqlConfigService 失败", e);
             return null;
         }
     }

@@ -34,20 +34,25 @@
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
-        <!-- Druid -->
+        <!-- Druid (Spring Boot 4 适配 starter) -->
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-starter</artifactId>
+            <artifactId>druid-spring-boot-4-starter</artifactId>
         </dependency>
 
-        <!-- MyBatis Plus -->
+        <!-- MyBatis Plus (Spring Boot 4 适配 starter) -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-extension</artifactId>
+        </dependency>
+        <!-- MyBatis-Plus 3.5.9+ 分页/租户等插件依赖 jsqlparser，已拆分为独立模块 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
         </dependency>
 
         <!-- P6Spy SQL监控 -->

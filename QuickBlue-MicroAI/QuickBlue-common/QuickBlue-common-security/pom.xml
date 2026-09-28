@@ -34,10 +34,16 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Sa-Token -->
+        <!-- Sa-Token（排除 Jackson 3 版序列化实现，统一走 Jackson 2） -->
         <dependency>
             <groupId>cn.dev33</groupId>
-            <artifactId>sa-token-spring-boot3-starter</artifactId>
+            <artifactId>sa-token-spring-boot4-starter</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>cn.dev33</groupId>
+                    <artifactId>sa-token-jackson3</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Sa-Token Redis -->

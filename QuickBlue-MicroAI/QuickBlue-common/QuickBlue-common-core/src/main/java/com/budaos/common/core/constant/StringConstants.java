@@ -20,4 +20,12 @@ public class StringConstants {
      */
     public static final String COLON = ":";
 
+    /**
+     * Sa-Token loginId 分隔符，格式：userType + 分隔符 + userId
+     *
+     * <p>Sa-Token 1.46 起 checkLoginArgs 禁止 loginId 包含冒号（:），
+     * 因此 loginId 的分隔符由冒号改为下划线。</p>
+     */
+    public static final String LOGIN_ID_SEPARATOR = "_";
+
 }

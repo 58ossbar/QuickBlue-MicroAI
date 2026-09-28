@@ -2,6 +2,7 @@ package com.budaos.support.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.stp.StpUtil;
+import com.budaos.common.core.constant.StringConstants;
 import com.budaos.common.core.domain.PageResponse;
 import com.budaos.common.core.domain.CurrentUser;
 import com.budaos.common.core.domain.ApiResult;
@@ -99,10 +100,10 @@ public class NotificationController {
             return null;
         }
         CurrentUserImpl user = new CurrentUserImpl();
-        // 登录ID格式为 "userType:userId"，需要解析
+        // 登录ID格式为 "userType_ userId"，需要解析（Sa-Token 1.46 起 loginId 禁止包含冒号）
         String loginId = StpUtil.getLoginIdAsString();
-        if (loginId != null && loginId.contains(":")) {
-            String[] parts = loginId.split(":");
+        if (loginId != null && loginId.contains(StringConstants.LOGIN_ID_SEPARATOR)) {
+            String[] parts = loginId.split(StringConstants.LOGIN_ID_SEPARATOR);
             user.setUserType(Integer.parseInt(parts[0]));
             user.setUserId(Long.parseLong(parts[1]));
         }

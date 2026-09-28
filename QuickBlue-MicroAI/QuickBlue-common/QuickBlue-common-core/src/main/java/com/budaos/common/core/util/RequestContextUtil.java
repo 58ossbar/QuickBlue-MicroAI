@@ -1,6 +1,7 @@
 package com.budaos.common.core.util;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.budaos.common.core.constant.StringConstants;
 import com.budaos.common.core.domain.CurrentUser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -19,8 +20,8 @@ public final class RequestContextUtil {
     /** Session 中用户名的 Key */
     private static final String SESSION_USER_NAME_KEY = "userName";
 
-    /** loginId 分隔符：类型:用户ID */
-    private static final String LOGIN_ID_SEPARATOR = ":";
+    /** loginId 分隔符：类型_用户ID（Sa-Token 1.46 起禁止 loginId 含冒号） */
+    private static final String LOGIN_ID_SEPARATOR = StringConstants.LOGIN_ID_SEPARATOR;
 
     private RequestContextUtil() {
         throw new UnsupportedOperationException("Utility class cannot be instantiated");

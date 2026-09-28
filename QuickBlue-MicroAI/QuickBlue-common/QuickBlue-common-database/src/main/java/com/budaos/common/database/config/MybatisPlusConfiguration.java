@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerIntercep
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
@@ -22,6 +23,7 @@ import java.util.List;
  *
  * @author budaos
  */
+@Slf4j
 @Configuration
 public class MybatisPlusConfiguration implements ApplicationListener<ContextRefreshedEvent> {
 
@@ -85,21 +87,19 @@ public class MybatisPlusConfiguration implements ApplicationListener<ContextRefr
                 pluginClass.getMethod("setApplicationContext", ApplicationContext.class)
                         .invoke(dataScopePlugin, applicationContext);
             } catch (NoSuchMethodException e) {
-                // 如果没有 setApplicationContext 方法，使用 Spring 的 AutowireAnnotationBeanPostProcessor
-                System.err.println("MyBatisDataPermissionPlugin has no setApplicationContext method, skipping injection");
+                log.warn("MyBatisDataPermissionPlugin 未提供 setApplicationContext 方法，跳过上下文注入");
             }
 
             org.apache.ibatis.session.Configuration configuration = sqlSessionFactory.getConfiguration();
             configuration.addInterceptor((org.apache.ibatis.plugin.Interceptor) dataScopePlugin);
 
-            System.out.println("Successfully registered MyBatisDataPermissionPlugin");
+            log.info("MyBatisDataPermissionPlugin 注册成功");
         } catch (ClassNotFoundException e) {
-            // 类不存在，跳过注册（可能数据权限模块未启用）
-            System.out.println("MyBatisDataPermissionPlugin class not found, skipping data scope registration");
+            // 类不存在，跳过注册（数据权限模块未启用）
+            log.info("未找到 MyBatisDataPermissionPlugin，跳过数据权限拦截器注册");
         } catch (Exception e) {
-            // 静默处理异常，避免影响应用启动
-            System.err.println("Failed to register MyBatis interceptors: " + e.getMessage());
-            e.printStackTrace();
+            // 避免影响应用启动
+            log.error("注册 MyBatis 拦截器失败", e);
         }
     }
 }

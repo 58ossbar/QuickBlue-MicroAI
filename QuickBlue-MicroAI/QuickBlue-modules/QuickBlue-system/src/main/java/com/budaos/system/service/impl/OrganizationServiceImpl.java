@@ -1,6 +1,6 @@
 package com.budaos.system.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.budaos.common.core.domain.ApiResult;
 import com.budaos.system.dao.OrganizationDao;
 import com.budaos.system.dao.StaffDao;

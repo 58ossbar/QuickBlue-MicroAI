@@ -1,6 +1,6 @@
 package com.budaos.system.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.spring.service.IService;
 import com.budaos.common.core.domain.ApiResult;
 import com.budaos.system.domain.entity.AuthRoleEntity;
 import com.budaos.system.domain.form.AuthRoleAddForm;

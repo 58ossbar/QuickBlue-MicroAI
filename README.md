@@ -14,18 +14,23 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white" alt="Java 21"/>
-  <img src="https://img.shields.io/badge/Spring%20Boot-3.5.10-6DB33F?logo=springboot" alt="Spring Boot 3.5.10"/>
-  <img src="https://img.shields.io/badge/Spring%20Cloud-2025.0.1-6DB33F?logo=spring" alt="Spring Cloud 2025.0.1"/>
-  <img src="https://img.shields.io/badge/Spring%20Cloud%20Alibaba-2025.0.0.0-FF6A00" alt="Spring Cloud Alibaba"/>
+  <img src="https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?logo=springboot" alt="Spring Boot 4.1.1"/>
+  <img src="https://img.shields.io/badge/Spring%20Cloud-2025.1.3-6DB33F?logo=spring" alt="Spring Cloud 2025.1.3"/>
+  <img src="https://img.shields.io/badge/Spring%20Cloud%20Alibaba-2025.1.0.0-FF6A00" alt="Spring Cloud Alibaba 2025.1.0.0"/>
   <img src="https://img.shields.io/badge/Nacos-2.4.3-4E9A51" alt="Nacos 2.4.3"/>
   <img src="https://img.shields.io/badge/Vue-3.5-42B883?logo=vuedotjs" alt="Vue 3.5"/>
   <img src="https://img.shields.io/badge/Vite-8.2-646CFF?logo=vite" alt="Vite 8"/>
   <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql" alt="MySQL 8.0"/>
   <img src="https://img.shields.io/badge/Node.js-24+-339933?logo=nodedotjs" alt="Node.js 24+"/>
+  <img src="https://img.shields.io/github/stars/58ossbar/QuickBlue-MicroAI?style=flat-square&logo=github&label=Star" alt="GitHub stars"/>
   <img src="https://img.shields.io/badge/License-Apache%202.0-D22128?logo=apache&logoColor=white" alt="License Apache 2.0"/>
 </p>
 
 <p align="center">
+  <a href="https://gitee.com/ossbar/QuickBlue-MicroAI">💻 Gitee 仓库</a>
+  &nbsp;|&nbsp;
+  <a href="https://github.com/58ossbar/QuickBlue-MicroAI">🐙 GitHub</a>
+  &nbsp;|&nbsp;
   <a href="#try">🚀 在线体验</a>
   &nbsp;|&nbsp;
   <a href="#prepare">🛠 环境准备</a>
@@ -146,7 +151,7 @@ EasyExcel 大数据量导入导出、S3 兼容对象存储、定时任务调度�
 
 ### 🚀 技术底座：站在下一个十年
 
-**JDK 21 (LTS)** 虚拟线程 + **Spring Boot 3.5.10** + **Spring Cloud 2025.0.1** + **Vite 8**。对比大量仍停留在 JDK 8 / Spring Boot 2.x / Webpack 的老牌框架，QuickBlue 从一开始就站在下一个十年的起跑线上——技术栈生命周期，管的正是未来 5~10 年的维护成本。
+**JDK 21 (LTS)** 虚拟线程 + **Spring Boot 4.1.1**（Spring Framework 7 / Jackson 3）+ **Spring Cloud 2025.1.3** + **Vite 8**。对比大量仍停留在 JDK 8 / Spring Boot 2.x / Webpack 的老牌框架，QuickBlue 从一开始就站在下一个十年的起跑线上——技术栈生命周期，管的正是未来 5~10 年的维护成本。
 
 > 🤝 需要定制化方案、私有化部署或商业支持？见[商务合作](#contact)。
 
@@ -460,19 +465,19 @@ http://localhost:8080/doc.html         # API 文档中心（聚合全部微服�
 | 技术 | 版本 | 说明 |
 | --- | --- | --- |
 | **JDK** | **21 (LTS)** | 官方最新长期支持版本，虚拟线程 / Record / 模式匹配 |
-| **Spring Boot** | **3.5.10** | 当前最新稳定版，GraalVM / 虚拟线程 / 可观测性原生支持 |
-| **Spring Cloud** | **2025.0.1** | 2025 年度最新版本线 |
-| **Spring Cloud Alibaba** | **2025.0.0.0** | 与 Spring Cloud 2025 完全对齐 |
-| **Nacos** | **2.4.3** | 注册中心 + 配置中心，共享配置 + 服务级配置分离 |
-| **MyBatis-Plus** | **3.5.7** | 逻辑删除、分页、代码生成（Velocity / FreeMarker） |
-| **Druid + p6spy** | **1.2.25 / 3.9.1** | 连接池监控 + SQL 日志 |
-| **Redisson** | **3.50.0** | 分布式锁、分布式缓存 |
+| **Spring Boot** | **4.1.1** | Spring Framework 7 + Jackson 3 + 模块化 starter，虚拟线程 / 可观测性原生支持 |
+| **Spring Cloud** | **2025.1.3** | 2025 年度最新版本线（Gateway 5.0） |
+| **Spring Cloud Alibaba** | **2025.1.0.0** | 与 Spring Cloud 2025.1.x 对齐 |
+| **Nacos** | **2.4.3（client）** | 注册中心 + 配置中心；服务端为 2.x，client 必须同为 2.x |
+| **MyBatis-Plus** | **3.5.17** | 逻辑删除、分页、代码生成（Velocity / FreeMarker） |
+| **Druid + p6spy** | **1.2.28 / 3.9.1** | 连接池监控 + SQL 日志 |
+| **Redisson** | **4.7.0** | 分布式锁、分布式缓存（Spring Data Redis 4.1 连接适配） |
 | **Caffeine** | **3.1.8** | 本地一级缓存（多级缓存架构） |
-| **Sa-Token** | **1.44.0** | 轻量级认证鉴权 |
-| **Knife4j** | **4.6.0** | OpenAPI 3 网关聚合 API 文档 |
-| **Spring Boot Admin** | **3.4.4** | 服务健康监控中心 |
+| **Sa-Token** | **1.46.0** | 轻量级认证鉴权 |
+| **Knife4j + SpringDoc** | **5.4.0 / 3.1.0** | OpenAPI 3 网关聚合 API 文档 |
+| **Spring Boot Admin** | **4.1.2** | 服务健康监控中心 |
 | **OpenFeign + OkHttp** | **13.1 / 4.12** | 声明式调用 + 高性能客户端 + 请求/响应压缩 |
-| **RocketMQ / Seata / Sentinel** | 可选 | 消息队列 / 分布式事务 / 熔断降级，按需引入 |
+| **RocketMQ / Sentinel / Resilience4j** | 可选 | 消息队列 / 熔断降级，按需引入（Seata、Sleuth 已移除） |
 | **EasyExcel + POI** | **4.0.3 / 5.4.1** | 高性能大数据量 Excel 导入导出 |
 | **Hutool / Fastjson2 / Guava** | 全量 | 行业标准工具集 |
 | **ip2region / ZXing / AWS S3** | 周边 | IP 归属地 / 二维码 / S3 兼容对象存储 |
@@ -563,6 +568,19 @@ QuickBlue-MicroAI/
 ## 开源协议
 
 本项目基于 **Apache 2.0** 协议开源，遵循开放、共享的开源精神，可免费用于商业与学习场景。
+
+| 平台 | 仓库地址 |
+| --- | --- |
+| Gitee | https://gitee.com/ossbar/QuickBlue-MicroAI |
+| GitHub | https://github.com/58ossbar/QuickBlue-MicroAI |
+
+```bash
+git clone https://gitee.com/ossbar/QuickBlue-MicroAI.git
+# 或
+git clone https://github.com/58ossbar/QuickBlue-MicroAI.git
+```
+
+> 欢迎 **Star ⭐** 支持，使用中遇到问题请提 Issue。开源不易，感谢每一位同行者。
 
 **版本说明**：当前开源为 **MySQL 版**；官方同步提供 **PostgreSQL 版**（含 pgvector 向量检索），数据库类型通过 Nacos 配置中心切换，业务代码零侵入。
 

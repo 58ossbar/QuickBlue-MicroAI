@@ -28,38 +28,43 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <lombok.version>1.18.46</lombok.version>
 
-        <!-- Spring Boot 版本（2024-2025 企业级最新稳定版本） -->
-        <spring-boot.version>3.5.10</spring-boot.version>
-        <spring-cloud.version>2025.0.1</spring-cloud.version>
-        <spring-cloud-alibaba.version>2025.0.0.0</spring-cloud-alibaba.version>
+        <!-- Spring Boot 版本（4.1.x：Spring Framework 7 / Jackson 3 / 模块化 starter） -->
+        <spring-boot.version>4.1.1</spring-boot.version>
+        <spring-cloud.version>2025.1.3</spring-cloud.version>
+        <spring-cloud-alibaba.version>2025.1.0.0</spring-cloud-alibaba.version>
 
-        <!-- Nacos 版本 -->
+        <!-- Nacos 版本：服务端为 2.x，client 必须同为 2.x（nacos-client 3.x 面向 Nacos 3 服务端）。
+             此处显式覆盖 SCA 2025.1.0.0 BOM 自带的 3.2.1，保持与升级前一致的 2.4.3。 -->
         <nacos.version>2.4.3</nacos.version>
 
-        <!-- 数据库相关 -->
+
+        <!-- 数据库相关（MySQL 版，保留 mysql-connector 自行管理） -->
         <mysql-connector.version>8.0.33</mysql-connector.version>
-        <druid.version>1.2.25</druid.version>
-        <mybatis-plus.version>3.5.7</mybatis-plus.version>
-        <mybatis-plus-spring-boot3.version>3.5.7</mybatis-plus-spring-boot3.version>
+        <druid.version>1.2.28</druid.version>
+        <mybatis-plus.version>3.5.17</mybatis-plus.version>
+        <mybatis-plus-spring-boot4.version>3.5.17</mybatis-plus-spring-boot4.version>
         <p6spy.version>3.9.1</p6spy.version>
 
         <!-- Redis 相关 -->
-        <redisson.version>3.50.0</redisson.version>
+        <redisson.version>4.7.0</redisson.version>
 
         <!-- 本地缓存 -->
         <caffeine.version>3.1.8</caffeine.version>
 
         <!-- 权限认证 -->
-        <sa-token.version>1.44.0</sa-token.version>
-        <sa-token-core.version>1.44.0</sa-token-core.version>
+        <sa-token.version>1.46.0</sa-token.version>
+        <sa-token-core.version>1.46.0</sa-token-core.version>
 
         <!-- 工具库 -->
         <hutool.version>5.8.39</hutool.version>
-        <guava.version>33.3.1-jre</guava.version>
-        <fastjson2.version>2.0.57</fastjson2.version>
+        <guava.version>33.4.8-jre</guava.version>
+        <fastjson2.version>2.0.58</fastjson2.version>
         <commons-io.version>2.18.0</commons-io.version>
-        <commons-lang3.version>3.17.0</commons-lang3.version>
+        <!-- [重要] springdoc 3.1.0 使用 org.apache.commons.lang3.Strings，该类自 commons-lang3 3.18.0 起提供；
+             低于该版本会导致生成 OpenAPI 文档时抛 NoClassDefFoundError（/v3/api-docs/{group} 返回 50001） -->
+        <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-codec.version>1.17.1</commons-codec.version>
         <commons-compress.version>1.27.1</commons-compress.version>
@@ -81,33 +86,30 @@
         <tinypinyin.version>2.0.3</tinypinyin.version>
         <ip2region.version>2.7.0</ip2region.version>
         <bouncycastle.version>1.80</bouncycastle.version>
-        <resilience4j.version>2.1.0</resilience4j.version>
+        <resilience4j.version>2.4.0</resilience4j.version>
         <aws-java-sdk-s3.version>2.31.78</aws-java-sdk-s3.version>
 
         <!-- 消息队列 -->
-        <rocketmq-spring-boot.version>2.3.1</rocketmq-spring-boot.version>
+        <rocketmq-spring-boot.version>2.3.6</rocketmq-spring-boot.version>
 
-        <!-- 分布式事务 -->
-        <seata.version>2.0.0</seata.version>
-
-        <!-- 熔断降级 -->
+        <!-- 熔断降级（sentinel 版本由 Spring Cloud Alibaba BOM 管理） -->
         <sentinel.version>1.8.8</sentinel.version>
 
-        <!-- 链路追踪 -->
-        <spring-cloud-starter-sleuth.version>3.1.12</spring-cloud-starter-sleuth.version>
+        <!-- 链路追踪（Micrometer Tracing 版本由 Spring Boot BOM 统一管理） -->
+        <!-- Seata / Spring Cloud Sleuth 未实际使用，已移除版本管理 -->
 
-        <!-- OpenFeign -->
+        <!-- OpenFeign（MySQL 版在用，保留版本管理） -->
         <okhttp.version>4.12.0</okhttp.version>
         <feign-okhttp.version>13.1</feign-okhttp.version>
 
         <!-- API 文档 -->
-        <!-- Knife4j 4.6.0 稳定版本，兼容 SpringDoc 2.8.6 (Spring Boot 3.5.x) -->
-        <knife4j.version>4.6.0</knife4j.version>
-        <springdoc.version>2.8.6</springdoc.version>
-        <swagger.version>2.2.30</swagger.version>
+        <!-- Knife4j Next 5.4.0 (com.baizhukui)，适配 Spring Boot 4.x + SpringDoc 3.1.0 -->
+        <knife4j.version>5.4.0</knife4j.version>
+        <springdoc.version>3.1.0</springdoc.version>
+        <swagger.version>2.2.47</swagger.version>
 
         <!-- 监控管理 -->
-        <spring-boot-admin.version>3.4.4</spring-boot-admin.version>
+        <spring-boot-admin.version>4.1.2</spring-boot-admin.version>
     </properties>
 
     <dependencyManagement>
@@ -119,6 +121,19 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <!-- [Jackson 选型] Spring Boot 4 默认走 Jackson 3（tools.jackson），且
+                 Spring Cloud Gateway 5.0.x 的 GatewayAutoConfiguration 硬依赖 tools.jackson，
+                 因此 Jackson 3 必须留在 classpath（gateway 侧不可移除）。
+                 同时引入 spring-boot-jackson2，让 Jackson 2 的 ObjectMapper 仍然可用：
+                 业务服务（system/business/support/ai）在 repackage 中排除 Jackson 3，
+                 使 Jackson2AutoConfiguration 成为唯一生效的 JSON 自动配置，
+                 从而保持 AttachmentKeySerializer 等自定义 Jackson 2 序列化器的原有行为。 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-jackson2</artifactId>
+                <version>${spring-boot.version}</version>
             </dependency>
 
             <!-- Spring Cloud Dependencies -->
@@ -241,7 +256,7 @@
                 <version>${nacos.version}</version>
             </dependency>
 
-            <!-- 数据库相关 -->
+            <!-- 数据库相关（MySQL 版） -->
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
@@ -249,17 +264,33 @@
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
-                <artifactId>druid-spring-boot-starter</artifactId>
+                <artifactId>druid-spring-boot-4-starter</artifactId>
                 <version>${druid.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
-                <version>${mybatis-plus-spring-boot3.version}</version>
+                <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
+                <version>${mybatis-plus-spring-boot4.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-extension</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-annotation</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-core</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <!-- MyBatis-Plus 3.5.9+ 将依赖 jsqlparser 的插件（分页/租户/防全表更新等）拆分到独立模块 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-jsqlparser</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
             <dependency>
@@ -278,7 +309,7 @@
             <!-- 权限认证 -->
             <dependency>
                 <groupId>cn.dev33</groupId>
-                <artifactId>sa-token-spring-boot3-starter</artifactId>
+                <artifactId>sa-token-spring-boot4-starter</artifactId>
                 <version>${sa-token.version}</version>
             </dependency>
             <dependency>
@@ -289,6 +320,13 @@
             <dependency>
                 <groupId>cn.dev33</groupId>
                 <artifactId>sa-token-redis-jackson</artifactId>
+                <version>${sa-token.version}</version>
+            </dependency>
+            <!-- sa-token-redis-jackson 传递引入的 sa-token-jackson 会被解析成旧版 1.44.0，
+                 在此锁定为 1.46.0，避免与 sa-token 主版本混杂 -->
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-jackson</artifactId>
                 <version>${sa-token.version}</version>
             </dependency>
 
@@ -409,7 +447,7 @@
             </dependency>
             <dependency>
                 <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-spring-boot3</artifactId>
+                <artifactId>resilience4j-spring-boot4</artifactId>
                 <version>${resilience4j.version}</version>
             </dependency>
             <dependency>
@@ -425,12 +463,7 @@
                 <version>${rocketmq-spring-boot.version}</version>
             </dependency>
 
-            <!-- 分布式事务 -->
-            <dependency>
-                <groupId>io.seata</groupId>
-                <artifactId>seata-spring-boot-starter</artifactId>
-                <version>${seata.version}</version>
-            </dependency>
+            <!-- 分布式事务：Seata 未在代码中使用，已移除版本管理（与 PostgreSQL 版保持一致） -->
 
             <!-- 熔断降级 -->
             <dependency>
@@ -439,12 +472,7 @@
                 <version>${spring-cloud-alibaba.version}</version>
             </dependency>
 
-            <!-- 链路追踪 -->
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-sleuth</artifactId>
-                <version>${spring-cloud-starter-sleuth.version}</version>
-            </dependency>
+            <!-- 链路追踪：Spring Cloud Sleuth 已停止维护，移除；需用时改用 Spring Boot BOM 统一管理的 Micrometer Tracing -->
 
             <!-- 本地缓存 -->
             <dependency>
@@ -453,25 +481,12 @@
                 <version>${caffeine.version}</version>
             </dependency>
 
-            <!-- API 文档 -->
+            <!-- API 文档 - Knife4j Next (com.baizhukui)，适配 Spring Boot 4.x；
+                 knife4j-core / knife4j-openapi3-ui 由 starter 传递管理 -->
             <dependency>
-                <groupId>com.github.xingfudeshi</groupId>
-                <artifactId>knife4j-core</artifactId>
+                <groupId>com.baizhukui</groupId>
+                <artifactId>knife4j-openapi3-boot4-spring-boot-starter</artifactId>
                 <version>${knife4j.version}</version>
-            </dependency>
-            <!-- Source: https://mvnrepository.com/artifact/com.github.xingfudeshi/knife4j-openapi3-ui -->
-            <dependency>
-                <groupId>com.github.xingfudeshi</groupId>
-                <artifactId>knife4j-openapi3-ui</artifactId>
-                <version>${knife4j.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <!-- Source: https://mvnrepository.com/artifact/com.github.xingfudeshi/knife4j-openapi3-jakarta-spring-boot-starter -->
-            <dependency>
-                <groupId>com.github.xingfudeshi</groupId>
-                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
-                <version>${knife4j.version}</version>
-                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>org.springdoc</groupId>
@@ -538,21 +553,47 @@
         </dependencies>
     </dependencyManagement>
 
+    <!-- 全局依赖：所有子模块继承 -->
+    <dependencies>
+        <!-- Jackson 2 支持：提供 Jackson2AutoConfiguration，沿用现有 Jackson 2 序列化行为 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-jackson2</artifactId>
+        </dependency>
+
+    </dependencies>
+
     <build>
+        <!-- spring-boot-maven-plugin 只在此声明版本与 repackage 绑定，由各服务模块在自己的 build 中引用，
+             避免对 common-* / api-* 等无 main 方法的模块执行 repackage 导致构建失败。
+             关键: 本工程未继承 spring-boot-starter-parent，必须显式绑定 repackage 到 package 阶段，
+             否则 mvn package 产出普通 jar（无 Main-Class），java -jar 报 no main manifest attribute。 -->
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                            </exclude>
+                        </excludes>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -568,7 +609,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.34</version>
+                            <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

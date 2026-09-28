@@ -1,6 +1,6 @@
 package com.budaos.ai.app.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.spring.service.IService;
 import com.budaos.ai.app.entity.AiragApp;
 
 import java.util.List;

@@ -28,10 +28,10 @@
             <artifactId>QuickBlue-common-core</artifactId>
         </dependency>
 
-        <!-- Spring Cloud Gateway -->
+        <!-- Spring Cloud Gateway (Boot 4 线改名：*-server-webflux，5.0.x) -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-gateway</artifactId>
+            <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
         </dependency>
 
         <!-- Spring Cloud Nacos Discovery -->

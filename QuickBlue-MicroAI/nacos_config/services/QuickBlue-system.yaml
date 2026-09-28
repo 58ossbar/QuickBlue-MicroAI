@@ -1,6 +1,9 @@
 # System 服务配置
 
 spring:
+  mvc:
+    converters:
+      preferred-json-mapper: jackson2
   application:
     name: QuickBlue-system
   datasource:

@@ -1,7 +1,7 @@
 package com.budaos.support.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import com.budaos.common.core.domain.PageResponse;
 import com.budaos.common.core.domain.ApiResult;
 import com.budaos.support.dao.HelpCenterDao;

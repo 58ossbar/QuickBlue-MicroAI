@@ -4,7 +4,6 @@ import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.stp.StpUtil;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -43,9 +42,6 @@ public class SaTokenConfig implements WebMvcConfigurer {
                 );
     }
 
-    @Override
-    public void configurePathMatch(PathMatchConfigurer configurer) {
-        // 配置路径匹配
-        configurer.setUseTrailingSlashMatch(true);
-    }
+    // 注：Spring Framework 7 已移除 PathMatchConfigurer#setUseTrailingSlashMatch，
+    // 尾部斜杠匹配默认关闭（/foo 不再匹配 /foo/），故不再覆写 configurePathMatch。
 }
