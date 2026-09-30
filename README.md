@@ -588,8 +588,8 @@ git clone https://github.com/58ossbar/QuickBlue-MicroAI.git
 
 ## 联系我们<a id="contact"></a>
 
-- 🌐 官网：www.creatorblue.com
-- ✉️ 技术邮箱：28449472@qq.com
+- 🌐 官网：http://www.creatorblue.com
+- ✉️ 技术邮箱：zhujianwu@creatorblue.com
 
 > 📞 **有意向？请联系我们获取详细的解决方案和报价**
 
@@ -602,20 +602,4 @@ git clone https://github.com/58ossbar/QuickBlue-MicroAI.git
 ## 支持我们<a id="support"></a>
 
 开源不易，如果这个项目对您有帮助，欢迎通过以下方式支持我们：
-
-### 捐赠方式
-
-| 方式 | 说明 |
-|------|------|
-| ☕ 喝杯咖啡 | 一杯咖啡，一份鼓励 |
-| 💝 任意打赏 | 量力而行，感恩有你 |
-
-<img src="QuickBlue-MicroAI/doc/images/img_2.png" width="160" alt="微信收款码"/></br>
-
-> 捐赠时请备注「QuickBlue 开源支持」，您的名字将出现在致谢名单中（可选）。
-
-### 感谢每一份支持
-
-您的每一份捐赠都是对我们最大的鼓励，让我们能够持续维护和迭代开源项目，为社区提供更好的开源平台。
-
-> 如果暂不方便捐赠，也欢迎 **Star ⭐** 支持，感谢开源路上每一位同行者。
+>欢迎 **Star ⭐** 支持，感谢开源路上每一位同行者。
