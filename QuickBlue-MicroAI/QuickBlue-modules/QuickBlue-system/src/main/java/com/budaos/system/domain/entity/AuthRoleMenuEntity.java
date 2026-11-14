@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @TableName("t_role_menu")
 public class AuthRoleMenuEntity {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long roleMenuId;
 
     /**

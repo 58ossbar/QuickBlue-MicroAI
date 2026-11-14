@@ -1,6 +1,8 @@
 package com.budaos.system.domain.entity;
 
 import com.budaos.common.core.domain.BaseEntity;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -18,6 +20,7 @@ import lombok.EqualsAndHashCode;
 public class SysPermissionDataRule extends BaseEntity {
 
     @Schema(description = "规则ID")
+    @TableId(value = "rule_id", type = IdType.ASSIGN_ID)
     private Long ruleId;
 
     @Schema(description = "权限ID（菜单权限ID）")

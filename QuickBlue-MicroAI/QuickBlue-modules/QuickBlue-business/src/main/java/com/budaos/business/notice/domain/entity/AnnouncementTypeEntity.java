@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @Builder
 public class AnnouncementTypeEntity {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long noticeTypeId;
 
     /**

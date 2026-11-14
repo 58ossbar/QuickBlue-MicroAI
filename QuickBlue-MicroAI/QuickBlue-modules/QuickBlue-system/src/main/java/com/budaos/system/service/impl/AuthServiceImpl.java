@@ -2,6 +2,9 @@ package com.budaos.system.service.impl;
 
 import cn.dev33.satoken.stp.StpInterface;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.captcha.CaptchaUtil;
+import cn.hutool.captcha.LineCaptcha;
+import cn.hutool.captcha.generator.RandomGenerator;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
@@ -45,20 +48,14 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
-import javax.imageio.ImageIO;
 
 /**
  * 登录服务实现
@@ -120,6 +117,13 @@ public class AuthServiceImpl implements AuthService, StpInterface {
         if (loginForm.getPassword() == null || loginForm.getPassword().trim().isEmpty()) {
             log.warn("密码为空");
             return ApiResult.userErrorParam("密码不能为空！");
+        }
+
+        // 强制校验图形验证码（必须先通过验证码，防止绕过验证码暴力破解密码/账号枚举）
+        if (!verifyCaptcha(loginForm.getCaptchaUuid(), loginForm.getCaptchaCode())) {
+            log.warn("验证码校验失败 - loginName: {}, IP: {}", loginForm.getLoginName(), ip);
+            recordLoginLog(null, loginForm.getLoginName(), ip, userAgent, LoginRecordResultEnum.LOGIN_FAIL.getValue(), "验证码错误或已过期");
+            return ApiResult.userErrorParam("验证码错误或已过期，请重新输入！");
         }
 
         // 查询用户
@@ -256,16 +260,21 @@ public class AuthServiceImpl implements AuthService, StpInterface {
         return ApiResult.ok();
     }
 
+    /**
+     * 验证码字符集（排除易混淆的 0O1oIil 等字符）
+     */
+    private static final String CAPTCHA_CHAR_SET = "23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
+
     @Override
     public ApiResult<VerifyCodeVO> getCaptcha() {
         // 生成验证码ID
         String captchaId = RandomUtil.randomString(32);
 
-        // 生成4位数字验证码
-        String captchaCode = RandomUtil.randomNumbers(4);
-
-        // 生成验证码图片
-        String captchaImage = generateCaptchaImage(captchaCode);
+        // 生成5位字母+数字混合验证码（带干扰线），纯数字验证码太容易被暴力破解
+        RandomGenerator randomGenerator = new RandomGenerator(CAPTCHA_CHAR_SET, 5);
+        LineCaptcha lineCaptcha = CaptchaUtil.createLineCaptcha(125, 43, 5, 120);
+        lineCaptcha.setGenerator(randomGenerator);
+        String captchaCode = lineCaptcha.getCode();
 
         // 存储到Redis，5分钟有效期
         String redisKey = RedisKeyConstants.CAPTCHA_KEY + captchaId;
@@ -273,10 +282,11 @@ public class AuthServiceImpl implements AuthService, StpInterface {
 
         VerifyCodeVO captchaVO = new VerifyCodeVO();
         captchaVO.setCaptchaUuid(captchaId);
-        captchaVO.setCaptchaBase64Image(captchaImage);
+        captchaVO.setCaptchaBase64Image(lineCaptcha.getImageBase64Data());
         captchaVO.setExpireSeconds(300L);
 
-        log.info("生成验证码 - captchaId: {}, code: {}", captchaId, captchaCode);
+        // 注意：不要把验证码明文打进日志，避免泄露
+        log.info("生成验证码 - captchaId: {}", captchaId);
 
         return ApiResult.ok(captchaVO);
     }
@@ -302,60 +312,10 @@ public class AuthServiceImpl implements AuthService, StpInterface {
         boolean isValid = captchaCode.equalsIgnoreCase(captcha);
 
         if (!isValid) {
-            log.warn("验证码错误 - captchaId: {}, input: {}, actual: {}",
-                    captchaId, captcha, captchaCode);
+            log.warn("验证码错误 - captchaId: {}", captchaId);
         }
 
         return isValid;
-    }
-
-    /**
-     * 生成验证码图片
-     */
-    private String generateCaptchaImage(String code) {
-        int width = 120;
-        int height = 40;
-
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = image.createGraphics();
-
-        // 填充背景色
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, width, height);
-
-        // 设置字体
-        g.setFont(new Font("Arial", Font.BOLD, 20));
-
-        // 生成随机颜色
-        Random random = new Random();
-        g.setColor(new Color(random.nextInt(150), random.nextInt(150), random.nextInt(150)));
-
-        // 添加噪点
-        for (int i = 0; i < 50; i++) {
-            int x = random.nextInt(width);
-            int y = random.nextInt(height);
-            g.setColor(new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
-            g.fillRect(x, y, 1, 1);
-        }
-
-        // 绘制验证码
-        for (int i = 0; i < code.length(); i++) {
-            g.setColor(new Color(random.nextInt(100), random.nextInt(100), random.nextInt(100)));
-            g.drawString(String.valueOf(code.charAt(i)), 20 + i * 25, 25);
-        }
-
-        g.dispose();
-
-        // 转换为Base64
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(image, "PNG", baos);
-            byte[] imageBytes = baos.toByteArray();
-            return "data:image/png;base64," + Base64.getEncoder().encodeToString(imageBytes);
-        } catch (Exception e) {
-            log.error("生成验证码图片失败", e);
-            throw new RuntimeException("生成验证码失败");
-        }
     }
 
     @Override

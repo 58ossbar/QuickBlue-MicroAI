@@ -21,7 +21,7 @@ public class DictionaryEntity {
     /**
      * 字典id
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     @Schema(description = "字典id")
     private Long dictId;
 

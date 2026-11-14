@@ -20,7 +20,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `t_notice`;
 CREATE TABLE `t_notice`  (
-                             `notice_id` bigint NOT NULL AUTO_INCREMENT,
+                             `notice_id` bigint NOT NULL ,
                              `notice_type_id` bigint NOT NULL COMMENT '类型1公告 2动态',
                              `title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '标题',
                              `all_visible_flag` tinyint(1) NOT NULL COMMENT '是否全部可见',
@@ -39,7 +39,7 @@ CREATE TABLE `t_notice`  (
                              `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                              `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
                              PRIMARY KEY (`notice_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 69 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '通知' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '通知' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_notice
@@ -50,7 +50,7 @@ CREATE TABLE `t_notice`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `t_notice_receiver`;
 CREATE TABLE `t_notice_receiver`  (
-                                      `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
+                                      `id` bigint NOT NULL COMMENT 'ID',
                                       `notice_id` bigint NOT NULL COMMENT '通知ID',
                                       `receiver_type` tinyint NOT NULL COMMENT '接收人类型(1:全部 2:指定用户 3:指定部门)',
                                       `receiver_id` bigint NULL DEFAULT NULL COMMENT '接收人ID',
@@ -71,20 +71,19 @@ CREATE TABLE `t_notice_receiver`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `t_notice_type`;
 CREATE TABLE `t_notice_type`  (
-                                  `notice_type_id` bigint NOT NULL AUTO_INCREMENT COMMENT '通知类型',
+                                  `notice_type_id` bigint NOT NULL COMMENT '通知类型',
                                   `notice_type_name` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '类型名称',
                                   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                   PRIMARY KEY (`notice_type_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '通知类型' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '通知类型' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_notice_type
 -- ----------------------------
-INSERT INTO `t_notice_type` VALUES (1, '新闻', '2022-08-16 20:29:15', '2024-09-03 21:44:42');
-INSERT INTO `t_notice_type` VALUES (2, '通知', '2022-08-16 20:29:20', '2022-08-16 20:29:20');
-INSERT INTO `t_notice_type` VALUES (3, '公告', '2022-08-16 20:29:25', '2022-08-16 20:29:25');
-
+INSERT INTO `t_notice_type` VALUES (2116560828625850695, '新闻', '2022-08-16 20:29:15', '2024-09-03 21:44:42');
+INSERT INTO `t_notice_type` VALUES (2116560828625850696, '通知', '2022-08-16 20:29:20', '2022-08-16 20:29:20');
+INSERT INTO `t_notice_type` VALUES (2116560828625850697, '公告', '2022-08-16 20:29:25', '2022-08-16 20:29:25');
 -- ----------------------------
 -- Table structure for t_notice_view_record
 -- ----------------------------
@@ -159,9 +158,8 @@ CREATE TABLE `t_region`  (
 -- ----------------------------
 -- Records of t_region
 -- ----------------------------
-INSERT INTO `t_region` VALUES ('420000', '420000', '湖北省', '湖北', NULL, '/', 2, 1, 1, '湖北省负责人', '027-12345678', '湖北省（鄂）', 0, 0, 0, 1, '2026-01-10 09:12:55', 1, '2026-01-10 09:12:55');
-INSERT INTO `t_region` VALUES ('420100', '420100', '武汉市', '武汉', '420000', '/420000', 3, 99, 1, '武汉市负责人', '027-87654321', '湖北省省会', 0, 0, 0, 1, '2026-01-10 09:12:55', 1, '2026-01-10 09:12:55');
-INSERT INTO `t_region` VALUES ('420102', '420102', '江岸区', '江岸', '420100', '/420000/420100', 4, 1, 1, '江岸区负责人', '027-82820000', NULL, 1, 0, 0, 1, '2026-01-10 09:12:55', 1, '2026-01-10 09:12:55');
-INSERT INTO `t_region` VALUES ('420103', '420103', '江汉区', '江汉', '420100', '/420000/420100', 4, 2, 1, '江汉区负责人', '027-85830000', NULL, 1, 0, 0, 1, '2026-01-10 09:12:55', 1, '2026-01-10 09:12:55');
-
+INSERT INTO `t_region` VALUES (2116560828625850698, '420000', '湖北省', '湖北', NULL, '/', 2, 1, 1, '湖北省负责人', '027-12345678', '湖北省（鄂）', 0, 0, 0, 1, '2026-01-10 09:12:55', 1, '2026-01-10 09:12:55');
+INSERT INTO `t_region` VALUES (2116560828625850699, '420100', '武汉市', '武汉', '420000', '/420000', 3, 99, 1, '武汉市负责人', '027-87654321', '湖北省省会', 0, 0, 0, 1, '2026-01-10 09:12:55', 1, '2026-01-10 09:12:55');
+INSERT INTO `t_region` VALUES (2116560828625850700, '420102', '江岸区', '江岸', '420100', '/420000/420100', 4, 1, 1, '江岸区负责人', '027-82820000', NULL, 1, 0, 0, 1, '2026-01-10 09:12:55', 1, '2026-01-10 09:12:55');
+INSERT INTO `t_region` VALUES (2116560828625850701, '420103', '江汉区', '江汉', '420100', '/420000/420100', 4, 2, 1, '江汉区负责人', '027-85830000', NULL, 1, 0, 0, 1, '2026-01-10 09:12:55', 1, '2026-01-10 09:12:55');
 SET FOREIGN_KEY_CHECKS = 1;

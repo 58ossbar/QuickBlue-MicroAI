@@ -19,7 +19,7 @@ public class JobPostEntity {
     /**
      * 职务ID
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long positionId;
 
     /**

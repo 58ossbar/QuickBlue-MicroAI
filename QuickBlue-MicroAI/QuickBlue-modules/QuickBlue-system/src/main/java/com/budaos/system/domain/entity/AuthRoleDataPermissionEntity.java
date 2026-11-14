@@ -18,7 +18,7 @@ public class AuthRoleDataPermissionEntity {
     /**
      * 主键ID
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
     /**

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @TableName("t_table_column")
 public class ColumnSettingEntity {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long tableColumnId;
 
     /**

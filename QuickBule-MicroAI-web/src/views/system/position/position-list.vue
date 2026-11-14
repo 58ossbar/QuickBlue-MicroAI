@@ -70,6 +70,7 @@
       bordered
       :loading="tableLoading"
       :pagination="false"
+      :scroll="{ x: 'max-content' }"
       :row-selection="{ selectedRowKeys: selectedRowKeyList, onChange: onSelectChange }"
       v-model:expandedRowKeys="expandedRowKeys"
       :childrenColumnName="'children'"
@@ -166,7 +167,7 @@
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',
-      width: 100,
+      width: 230,
     },
   ]);
 
@@ -220,16 +221,19 @@
     if (!list || list.length === 0) return [];
     const map = {};
     const roots = [];
-    // 创建映射
+    // 创建映射（positionId 统一转字符串，防止后端返回数字时超长 Long 丢失精度导致行重复）
     for (const item of list) {
-      map[item.positionId] = { ...item, children: [] };
+      const id = String(item.positionId);
+      map[id] = { ...item, positionId: id, children: [] };
     }
     // 组装树
     for (const item of list) {
-      const node = map[item.positionId];
+      const id = String(item.positionId);
+      const parentId = item.parentId != null && item.parentId !== '' ? String(item.parentId) : null;
+      const node = map[id];
       // 排除自引用，防止生成循环结构导致递归死循环
-      if (item.parentId && item.parentId !== item.positionId && map[item.parentId]) {
-        map[item.parentId].children.push(node);
+      if (parentId && parentId !== id && map[parentId]) {
+        map[parentId].children.push(node);
       } else {
         roots.push(node);
       }
@@ -337,7 +341,7 @@
   function onDelete(data) {
     Modal.confirm({
       title: '提示',
-      content: '确定要删除选吗?',
+      content: '删除后不可恢复，确定要删除该岗位吗?',
       okText: '删除',
       okType: 'danger',
       onOk() {

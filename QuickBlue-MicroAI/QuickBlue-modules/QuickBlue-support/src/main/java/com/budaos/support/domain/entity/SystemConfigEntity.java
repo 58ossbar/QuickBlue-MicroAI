@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @TableName("t_config")
 public class SystemConfigEntity {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long configId;
 
     /**

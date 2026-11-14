@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @TableName("t_change_log")
 public class ReleaseLogEntity {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long changeLogId;
 
     /**

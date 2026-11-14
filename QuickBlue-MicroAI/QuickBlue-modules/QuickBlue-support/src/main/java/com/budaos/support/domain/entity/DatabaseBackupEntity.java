@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @TableName("t_database_backup")
 public class DatabaseBackupEntity {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long backupId;
 
     /**

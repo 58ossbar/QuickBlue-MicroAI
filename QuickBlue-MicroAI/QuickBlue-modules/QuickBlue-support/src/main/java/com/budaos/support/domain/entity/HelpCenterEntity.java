@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @TableName("t_help_doc")
 public class HelpCenterEntity {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long helpDocId;
 
     /**

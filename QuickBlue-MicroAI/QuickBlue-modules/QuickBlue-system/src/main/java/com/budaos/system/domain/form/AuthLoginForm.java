@@ -30,8 +30,10 @@ public class AuthLoginForm {
     private String emailCode;
 
     @Schema(description = "验证码uuid")
-    private String captchaId;
+    @NotBlank(message = "验证码不能为空")
+    private String captchaUuid;
 
     @Schema(description = "验证码")
-    private String captcha;
+    @NotBlank(message = "验证码不能为空")
+    private String captchaCode;
 }

@@ -19,7 +19,7 @@ public class LoginRecordEntity {
     /**
      * 日志ID
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long loginLogId;
 
     /**

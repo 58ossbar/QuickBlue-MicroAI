@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @TableName("t_role_employee")
 public class AuthRoleStaffEntity {
 
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long roleEmployeeId;
 
     /**

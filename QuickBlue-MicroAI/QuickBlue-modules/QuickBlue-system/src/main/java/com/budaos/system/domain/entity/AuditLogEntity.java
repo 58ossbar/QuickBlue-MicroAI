@@ -25,7 +25,7 @@ public class AuditLogEntity {
     /**
      * 主键id - 明确指定数据库字段名
      */
-    @TableId(value = "operate_log_id", type = IdType.AUTO)
+    @TableId(value = "operate_log_id", type = IdType.ASSIGN_ID)
     private Long operateLogId;
 
     /**

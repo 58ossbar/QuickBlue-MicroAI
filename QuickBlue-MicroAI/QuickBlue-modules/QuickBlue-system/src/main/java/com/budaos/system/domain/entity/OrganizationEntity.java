@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @TableName("t_department")
 public class OrganizationEntity {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long departmentId;
 
     /**

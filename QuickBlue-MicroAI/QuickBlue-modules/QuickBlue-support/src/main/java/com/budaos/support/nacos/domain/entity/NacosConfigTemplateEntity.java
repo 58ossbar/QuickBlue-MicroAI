@@ -26,7 +26,7 @@ public class NacosConfigTemplateEntity {
     /**
      * 模板主键ID
      */
-    @TableId(value = "template_id", type = IdType.AUTO)
+    @TableId(value = "template_id", type = IdType.ASSIGN_ID)
     private Long templateId;
 
     /**

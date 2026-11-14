@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @TableName("t_data_tracer")
 public class DataChangeTraceEntity {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long dataTracerId;
 
     /**

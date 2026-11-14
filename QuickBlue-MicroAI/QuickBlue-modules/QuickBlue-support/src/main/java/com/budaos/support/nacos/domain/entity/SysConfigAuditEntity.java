@@ -26,7 +26,7 @@ public class SysConfigAuditEntity {
     /**
      * 主键ID
      */
-    @TableId(value = "audit_id", type = IdType.AUTO)
+    @TableId(value = "audit_id", type = IdType.ASSIGN_ID)
     private Long auditId;
 
     /**
