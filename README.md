@@ -76,7 +76,7 @@
 
 **QuickBlue** 是一款面向生产环境的**原生 AI 微服务快速开发平台**。基于 **JDK 21 (LTS) + Spring Cloud 2025** 与 **Vite 8 + Vue 3**，把"每个企业都要重写一遍"的那部分先做好——**组织权限、数据安全与审计、服务治理与监控**，再叠加开箱即用的 **AI 能力（多模型接入 / RAG 知识库 / 应用编排 / 会话）**。企业不必重复造地基，直接在上面长自己的 AI 业务。
 
-> 🧩 **双数据库版本**：本仓库开源 **MySQL 版**（各微服务数据库隔离、独立账号）；官方同步提供 **PostgreSQL 版**（含 pgvector 向量检索），数据库层由 Nacos 配置中心集中管理，切换仅调配置，业务代码零侵入。
+> 🧩 **双数据库版本**：本仓库开源 **MySQL 版**（各微服务数据库隔离、独立账号）；官方同步提供 **PostgreSQL 版**（含 pgvector 向量检索），数据库层由 Nacos(可选) 配置中心集中管理，切换仅调配置，业务代码零侵入。
 
 ### 2.1 为什么企业需要一个"底座"
 
@@ -167,7 +167,7 @@ EasyExcel 大数据量导入导出、S3 兼容对象存储、定时任务调度�
 | Maven | **3.9+** | ✅ 必装 | 后端打包 |
 | MySQL | **8.0+** | ✅ 必装 | 业务数据（4 个库） |
 | Redis | **6+** | ✅ 必装 | 缓存 / 分布式锁 / 会话 |
-| Nacos | **2.4.3** | ✅ 必装 | 注册中心 + 配置中心 |
+| Nacos | **2.4.3** | ⭕ 可选 | 注册中心 + 配置中心 |
 | Node.js | **24+** | ✅ 必装 | 运行与构建前端 |
 | PostgreSQL + pgvector | 14+ / 0.7+ | ⭕ 可选 | 仅 AI 知识库向量检索需要 |
 | RocketMQ / Seata / Sentinel | — | ⭕ 可选 | 消息队列 / 分布式事务 / 熔断降级，按需启用 |
@@ -182,10 +182,10 @@ mvn -version           # 应输出 3.9+
 node -v                # 应输出 v24+
 mysql --version        # 应输出 8.0+
 redis-cli ping         # 应返回 PONG
-curl http://localhost:8848/nacos/    # Nacos 控制台可访问
+curl http://localhost:8848/nacos/    # 可选，Nacos 控制台可访问
 ```
 
-> **前置条件**：开始安装前，请确保 **MySQL、Redis、Nacos 三个中间件已经启动**。这是新手最常见的卡点。
+> **前置条件**：开始安装前，请确保 **MySQL、Redis二个中间件已经启动**。这是新手最常见的卡点。
 
 ---
 
@@ -205,6 +205,7 @@ curl http://localhost:8848/nacos/    # Nacos 控制台可访问
 cd QuickBlue-MicroAI
 mvn clean package -DskipTests
 java -jar QuickBlue-gateway/target/QuickBlue-gateway-4.0.0.jar     # 监听 8080
+#或者直接在intelli idea中启动网关服务GatewayApplication
 ```
 
 ✅ **验证**：看到 `Started GatewayApplication` 且无报错即可（向导的全部后端接口都在网关里）。
@@ -232,7 +233,7 @@ npm run dev                                                        # 监听 5173
 | 3 数据库 | 填 MySQL 地址、端口、管理员账号密码 | 管理员需具备**建库与授权**权限 |
 | 4 Redis | 填地址、端口、密码、库号 | 点"测试连接"验证 |
 | 5 服务端口 | 确认各服务端口 | 默认 8080~8084，无冲突直接下一步 |
-| 6 Nacos | 填 Nacos 地址与命名空间 | 默认命名空间 `QuickBlue-dev`、分组 `QuickBlue_GROUP` |
+| 6 Nacos（可选） | 填 Nacos 地址与命名空间 | 默认命名空间 `QuickBlue-dev`、分组 `QuickBlue_GROUP` |
 | 7 文件存储 | 选本地或 S3 兼容存储 | 本地存储填写上传目录即可 |
 | 8 管理员 | 设置超级管理员账号密码 | 请牢记，安装完成后用于登录 |
 | 9 安装 | 点击**开始安装** | 自动建库、建账号、导入表结构与数据、写入 Nacos 配置 |
@@ -288,7 +289,7 @@ copy .env.example .env    # Linux/Mac: cp .env.example .env
 > 所有服务通过 `spring.config.import` 自动加载项目根目录 `.env`，也支持系统环境变量 / IDE 启动配置覆盖。
 > 未复制 `.env` 时，各服务会回退到 `nacos_config` 中的默认值（与本地开发一致）。
 
-### 6.3 导入 Nacos 配置
+### 6.3 导入 Nacos 配置（可选）
 
 将 `QuickBlue-MicroAI/nacos_config/` 下的配置导入 Nacos（Group 均为 `QuickBlue_GROUP`）：
 
