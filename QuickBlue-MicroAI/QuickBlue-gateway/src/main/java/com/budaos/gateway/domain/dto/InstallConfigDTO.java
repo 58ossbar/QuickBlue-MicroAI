@@ -23,8 +23,11 @@ public class InstallConfigDTO {
     @Schema(description = "Redis配置")
     private RedisConfiguration redis;
 
-    @Schema(description = "Nacos配置")
+    @Schema(description = "Nacos配置（enabled=false 时跳过 Nacos，使用各服务本地配置启动）")
     private NacosConfig nacos;
+
+    @Schema(description = "Sentinel配置（可选，未启用时不开启熔断限流）")
+    private SentinelConfig sentinel;
 
     @Schema(description = "服务配置")
     private ServiceConfig service;
@@ -68,6 +71,9 @@ public class InstallConfigDTO {
 
         @Schema(description = "密码")
         private String password;
+
+        @Schema(description = "是否安装该库（support/system 必选；business/ai 可选，false 时跳过建库、导表与配置生成）")
+        private Boolean enabled;
     }
 
     @Data
@@ -92,6 +98,9 @@ public class InstallConfigDTO {
     @Data
     @Schema(description = "Nacos配置")
     public static class NacosConfig {
+        @Schema(description = "是否启用Nacos（注册中心+配置中心）。false 时各服务使用本地 application.yaml 配置启动（optional:nacos 模式）")
+        private Boolean enabled;
+
         @Schema(description = "服务器地址")
         private String serverAddr;
 
@@ -106,6 +115,16 @@ public class InstallConfigDTO {
 
         @Schema(description = "密码")
         private String password;
+    }
+
+    @Data
+    @Schema(description = "Sentinel配置（可选）")
+    public static class SentinelConfig {
+        @Schema(description = "是否启用Sentinel熔断限流")
+        private Boolean enabled;
+
+        @Schema(description = "Sentinel Dashboard 地址，如 localhost:8858")
+        private String dashboardAddr;
     }
 
     @Data

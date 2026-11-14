@@ -16,6 +16,7 @@ import org.springframework.core.io.support.EncodedResource;
 import org.springframework.http.*;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -27,6 +28,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -687,6 +689,64 @@ public class InstallServiceImpl implements InstallService {
         return task;
     }
 
+    /**
+     * 判断是否启用 Nacos（仅显式传 enabled=false 时跳过，保持向后兼容）
+     */
+    private boolean isNacosEnabled(InstallConfigDTO dto) {
+        return dto.getNacos() == null || !Boolean.FALSE.equals(dto.getNacos().getEnabled());
+    }
+
+    /**
+     * 判断数据库是否启用安装（仅显式传 enabled=false 时跳过，support/system 必选）
+     */
+    private boolean isDbEnabled(InstallConfigDTO.DatabaseInfo dbInfo) {
+        return dbInfo.getEnabled() == null || dbInfo.getEnabled();
+    }
+
+    /**
+     * 获取启用安装的数据库列表
+     */
+    private List<InstallConfigDTO.DatabaseInfo> enabledDatabases(InstallConfigDTO dto) {
+        return dto.getDatabase().getDatabases().stream()
+                .filter(this::isDbEnabled)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 按关键字（support/system/business/ai）查找启用的数据库名，找不到返回 null
+     */
+    private String findDbName(InstallConfigDTO dto, String keyword) {
+        return enabledDatabases(dto).stream()
+                .map(InstallConfigDTO.DatabaseInfo::getName)
+                .filter(n -> n != null && n.toLowerCase().contains(keyword))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * 判断 Nacos 配置模板是否需要导入（business/ai 可选库未安装时跳过对应 datasource 模板）
+     */
+    private boolean isTemplateEnabled(String templateCode, InstallConfigDTO dto) {
+        String lower = templateCode == null ? "" : templateCode.toLowerCase();
+        if (lower.startsWith("business")) return findDbName(dto, "business") != null;
+        if (lower.startsWith("ai")) return findDbName(dto, "ai") != null;
+        if (lower.startsWith("system")) return findDbName(dto, "system") != null;
+        if (lower.startsWith("support")) return findDbName(dto, "support") != null;
+        return true;
+    }
+
+    /**
+     * 根据模板编码解析其对应的数据库名（如 system_datasource -> quickblue_system）
+     */
+    private String resolveDbNameForTemplate(String templateCode, InstallConfigDTO dto) {
+        String lower = templateCode == null ? "" : templateCode.toLowerCase();
+        if (lower.startsWith("business")) return findDbName(dto, "business");
+        if (lower.startsWith("ai")) return findDbName(dto, "ai");
+        if (lower.startsWith("system")) return findDbName(dto, "system");
+        if (lower.startsWith("support")) return findDbName(dto, "support");
+        return null;
+    }
+
     private void executeInstall(InstallConfigDTO dto) throws Exception {
         InstallProgressVO progress = INSTALL_PROGRESS.get("current");
 
@@ -730,8 +790,13 @@ public class InstallServiceImpl implements InstallService {
             }
         });
 
-        // 任务5: 生成并导入Nacos配置
+        // 任务5: 生成并导入Nacos配置（未启用Nacos时跳过，各服务使用本地 application.yaml 配置启动）
         executeTask(progress, 4, () -> {
+            if (!isNacosEnabled(dto)) {
+                log.info("未启用Nacos，跳过Nacos配置导入，各服务将使用本地 application.yaml 配置启动");
+                progress.getTasks().get(4).setMessage("已跳过（未启用Nacos）");
+                return;
+            }
             importNacosConfigs(dto);
             try {
                 Thread.sleep(3000);
@@ -850,7 +915,7 @@ public class InstallServiceImpl implements InstallService {
                 dbConfig.getAdminUser(),
                 dbConfig.getAdminPassword())) {
 
-            for (InstallConfigDTO.DatabaseInfo dbInfo : dbConfig.getDatabases()) {
+            for (InstallConfigDTO.DatabaseInfo dbInfo : enabledDatabases(dto)) {
                 if ("mysql".equalsIgnoreCase(dbConfig.getDbType())) {
                     // MySQL数据库创建
                     createMySQLDatabase(conn, dbInfo);
@@ -994,7 +1059,7 @@ public class InstallServiceImpl implements InstallService {
         String adminUrl = buildAdminDbUrl(dbConfig);
         try (Connection adminConn = DriverManager.getConnection(adminUrl, dbConfig.getAdminUser(), dbConfig.getAdminPassword())) {
 
-            for (InstallConfigDTO.DatabaseInfo dbInfo : dbConfig.getDatabases()) {
+            for (InstallConfigDTO.DatabaseInfo dbInfo : enabledDatabases(dto)) {
                 try {
                     String dbName = dbInfo.getName();
 
@@ -1335,67 +1400,115 @@ public class InstallServiceImpl implements InstallService {
      * 根据安装时选择的数据库类型，从模板生成对应的配置文件
      */
     private void generateApplicationConfigs(InstallConfigDTO dto) {
-        log.info("开始生成项目配置文件");
+        log.info("开始生成项目配置文件（.env）");
 
         try {
             InstallConfigDTO.DatabaseConfig dbConfig = dto.getDatabase();
             InstallConfigDTO.RedisConfiguration redisConfig = dto.getRedis();
-            String dbType = "mysql".equalsIgnoreCase(dbConfig.getDbType()) ? "mysql" : "postgresql";
-            log.info("数据库类型: {}", dbType);
 
-            // 服务配置映射
-            Map<String, ServiceConfig> serviceConfigs = new HashMap<>();
-            for (InstallConfigDTO.DatabaseInfo dbInfo : dbConfig.getDatabases()) {
-                String dbName = dbInfo.getName();
-                ServiceConfig serviceConfig = new ServiceConfig();
-                serviceConfig.dbName = dbName;
-                serviceConfig.dbUser = dbInfo.getUsername();
-                serviceConfig.dbPassword = dbInfo.getPassword();
-                serviceConfig.dbHost = dbConfig.getHost();
-                serviceConfig.dbPort = dbConfig.getPort();
-                serviceConfig.redisHost = redisConfig.getHost();
-                serviceConfig.redisPort = redisConfig.getPort();
-                serviceConfig.redisPassword = redisConfig.getPassword();
-                serviceConfig.redisDatabase = redisConfig.getDatabase();
-
-                // 根据数据库名确定服务名和Redis数据库编号
-                if (dbName.contains("system")) {
-                    serviceConfig.serviceName = "QuickBlue-system";
-                    serviceConfig.redisDatabase = 1;
-                    serviceConfig.keyPrefix = "QuickBlue:";
-                    serviceConfig.outputPath = "QuickBlue-modules/QuickBlue-system/src/main/resources/application-dev.yaml";
-                } else if (dbName.contains("business")) {
-                    serviceConfig.serviceName = "QuickBlue-business";
-                    serviceConfig.redisDatabase = 3;
-                    serviceConfig.keyPrefix = "QuickBlue:";
-                    serviceConfig.outputPath = "QuickBlue-modules/QuickBlue-business/src/main/resources/application-dev.yaml";
-                } else if (dbName.contains("support")) {
-                    serviceConfig.serviceName = "QuickBlue-support";
-                    serviceConfig.redisDatabase = 2;
-                    serviceConfig.keyPrefix = "QuickBlue:";
-                    serviceConfig.outputPath = "QuickBlue-modules/QuickBlue-support/src/main/resources/application-dev.yaml";
-                } else if (dbName.contains("ai")) {
-                    serviceConfig.serviceName = "QuickBlue-ai";
-                    serviceConfig.redisDatabase = 4;
-                    serviceConfig.keyPrefix = "QuickBlue-AI:";
-                    serviceConfig.outputPath = "QuickBlue-modules/QuickBlue-ai/src/main/resources/application-dev.yaml";
+            // 1. 创建统一业务数据库账号 quickblue_app，并授权所有启用的库
+            //    （各服务 bootstrap.yaml 通过 .env 统一读取，避免把数据库管理员账号暴露给业务服务）
+            String appDbUser = "quickblue_app";
+            String appDbPassword = randomPassword(24);
+            try (Connection conn = DriverManager.getConnection(
+                    buildAdminDbUrl(dbConfig),
+                    dbConfig.getAdminUser(),
+                    dbConfig.getAdminPassword())) {
+                String grant;
+                if ("mysql".equalsIgnoreCase(dbConfig.getDbType())) {
+                    try (Statement stmt = conn.createStatement()) {
+                        stmt.execute(String.format("CREATE USER IF NOT EXISTS '%s'@'%%' IDENTIFIED BY '%s'", appDbUser, appDbPassword));
+                        for (InstallConfigDTO.DatabaseInfo dbInfo : enabledDatabases(dto)) {
+                            stmt.execute(String.format("GRANT ALL PRIVILEGES ON `%s`.* TO '%s'@'%%'", dbInfo.getName(), appDbUser));
+                        }
+                        stmt.execute("FLUSH PRIVILEGES");
+                    }
+                } else {
+                    try (Statement stmt = conn.createStatement()) {
+                        stmt.execute(String.format("DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '%s') THEN CREATE ROLE %s LOGIN PASSWORD '%s'; END IF; END $$;", appDbUser, appDbUser, appDbPassword));
+                        for (InstallConfigDTO.DatabaseInfo dbInfo : enabledDatabases(dto)) {
+                            stmt.execute(String.format("GRANT ALL PRIVILEGES ON DATABASE \"%s\" TO %s", dbInfo.getName(), appDbUser));
+                        }
+                    }
                 }
-
-                serviceConfigs.put(serviceConfig.serviceName, serviceConfig);
+                log.info("统一业务数据库账号创建并授权完成: {}", appDbUser);
             }
 
-            // 为每个服务生成配置文件
-            for (ServiceConfig serviceConfig : serviceConfigs.values()) {
-                try {
-                    generateSingleServiceConfig(serviceConfig, dbType);
-                    log.info("配置文件生成成功: {}", serviceConfig.outputPath);
-                } catch (Exception e) {
-                    log.error("配置文件生成失败: {}", serviceConfig.outputPath, e);
-                    throw new RuntimeException("配置文件生成失败: " + serviceConfig.outputPath, e);
-                }
+            // 2. 生成 .env 文件（各服务 bootstrap.yaml 通过 optional:file:../.env 自动加载）
+            StringBuilder env = new StringBuilder();
+            env.append("# ============================================================\n");
+            env.append("# QuickBlue 环境变量（由安装向导自动生成，请勿手工修改占位格式）\n");
+            env.append("# 生成时间: ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("\n");
+            env.append("# ============================================================\n\n");
+
+            // MySQL
+            env.append("# ---------- MySQL ----------\n");
+            env.append("MYSQL_HOST=").append(dbConfig.getHost()).append("\n");
+            env.append("MYSQL_PORT=").append(dbConfig.getPort()).append("\n");
+            env.append("MYSQL_USERNAME=").append(appDbUser).append("\n");
+            env.append("MYSQL_PASSWORD=").append(appDbPassword).append("\n\n");
+
+            // Redis
+            env.append("# ---------- Redis / Redisson ----------\n");
+            env.append("REDIS_HOST=").append(redisConfig.getHost()).append("\n");
+            env.append("REDIS_PORT=").append(redisConfig.getPort()).append("\n");
+            env.append("REDIS_PASSWORD=").append(redisConfig.getPassword() == null ? "" : redisConfig.getPassword()).append("\n");
+            env.append("REDIS_DATABASE=").append(redisConfig.getDatabase() == null ? 1 : redisConfig.getDatabase()).append("\n\n");
+
+            // Nacos（未启用时注释掉，各服务 optional:nacos + 默认值启动，不依赖 Nacos）
+            env.append("# ---------- Nacos 注册中心 / 配置中心 ----------\n");
+            if (isNacosEnabled(dto)) {
+                env.append("NACOS_SERVER_ADDR=").append(dto.getNacos().getServerAddr()).append("\n");
+                env.append("NACOS_NAMESPACE=").append(dto.getNacos().getNamespace()).append("\n");
+                env.append("NACOS_GROUP=").append(dto.getNacos().getGroup()).append("\n");
+                env.append("NACOS_USERNAME=").append(dto.getNacos().getUsername() == null ? "nacos" : dto.getNacos().getUsername()).append("\n");
+                env.append("NACOS_PASSWORD=").append(dto.getNacos().getPassword() == null ? "" : dto.getNacos().getPassword()).append("\n\n");
+            } else {
+                env.append("# 未启用 Nacos：以下配置保持注释状态，各服务使用本地 application.yaml 配置启动\n");
+                env.append("# NACOS_SERVER_ADDR=localhost:8848\n");
+                env.append("# NACOS_NAMESPACE=QuickBlue-dev\n");
+                env.append("# NACOS_GROUP=QuickBlue_GROUP\n");
+                env.append("# NACOS_USERNAME=nacos\n");
+                env.append("# NACOS_PASSWORD=\n\n");
             }
 
-            log.info("所有项目配置文件生成完成");
+            // Sentinel（可选）
+            env.append("# ---------- Sentinel 熔断限流（可选） ----------\n");
+            InstallConfigDTO.SentinelConfig sentinel = dto.getSentinel();
+            boolean sentinelEnabled = sentinel != null && Boolean.TRUE.equals(sentinel.getEnabled());
+            env.append("SENTINEL_ENABLED=").append(sentinelEnabled).append("\n");
+            env.append("SENTINEL_DASHBOARD_ADDR=").append(sentinelEnabled && sentinel.getDashboardAddr() != null ? sentinel.getDashboardAddr() : "localhost:8858").append("\n\n");
+
+            // AI 向量库（ai 服务启用时）
+            if (findDbName(dto, "ai") != null) {
+                env.append("# ---------- PostgreSQL / pgvector（ai 服务 RAG 功能） ----------\n");
+                env.append("PGVECTOR_HOST=localhost\n");
+                env.append("PGVECTOR_PORT=5432\n");
+                env.append("PGVECTOR_DB=").append(findDbName(dto, "ai")).append("\n");
+                env.append("PGVECTOR_USER=").append(appDbUser).append("\n");
+                env.append("PGVECTOR_PASSWORD=").append(appDbPassword).append("\n\n");
+            }
+
+            env.append("# ---------- 环境 ----------\n");
+            env.append("SPRING_PROFILES_ACTIVE=dev\n");
+
+            // 3. 写入项目根目录
+            Path projectRoot = findProjectRoot();
+            Path envPath = projectRoot.resolve(".env");
+            Files.writeString(envPath, env.toString(), StandardCharsets.UTF_8);
+            log.info(".env 配置文件生成成功: {}", envPath.toAbsolutePath());
+
+            // 4. 保存安装摘要（安装信息留档，便于排查）
+            Map<String, Object> summary = new LinkedHashMap<>();
+            summary.put("installTime", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            summary.put("dbType", dbConfig.getDbType());
+            summary.put("databases", enabledDatabases(dto).stream().map(InstallConfigDTO.DatabaseInfo::getName).collect(Collectors.toList()));
+            summary.put("nacosEnabled", isNacosEnabled(dto));
+            summary.put("sentinelEnabled", sentinelEnabled);
+            Files.writeString(projectRoot.resolve(".quickblue-install-summary.json"),
+                    objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(summary), StandardCharsets.UTF_8);
+
+            log.info("所有项目配置生成完成");
         } catch (Exception e) {
             log.error("生成项目配置文件失败", e);
             throw new RuntimeException("生成项目配置文件失败: " + e.getMessage(), e);
@@ -1403,76 +1516,30 @@ public class InstallServiceImpl implements InstallService {
     }
 
     /**
-     * 为单个服务生成配置文件
+     * 定位项目根目录（包含 QuickBlue-gateway 子目录的目录，各服务 bootstrap.yaml 从该目录加载 .env）
      */
-    private void generateSingleServiceConfig(ServiceConfig serviceConfig, String dbType) throws Exception {
-        // 读取application-dev模板
-        String devTemplatePath = "config-templates/" + dbType + "/application-dev.yaml";
-        String devContent = readTemplateFile(devTemplatePath);
-
-        // 替换占位符
-        devContent = devContent.replace("${db.host}", serviceConfig.dbHost);
-        devContent = devContent.replace("${db.port}", String.valueOf(serviceConfig.dbPort));
-        devContent = devContent.replace("${db.name}", serviceConfig.dbName);
-        devContent = devContent.replace("${db.user}", serviceConfig.dbUser);
-        devContent = devContent.replace("${db.password}", serviceConfig.dbPassword);
-        devContent = devContent.replace("${redis.host}", serviceConfig.redisHost);
-        devContent = devContent.replace("${redis.port}", String.valueOf(serviceConfig.redisPort));
-        devContent = devContent.replace("${redis.password}", serviceConfig.redisPassword != null && !serviceConfig.redisPassword.isEmpty() 
-            ? serviceConfig.redisPassword : "");
-        devContent = devContent.replace("${redis.database}", String.valueOf(serviceConfig.redisDatabase));
-        devContent = devContent.replace("${cache.key-prefix}", serviceConfig.keyPrefix);
-
-        // 写入到目标文件
-        Path outputPath = Paths.get(serviceConfig.outputPath).toAbsolutePath();
-        if (!Files.exists(outputPath.getParent())) {
-            Files.createDirectories(outputPath.getParent());
-        }
-        Files.writeString(outputPath, devContent, StandardCharsets.UTF_8);
-    }
-
-    /**
-     * 读取模板文件内容
-     */
-    private String readTemplateFile(String templatePath) throws Exception {
-        // 优先从classpath加载
-        ClassPathResource classpathResource = new ClassPathResource(templatePath);
-        if (classpathResource.exists()) {
-            return new String(classpathResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        }
-
-        // 尝试从文件系统加载
-        Path[] possiblePaths = {
-            Paths.get(templatePath).toAbsolutePath(),
-            Paths.get("QuickBlue-gateway/src/main/resources", templatePath).toAbsolutePath(),
-            Paths.get("QuickBlue-MicroAI/QuickBlue-gateway/src/main/resources", templatePath).toAbsolutePath()
-        };
-
-        for (Path path : possiblePaths) {
-            if (Files.exists(path)) {
-                return Files.readString(path, StandardCharsets.UTF_8);
+    private Path findProjectRoot() {
+        Path current = Paths.get(System.getProperty("user.dir")).toAbsolutePath();
+        for (Path dir = current; dir != null; dir = dir.getParent()) {
+            if (Files.isDirectory(dir.resolve("QuickBlue-gateway"))) {
+                return dir;
             }
         }
-
-        throw new RuntimeException("模板文件不存在: " + templatePath);
+        log.warn("未找到项目根目录（不存在 QuickBlue-gateway 子目录），.env 将写入当前目录: {}", current);
+        return current;
     }
 
     /**
-     * 服务配置内部类
+     * 生成随机强密码（字母+数字，24位）
      */
-    private static class ServiceConfig {
-        String serviceName;
-        String dbName;
-        String dbUser;
-        String dbPassword;
-        String dbHost;
-        int dbPort;
-        String redisHost;
-        int redisPort;
-        String redisPassword;
-        int redisDatabase;
-        String keyPrefix;
-        String outputPath;
+    private String randomPassword(int length) {
+        SecureRandom random = new SecureRandom();
+        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return sb.toString();
     }
 
     private void initializeBaseData(InstallConfigDTO dto) {
@@ -1491,24 +1558,36 @@ public class InstallServiceImpl implements InstallService {
     private void importNacosConfigs(InstallConfigDTO dto) {
         log.info("开始生成并导入Nacos配置");
 
+        // 未启用Nacos时跳过（各服务使用本地 application.yaml 配置启动）
+        if (!isNacosEnabled(dto)) {
+            log.info("未启用Nacos，跳过Nacos配置导入");
+            return;
+        }
+
         try {
             // 1. 连接support数据库查询配置模板
             InstallConfigDTO.DatabaseConfig dbConfig = dto.getDatabase();
-            String supportDbUrl = buildJdbcUrl(dbConfig, "quickblue_support");
-            
+            String supportDbName = findDbName(dto, "support");
+            if (supportDbName == null) {
+                log.warn("未安装支撑服务数据库，无法查询Nacos配置模板，跳过导入");
+                return;
+            }
+            String supportDbUrl = buildJdbcUrl(dbConfig, supportDbName);
+
             try (Connection conn = DriverManager.getConnection(
                     supportDbUrl,
                     dbConfig.getAdminUser(),
                     dbConfig.getAdminPassword())) {
-                
+
                 // 2. 确定数据库类型
                 String databaseType = "mysql".equalsIgnoreCase(dbConfig.getDbType()) ? "mysql" : "postgresql";
                 log.info("数据库类型: {}, 开始查询Nacos配置模板", databaseType);
-                
-                // 3. 查询所有类型的配置模板（common + 指定数据库类型）
+
+                // 3. 查询所有类型的配置模板（common + 指定数据库类型），过滤掉未启用可选库的模板
                 List<ConfigTemplate> templates = queryConfigTemplates(conn, databaseType);
-                log.info("查询到 {} 个Nacos配置模板", templates.size());
-                
+                templates.removeIf(t -> !isTemplateEnabled(t.templateCode, dto));
+                log.info("查询到 {} 个Nacos配置模板（已按启用组件过滤）", templates.size());
+
                 // 4. 替换占位符并生成实际配置
                 List<NacosConfigImport> configsToImport = generateConfigs(templates, dto);
 
@@ -1629,6 +1708,32 @@ public class InstallServiceImpl implements InstallService {
             content = content.replace("${db.port}", String.valueOf(dbConfig.getPort()));
             content = content.replace("${db.adminUser}", dbConfig.getAdminUser());
             content = content.replace("${db.adminPassword}", dbConfig.getAdminPassword());
+
+            // 替换通用 MYSQL_* 占位符（按模板对应的服务库填入库名与专用账号）
+            content = content.replace("${MYSQL_HOST}", dbConfig.getHost());
+            content = content.replace("${MYSQL_PORT}", String.valueOf(dbConfig.getPort()));
+            String templateDbName = resolveDbNameForTemplate(template.templateCode, dto);
+            if (templateDbName != null) {
+                content = content.replace("${MYSQL_DATABASE}", templateDbName);
+                for (InstallConfigDTO.DatabaseInfo dbInfo : dbConfig.getDatabases()) {
+                    if (dbInfo.getName() != null && dbInfo.getName().equals(templateDbName)) {
+                        content = content.replace("${MYSQL_USER}", dbInfo.getUsername());
+                        content = content.replace("${MYSQL_PASSWORD}", dbInfo.getPassword() == null ? "" : dbInfo.getPassword());
+                        break;
+                    }
+                }
+                // PostgreSQL 版模板占位符
+                content = content.replace("${PG_HOST}", dbConfig.getHost());
+                content = content.replace("${PG_PORT}", String.valueOf(dbConfig.getPort()));
+                content = content.replace("${PG_DATABASE}", templateDbName);
+                for (InstallConfigDTO.DatabaseInfo dbInfo : dbConfig.getDatabases()) {
+                    if (dbInfo.getName() != null && dbInfo.getName().equals(templateDbName)) {
+                        content = content.replace("${PG_USER}", dbInfo.getUsername());
+                        content = content.replace("${PG_PASSWORD}", dbInfo.getPassword() == null ? "" : dbInfo.getPassword());
+                        break;
+                    }
+                }
+            }
 
             // 替换各服务的数据库配置
             for (InstallConfigDTO.DatabaseInfo dbInfo : dbConfig.getDatabases()) {
@@ -1821,11 +1926,66 @@ public class InstallServiceImpl implements InstallService {
         }
     }
 
+    /**
+     * 创建/更新管理员账号：将向导中设置的管理员密码写入系统库 t_employee（Argon2 + UID 加盐，与登录校验一致）
+     */
     private void createAdminAccount(InstallConfigDTO dto) {
-        log.info("创建管理员账号: {}", dto.getAdmin().getUsername());
+        log.info("配置管理员账号");
 
-        // TODO: 实际项目中应该在数据库中创建管理员账号
-        log.info("管理员账号创建完成");
+        InstallConfigDTO.AdminConfig admin = dto.getAdmin();
+        if (admin == null || admin.getUsername() == null || admin.getUsername().isBlank()) {
+            log.info("未配置管理员账号，跳过");
+            return;
+        }
+        if (admin.getPassword() == null || admin.getPassword().isBlank()) {
+            log.info("未设置管理员密码，保留种子账号默认密码");
+            return;
+        }
+
+        InstallConfigDTO.DatabaseConfig dbConfig = dto.getDatabase();
+        String systemDbName = findDbName(dto, "system");
+        if (systemDbName == null) {
+            throw new RuntimeException("系统数据库未启用，无法配置管理员账号");
+        }
+
+        try (Connection conn = DriverManager.getConnection(
+                buildJdbcUrl(dbConfig, systemDbName),
+                dbConfig.getAdminUser(),
+                dbConfig.getAdminPassword())) {
+
+            // 1. 查询管理员（种子账号 admin）
+            String employeeId;
+            String employeeUid;
+            String selectSql = "SELECT employee_id, employee_uid FROM t_employee WHERE login_name = ? AND deleted_flag = 0 LIMIT 1";
+            try (PreparedStatement ps = conn.prepareStatement(selectSql)) {
+                ps.setString(1, admin.getUsername());
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new RuntimeException("管理员账号 " + admin.getUsername() + " 不存在，系统内置管理员登录名为 admin");
+                    }
+                    employeeId = rs.getString("employee_id");
+                    employeeUid = rs.getString("employee_uid");
+                }
+            }
+
+            // 2. Argon2 加密：盐格式 password_UID大写_UID小写（与 system 服务 PasswordUtil 保持一致）
+            String saltPassword = admin.getPassword() + "_" + employeeUid.toUpperCase() + "_" + employeeUid.toLowerCase();
+            Argon2PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+            String encodedPwd = encoder.encode(saltPassword);
+
+            // 3. 更新密码
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "UPDATE t_employee SET login_pwd = ?, update_time = NOW() WHERE employee_id = ?")) {
+                ps.setString(1, encodedPwd);
+                ps.setString(2, employeeId);
+                ps.executeUpdate();
+            }
+
+            log.info("管理员账号密码配置完成: {} (employeeId={})", admin.getUsername(), employeeId);
+        } catch (SQLException e) {
+            log.error("配置管理员账号失败", e);
+            throw new RuntimeException("配置管理员账号失败: " + e.getMessage(), e);
+        }
     }
 
     private void configureSystemParameters(InstallConfigDTO dto) {
@@ -1835,10 +1995,108 @@ public class InstallServiceImpl implements InstallService {
         log.info("系统参数配置完成");
     }
 
+    /**
+     * 验证安装结果：校验各启用数据库的关键表、Redis 连通性、Nacos（启用时）连通性
+     */
     private void verifyInstallation(InstallConfigDTO dto) {
         log.info("验证安装结果");
 
-        // TODO: 实际项目中应该验证所有组件是否正常
+        List<String> errors = new ArrayList<>();
+
+        // 1. 校验各启用数据库的关键表
+        Map<String, String[]> requiredTables = new LinkedHashMap<>();
+        requiredTables.put("support", new String[]{"t_dict", "t_nacos_config_template", "t_message"});
+        requiredTables.put("system", new String[]{"t_employee", "t_menu", "t_position", "t_role"});
+        requiredTables.put("business", new String[]{"t_region", "t_notice_type"});
+        requiredTables.put("ai", new String[]{"airag_model"});
+
+        InstallConfigDTO.DatabaseConfig dbConfig = dto.getDatabase();
+        for (Map.Entry<String, String[]> entry : requiredTables.entrySet()) {
+            String dbName = findDbName(dto, entry.getKey());
+            if (dbName == null) {
+                log.info("可选数据库未安装，跳过验证: {}", entry.getKey());
+                continue;
+            }
+            boolean isMysql = "mysql".equalsIgnoreCase(dbConfig.getDbType());
+            String quote = isMysql ? "`" : "\"";
+            String limit = isMysql ? "LIMIT 1" : "LIMIT 1";
+            try (Connection conn = DriverManager.getConnection(
+                    buildJdbcUrl(dbConfig, dbName),
+                    dbConfig.getAdminUser(),
+                    dbConfig.getAdminPassword())) {
+                for (String table : entry.getValue()) {
+                    try (ResultSet rs = conn.createStatement().executeQuery(
+                            "SELECT 1 FROM " + quote + table + quote + " " + limit)) {
+                        log.info("表校验通过: {}.{}", dbName, table);
+                    } catch (SQLException e) {
+                        errors.add("数据库 " + dbName + " 缺少关键表: " + table);
+                    }
+                }
+            } catch (SQLException e) {
+                errors.add("数据库 " + dbName + " 连接失败: " + e.getMessage());
+            }
+        }
+
+        // 2. 校验 Redis
+        try {
+            InstallConfigDTO.RedisConfiguration redisConfig = dto.getRedis();
+            RedisURI.Builder builder = RedisURI.Builder.redis(redisConfig.getHost(), redisConfig.getPort())
+                    .withDatabase(redisConfig.getDatabase() == null ? 1 : redisConfig.getDatabase())
+                    .withTimeout(Duration.ofSeconds(10));
+            if (redisConfig.getPassword() != null && !redisConfig.getPassword().trim().isEmpty()) {
+                builder.withPassword(redisConfig.getPassword().toCharArray());
+            }
+            RedisClient redisClient = RedisClient.create(builder.build());
+            StatefulRedisConnection<String, String> conn = null;
+            try {
+                conn = redisClient.connect();
+                if (!"PONG".equals(conn.sync().ping())) {
+                    errors.add("Redis PING 校验失败");
+                }
+            } finally {
+                if (conn != null) conn.close();
+                redisClient.shutdown();
+            }
+            log.info("Redis 校验通过");
+        } catch (Exception e) {
+            errors.add("Redis 连接校验失败: " + e.getMessage());
+        }
+
+        // 3. 校验 Nacos（启用时）
+        if (isNacosEnabled(dto)) {
+            try {
+                testNacosConnection(new NacosConnectionDTO());
+                log.info("Nacos 校验通过");
+            } catch (Exception e) {
+                // NacosConnectionDTO 无参时字段为空，重新用完整参数校验
+                try {
+                    InstallConfigDTO.NacosConfig nacos = dto.getNacos();
+                    NacosConnectionDTO check = new NacosConnectionDTO();
+                    check.setServerAddr(nacos.getServerAddr());
+                    check.setNamespace(nacos.getNamespace());
+                    check.setGroup(nacos.getGroup());
+                    check.setUsername(nacos.getUsername());
+                    check.setPassword(nacos.getPassword());
+                    testNacosConnection(check);
+                    log.info("Nacos 校验通过");
+                } catch (Exception ex) {
+                    errors.add("Nacos 连接校验失败: " + ex.getMessage());
+                }
+            }
+        }
+
+        // 4. 校验 .env 已生成
+        Path envFile = findProjectRoot().resolve(".env");
+        if (!Files.exists(envFile)) {
+            errors.add("配置文件 .env 未生成: " + envFile.toAbsolutePath());
+        }
+
+        if (!errors.isEmpty()) {
+            String message = String.join("; ", errors);
+            log.error("安装验证失败: {}", message);
+            throw new RuntimeException("安装验证失败: " + message);
+        }
+
         log.info("安装验证通过");
     }
 

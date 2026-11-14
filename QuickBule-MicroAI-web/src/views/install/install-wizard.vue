@@ -49,7 +49,7 @@
                 <div class="welcome-info">
                   <a-alert
                     message="安装前准备"
-                    description="请确保您的服务器已安装以下软件：JDK 21+、MySQL 8.0+、Redis 6.0+、Nacos 2.4.3（前端开发另需 Node.js 24+）"
+                    description="必装：JDK 21+、MySQL 8.0+、Redis 6.0+（前端开发另需 Node.js 24+）。可选：Nacos 2.4.3（注册/配置中心，未安装时可关闭 Nacos 开关使用本地配置启动）、Sentinel Dashboard（熔断限流）。"
                     type="info"
                     show-icon
                     style="margin-bottom: 16px; text-align: left;"
@@ -203,28 +203,36 @@
 
                 <a-form-item v-for="(db, index) in databases" :key="index" :label="`${db.label}`">
                   <a-form-item-rest>
-                    <a-row :gutter="8">
-                      <a-col :span="12">
-                        <a-input
-                          v-model:value="db.name"
-                          :placeholder="db.defaultName"
-                        />
-                      </a-col>
-                      <a-col :span="12">
-                        <a-input
-                          v-model:value="db.username"
-                          :placeholder="db.defaultUser"
-                        />
-                      </a-col>
-                    </a-row>
-                    <a-row style="margin-top: 8px;">
-                      <a-col :span="24">
-                        <a-input-password
-                          v-model:value="db.password"
-                          :placeholder="`默认密码: ${db.defaultPassword}`"
-                        />
-                      </a-col>
-                    </a-row>
+                    <div style="margin-bottom: 8px;">
+                      <a-switch v-model:checked="db.enabled" :disabled="db.required" size="small" />
+                      <a-tag v-if="db.required" color="red" style="margin-left: 8px;">必选</a-tag>
+                      <a-tag v-else-if="db.enabled" color="blue" style="margin-left: 8px;">已启用</a-tag>
+                      <a-tag v-else color="default" style="margin-left: 8px;">已跳过（不创建该库，对应服务将不安装）</a-tag>
+                    </div>
+                    <template v-if="db.enabled">
+                      <a-row :gutter="8">
+                        <a-col :span="12">
+                          <a-input
+                            v-model:value="db.name"
+                            :placeholder="db.defaultName"
+                          />
+                        </a-col>
+                        <a-col :span="12">
+                          <a-input
+                            v-model:value="db.username"
+                            :placeholder="db.defaultUser"
+                          />
+                        </a-col>
+                      </a-row>
+                      <a-row style="margin-top: 8px;">
+                        <a-col :span="24">
+                          <a-input-password
+                            v-model:value="db.password"
+                            :placeholder="`默认密码: ${db.defaultPassword}`"
+                          />
+                        </a-col>
+                      </a-row>
+                    </template>
                   </a-form-item-rest>
                 </a-form-item>
 
@@ -239,7 +247,7 @@
 
                 <a-alert
                   message="MySQL 建库说明"
-                  description="将按 database/mysql 下的脚本依次创建 4 个库（utf8mb4 字符集）与 4 个最小权限专用账号，并导入 02~05 号建表脚本（support / system / business / ai）。"
+                  description="支撑服务库和系统服务库为必选，将创建数据库（utf8mb4 字符集）、专用账号并导入对应建表脚本；业务服务库与 AI 服务库为可选项，关闭开关则跳过创建，对应服务不会安装。"
                   type="success"
                   show-icon
                   style="margin-bottom: 16px;"
@@ -401,6 +409,19 @@
                   </a-row>
                 </a-form-item>
 
+                <a-separator>Sentinel 熔断限流（可选）</a-separator>
+
+                <a-form-item label="启用 Sentinel">
+                  <a-switch v-model:checked="sentinelEnabled" />
+                  <div style="margin-top: 4px; color: #8c8c8c; font-size: 12px;">
+                    可选项。开启后需要部署 Sentinel Dashboard（如 localhost:8858），安装时将写入配置并在各服务开启熔断限流；不开启则各服务不启用 Sentinel。
+                  </div>
+                </a-form-item>
+
+                <a-form-item v-if="sentinelEnabled" label="Dashboard 地址">
+                  <a-input v-model:value="sentinelDashboard" placeholder="localhost:8858" />
+                </a-form-item>
+
                 <a-separator>前端（仅开发调试）</a-separator>
 
                 <a-form-item label="Web 开发端口">
@@ -429,11 +450,11 @@
           <div v-if="currentStep === 5" class="step-content">
             <div class="nacos-config">
               <h2>Nacos配置</h2>
-              <p class="step-desc">配置Nacos配置中心连接信息，用于集中管理应用配置</p>
+              <p class="step-desc">Nacos 为可选组件，用于集中管理应用配置与服务注册发现</p>
 
               <a-alert
                 message="Nacos说明"
-                description="Nacos 2.4.3 同时承担注册中心与配置中心。配置中心将统一管理系统各微服务的配置文件，切换 MySQL / Redis 等基础设施地址只需改动配置，无需重启业务代码。"
+                description="Nacos 2.4.3 同时承担注册中心与配置中心，推荐启用。若您的环境没有 Nacos，可以关闭此开关——各服务将使用本地 application.yaml 配置直接启动（optional:nacos 模式），MySQL / Redis 等地址通过安装生成的 .env 文件统一管理。"
                 type="info"
                 show-icon
                 style="margin-bottom: 16px;"
@@ -446,75 +467,84 @@
                 :label-col="{ span: 6 }"
                 :wrapper-col="{ span: 16 }"
               >
-                <a-form-item label="服务器地址" name="serverAddr">
-                  <a-input v-model:value="nacosConfig.serverAddr" placeholder="localhost:8848" />
-                  <div style="margin-top: 4px; color: #8c8c8c; font-size: 12px;">
-                    Nacos服务器地址，格式为 host:port
-                  </div>
+                <a-form-item label="启用 Nacos">
+                  <a-switch v-model:checked="nacosEnabled" />
+                  <span style="margin-left: 12px; color: #8c8c8c;">
+                    {{ nacosEnabled ? '已启用：安装时将自动导入配置到 Nacos' : '未启用：跳过 Nacos 配置导入，使用本地配置启动' }}
+                  </span>
                 </a-form-item>
 
-                <a-form-item label="命名空间" name="namespace">
-                  <a-input v-model:value="nacosConfig.namespace" placeholder="QuickBlue-dev" />
-                  <div style="margin-top: 4px; color: #8c8c8c; font-size: 12px;">
-                    命名空间ID，用于隔离不同环境的配置（留空使用public命名空间）
-                  </div>
-                </a-form-item>
+                <template v-if="nacosEnabled">
+                  <a-form-item label="服务器地址" name="serverAddr">
+                    <a-input v-model:value="nacosConfig.serverAddr" placeholder="localhost:8848" />
+                    <div style="margin-top: 4px; color: #8c8c8c; font-size: 12px;">
+                      Nacos服务器地址，格式为 host:port
+                    </div>
+                  </a-form-item>
 
-                <a-form-item label="配置分组" name="group">
-                  <a-input v-model:value="nacosConfig.group" placeholder="QuickBlue_GROUP" />
-                  <div style="margin-top: 4px; color: #8c8c8c; font-size: 12px;">
-                    配置分组名称
-                  </div>
-                </a-form-item>
+                  <a-form-item label="命名空间" name="namespace">
+                    <a-input v-model:value="nacosConfig.namespace" placeholder="QuickBlue-dev" />
+                    <div style="margin-top: 4px; color: #8c8c8c; font-size: 12px;">
+                      命名空间ID，用于隔离不同环境的配置（留空使用public命名空间）
+                    </div>
+                  </a-form-item>
 
-                <a-separator>认证配置</a-separator>
+                  <a-form-item label="配置分组" name="group">
+                    <a-input v-model:value="nacosConfig.group" placeholder="QuickBlue_GROUP" />
+                    <div style="margin-top: 4px; color: #8c8c8c; font-size: 12px;">
+                      配置分组名称
+                    </div>
+                  </a-form-item>
 
-                <a-form-item label="用户名" name="username">
-                  <a-input v-model:value="nacosConfig.username" placeholder="nacos" />
-                  <div style="margin-top: 4px; color: #8c8c8c; font-size: 12px;">
-                    Nacos管理控制台的登录用户名
-                  </div>
-                </a-form-item>
+                  <a-separator>认证配置</a-separator>
 
-                <a-form-item label="密码" name="password">
-                  <a-input-password v-model:value="nacosConfig.password" placeholder="请输入Nacos密码" />
-                  <div style="margin-top: 4px; color: #8c8c8c; font-size: 12px;">
-                    Nacos管理控制台的登录密码
-                  </div>
-                </a-form-item>
+                  <a-form-item label="用户名" name="username">
+                    <a-input v-model:value="nacosConfig.username" placeholder="nacos" />
+                    <div style="margin-top: 4px; color: #8c8c8c; font-size: 12px;">
+                      Nacos管理控制台的登录用户名
+                    </div>
+                  </a-form-item>
 
-                <a-form-item :wrapper-col="{ span: 16, offset: 6 }">
-                  <a-button type="primary" @click="testNacosConnection" :loading="nacosConfig.testing">
-                    <CheckCircleOutlined /> 测试连接
-                  </a-button>
-                  <a-tag v-if="nacosConfig.connected" color="green" style="margin-left: 8px;">
-                    连接成功
-                  </a-tag>
+                  <a-form-item label="密码" name="password">
+                    <a-input-password v-model:value="nacosConfig.password" placeholder="请输入Nacos密码" />
+                    <div style="margin-top: 4px; color: #8c8c8c; font-size: 12px;">
+                      Nacos管理控制台的登录密码
+                    </div>
+                  </a-form-item>
+
+                  <a-form-item :wrapper-col="{ span: 16, offset: 6 }">
+                    <a-button type="primary" @click="testNacosConnection" :loading="nacosConfig.testing">
+                      <CheckCircleOutlined /> 测试连接
+                    </a-button>
+                    <a-tag v-if="nacosConfig.connected" color="green" style="margin-left: 8px;">
+                      连接成功
+                    </a-tag>
+                    <a-alert
+                      v-if="nacosConfig.version"
+                      type="success"
+                      :message="`Nacos版本: ${nacosConfig.version}`"
+                      show-icon
+                      style="margin-left: 8px; display: inline-block; vertical-align: middle;"
+                    />
+                  </a-form-item>
+
                   <a-alert
-                    v-if="nacosConfig.version"
+                    message="配置模板说明"
                     type="success"
-                    :message="`Nacos版本: ${nacosConfig.version}`"
                     show-icon
-                    style="margin-left: 8px; display: inline-block; vertical-align: middle;"
-                  />
-                </a-form-item>
-
-                <a-alert
-                  message="配置模板说明"
-                  type="success"
-                  show-icon
-                  style="margin-top: 16px;"
-                >
-                  <template #description>
-                    <div>安装时将按 <strong>QuickBlue_GROUP</strong> 分组导入以下配置（对应仓库 <code>nacos_config/</code> 目录）：</div>
-                    <ul style="margin-top: 8px; padding-left: 20px;">
-                      <li><strong>共享配置：</strong>common-config、mysql-common、redis-common、sa-token-common、level3-protect-common</li>
-                      <li><strong>服务配置：</strong>QuickBlue-gateway / system / business / support / ai / admin</li>
-                      <li><strong>MySQL：</strong>数据源按上面填写的 MySQL 地址与专用账号生成</li>
-                    </ul>
-                    <div style="margin-top: 8px;">安装时会自动替换配置中的占位符并导入到Nacos服务器。</div>
-                  </template>
-                </a-alert>
+                    style="margin-top: 16px;"
+                  >
+                    <template #description>
+                      <div>安装时将按 <strong>{{ nacosConfig.group || 'QuickBlue_GROUP' }}</strong> 分组导入以下配置（对应仓库 <code>nacos_config/</code> 目录）：</div>
+                      <ul style="margin-top: 8px; padding-left: 20px;">
+                        <li><strong>共享配置：</strong>common-config、mysql-common、redis-common、sa-token-common、level3-protect-common</li>
+                        <li><strong>服务配置：</strong>仅导入本次安装所选数据库对应的服务配置</li>
+                        <li><strong>MySQL：</strong>数据源按上面填写的 MySQL 地址与专用账号生成</li>
+                      </ul>
+                      <div style="margin-top: 8px;">安装时会自动替换配置中的占位符并导入到Nacos服务器。</div>
+                    </template>
+                  </a-alert>
+                </template>
               </a-form>
 
               <div class="step-actions">
@@ -1064,6 +1094,8 @@ const databases = reactive([
     defaultUser: 'support_user',
     defaultPassword: 'Support@2026',
     password: 'Support@2026',
+    required: true,
+    enabled: true,
     testing: false,
     connected: false
   },
@@ -1075,6 +1107,8 @@ const databases = reactive([
     defaultUser: 'system_user',
     defaultPassword: 'System@2026',
     password: 'System@2026',
+    required: true,
+    enabled: true,
     testing: false,
     connected: false
   },
@@ -1086,6 +1120,8 @@ const databases = reactive([
     defaultUser: 'business_user',
     defaultPassword: 'Business@2026',
     password: 'Business@2026',
+    required: false,
+    enabled: true,
     testing: false,
     connected: false
   },
@@ -1097,6 +1133,8 @@ const databases = reactive([
     defaultUser: 'ai_user',
     defaultPassword: 'Ai@2026',
     password: 'Ai@2026',
+    required: false,
+    enabled: true,
     testing: false,
     connected: false
   }
@@ -1140,6 +1178,9 @@ const redisConfigValid = computed(() => {
 
 // Nacos配置
 const nacosFormRef = ref();
+const nacosEnabled = ref(true);
+const sentinelEnabled = ref(false);
+const sentinelDashboard = ref('localhost:8858');
 const nacosConfig = reactive({
   serverAddr: 'localhost:8848',
   namespace: 'QuickBlue-dev',
@@ -1242,9 +1283,11 @@ const adminRules = {
 };
 
 // 安装任务
+// 安装任务列表（与后端 InstallServiceImpl.startInstall 的 8 个任务按索引一一对应）
 const installTasks = ref([
   { title: '创建数据库和用户', status: 'pending', progress: 0, error: null, message: '' },
   { title: '导入数据库表结构', status: 'pending', progress: 0, error: null, message: '' },
+  { title: '生成项目配置文件', status: 'pending', progress: 0, error: null, message: '' },
   { title: '初始化基础数据', status: 'pending', progress: 0, error: null, message: '' },
   { title: '生成并导入Nacos配置', status: 'pending', progress: 0, error: null, message: '' },
   { title: '创建管理员账号', status: 'pending', progress: 0, error: null, message: '' },
@@ -1498,6 +1541,15 @@ async function startInstall() {
 
   try {
     // 构建安装配置
+    const enabledDbs = databases.filter(db => db.enabled);
+    if (enabledDbs.length === 0) {
+      message.error('至少需要安装一个数据库');
+      installing.value = false;
+      return;
+    }
+    if (nacosEnabled.value && !nacosConfig.connected) {
+      message.warning('建议先测试 Nacos 连接；如无 Nacos 环境，可关闭「启用 Nacos」开关');
+    }
     const installConfig = {
       installType: installType.value,
       database: {
@@ -1509,7 +1561,8 @@ async function startInstall() {
         databases: databases.map(db => ({
           name: db.name,
           username: db.username,
-          password: db.password || db.defaultPassword // 如果密码为空，使用默认密码
+          password: db.password || db.defaultPassword, // 如果密码为空，使用默认密码
+          enabled: db.enabled
         }))
       },
       redis: {
@@ -1520,11 +1573,16 @@ async function startInstall() {
         timeout: redisConfig.timeout
       },
       nacos: {
+        enabled: nacosEnabled.value,
         serverAddr: nacosConfig.serverAddr,
         namespace: nacosConfig.namespace,
         group: nacosConfig.group,
         username: nacosConfig.username,
         password: nacosConfig.password
+      },
+      sentinel: {
+        enabled: sentinelEnabled.value,
+        dashboardAddr: sentinelDashboard.value
       },
       service: {
         gatewayUrl: serviceConfig.gatewayUrl,
@@ -1700,7 +1758,8 @@ async function saveAsEnvironment() {
         databases: databases.map(db => ({
           name: db.name,
           username: db.username,
-          password: db.password || db.defaultPassword
+          password: db.password || db.defaultPassword,
+          enabled: db.enabled
         }))
       },
       redis: {
@@ -1709,6 +1768,18 @@ async function saveAsEnvironment() {
         password: redisConfig.password,
         database: redisConfig.database,
         timeout: redisConfig.timeout
+      },
+      nacos: {
+        enabled: nacosEnabled.value,
+        serverAddr: nacosConfig.serverAddr,
+        namespace: nacosConfig.namespace,
+        group: nacosConfig.group,
+        username: nacosConfig.username,
+        password: nacosConfig.password
+      },
+      sentinel: {
+        enabled: sentinelEnabled.value,
+        dashboardAddr: sentinelDashboard.value
       },
       service: {
         gatewayUrl: serviceConfig.gatewayUrl,

@@ -54,8 +54,11 @@ public class LoginCacheManager {
 
     /**
      * 获取请求用户信息
+     * <p>
+     * unless: 员工不存在（如数据库重建后旧 token 指向已不存在的 ID）返回 null 时不写入缓存，
+     * 否则 RedisCache 会因不允许缓存 null 值抛 IllegalArgumentException
      */
-    @Cacheable(CacheKeyConstants.Login.REQUEST_EMPLOYEE)
+    @Cacheable(value = CacheKeyConstants.Login.REQUEST_EMPLOYEE, unless = "#result == null")
     public SessionEmployee getRequestEmployee(Long requestEmployeeId) {
         if (requestEmployeeId == null) {
             return null;

@@ -228,6 +228,12 @@ public class AuthServiceImpl implements AuthService, StpInterface {
         String tokenValue = StpUtil.getTokenValue();
         String loginId = StpUtil.getLoginIdAsString();
         SessionEmployee requestEmployee = getLoginEmployee(loginId);
+        // token 有效但员工已不存在（如数据库重建、账号被删除），返回明确错误而非系统异常
+        if (requestEmployee == null) {
+            log.warn("登录信息已失效 - loginId: {} 对应的员工不存在，请重新登录", loginId);
+            StpUtil.logout();
+            return ApiResult.error(UserErrorCodes.LOGIN_STATE_INVALID, "登录信息已失效，请重新登录");
+        }
         AuthLoginVO loginResult = getLoginResult(requestEmployee, tokenValue);
         loginResult.setToken(tokenValue);
         return ApiResult.ok(loginResult);

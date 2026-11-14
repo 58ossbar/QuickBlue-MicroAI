@@ -50,6 +50,12 @@ spring:
           version: 4.0.0
           environment: ${SPRING_PROFILES_ACTIVE:dev}
         naming-load-cache-at-start: true
+  # Sentinel 熔断限流（可选：安装向导生成的 .env 中 SENTINEL_ENABLED=true 时开启，默认关闭）
+  sentinel:
+    enabled: ${SENTINEL_ENABLED:false}
+    eager: ${SENTINEL_ENABLED:false}
+    transport:
+      dashboard: ${SENTINEL_DASHBOARD_ADDR:localhost:8858}
 
 # 日志配置
 logging:
