@@ -52,6 +52,7 @@ CREATE TABLE `t_department`  (
                                  `manager_id` bigint NULL DEFAULT NULL COMMENT '部门负责人id',
                                  `parent_id` bigint NOT NULL DEFAULT 0 COMMENT '部门的父级id',
                                  `sort` int NOT NULL COMMENT '部门排序',
+                                 `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态（1启用 0停用）',
                                  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
                                  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                                  PRIMARY KEY (`department_id`) USING BTREE,

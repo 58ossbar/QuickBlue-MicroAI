@@ -35,6 +35,9 @@ public class OrganizationVO implements Serializable {
     @Schema(description = "排序")
     private Integer sort;
 
+    @Schema(description = "状态（1启用 0停用）")
+    private Integer status;
+
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 

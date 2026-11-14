@@ -39,6 +39,11 @@ public class OrganizationEntity {
      */
     private Integer sort;
 
+    /**
+     * 状态（1启用 0停用）
+     */
+    private Integer status;
+
     private LocalDateTime updateTime;
 
     private LocalDateTime createTime;

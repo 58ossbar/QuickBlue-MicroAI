@@ -28,4 +28,7 @@ public class OrganizationAddForm {
 
     @Schema(description = "上级部门ID（可选）")
     private Long parentId;
+
+    @Schema(description = "状态（1启用 0停用）")
+    private Integer status;
 }
