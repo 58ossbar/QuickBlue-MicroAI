@@ -268,7 +268,7 @@
   }
 
   // ----------------------- 发布时间 ----------------------------
-  const timeFormat = 'YYYY-MM-DD HH:mm:ss';
+  const timeFormat = 'YYYY-MM-DD HH:mm';
   const releaseTime = ref(null);
   function changeTime(date, dateString) {
     formData.publishTime = dateString;

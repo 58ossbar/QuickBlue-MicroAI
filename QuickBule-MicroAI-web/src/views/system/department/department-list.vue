@@ -84,8 +84,8 @@
             </a-descriptions-item>
             <a-descriptions-item label="层级">第 {{ currentDepartment.level ?? 0 }} 级</a-descriptions-item>
             <a-descriptions-item label="排序">{{ currentDepartment.sort ?? 0 }}</a-descriptions-item>
-            <a-descriptions-item label="更新时间">{{ currentDepartment.updateTime ? dayjs(currentDepartment.updateTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}</a-descriptions-item>
-            <a-descriptions-item label="创建时间">{{ currentDepartment.createTime ? dayjs(currentDepartment.createTime).format('YYYY-MM-DD HH:mm:ss') : '-' }}</a-descriptions-item>
+            <a-descriptions-item label="更新时间">{{ currentDepartment.updateTime ? dayjs(currentDepartment.updateTime).format('YYYY-MM-DD HH:mm') : '-' }}</a-descriptions-item>
+            <a-descriptions-item label="创建时间">{{ currentDepartment.createTime ? dayjs(currentDepartment.createTime).format('YYYY-MM-DD HH:mm') : '-' }}</a-descriptions-item>
           </a-descriptions>
           <div v-if="currentDepartment.remark" class="remark-section">
             <span class="remark-label">描述：</span>

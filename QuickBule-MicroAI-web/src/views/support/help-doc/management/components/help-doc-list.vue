@@ -52,7 +52,6 @@
       ref="tableRef"
       rowKey="helpDocId"
       :columns="tableColumns"
-      :scroll="{ x: 1000 }"
       :dataSource="tableData"
       :pagination="false"
       :loading="tableLoading"
@@ -125,12 +124,13 @@
     {
       title: `标题`,
       dataIndex: 'title',
+      width: 200,
       ellipsis: true,
     },
     {
       title: '目录',
       dataIndex: 'helpDocCatalogName',
-      width: 120,
+      width: 90,
       ellipsis: true,
     },
     {
@@ -142,22 +142,22 @@
     {
       title: '排序',
       dataIndex: 'sort',
-      width: 90,
+      width: 50,
     },
     {
-      title: '页面浏览量',
+      title: '浏览量',
       dataIndex: 'pageViewCount',
-      width: 90,
+      width: 50,
     },
     {
       title: '用户浏览量',
       dataIndex: 'userViewCount',
-      width: 90,
+      width: 50,
     },
     {
       title: '创建时间',
       dataIndex: 'createTime',
-      width: 150,
+      width: 100,
     },
     {
       title: '操作',

@@ -88,7 +88,6 @@
       :data-source="tableData"
       :pagination="false"
       :loading="tableLoading"
-      :scroll="{ x: 'max-content' }"
       row-key="employeeId"
       bordered
       @change="handleTableChange"
@@ -202,13 +201,6 @@
       key: 'phone',
       width: 85,
       sorter: true,
-    },
-    {
-      title: '邮箱',
-      dataIndex: 'email',
-      key: 'email',
-      width: 100,
-      ellipsis: true,
     },
     {
       title: '超管',

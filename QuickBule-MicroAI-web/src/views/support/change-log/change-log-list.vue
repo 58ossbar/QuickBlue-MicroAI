@@ -85,6 +85,9 @@
             {{ $enumPlugin.getDescByValue('CHANGE_LOG_TYPE_ENUM', text) }}
           </a-tag>
         </template>
+        <template v-if="column.dataIndex === 'publicDate'">
+          <span>{{ formatDate(text) }}</span>
+        </template>
         <template v-if="column.dataIndex === 'action'">
           <div class="qb-table-operate">
             <a-button @click="showForm(record)" type="link" v-privilege="'support:changeLog:update'">编辑</a-button>
@@ -177,11 +180,17 @@
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',
-      width: 90,
+      width: 120,
     },
   ]);
 
   useColumnResize(tableRef, columns);
+
+  /** 日期格式化：只保留年月日 */
+  function formatDate(val) {
+    if (!val) return '-';
+    return String(val).replace('T', ' ').slice(0, 10);
+  }
 
   // ---------------------------- 查询数据表单和方法 ----------------------------
 

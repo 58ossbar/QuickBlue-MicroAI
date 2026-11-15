@@ -34,7 +34,7 @@ public class AnnouncementViewRecordVO {
     private String firstUserAgent;
 
     @Schema(description = "首次查看时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     private LocalDateTime createTime;
 
     @Schema(description = "最后一次 ip")
@@ -44,6 +44,6 @@ public class AnnouncementViewRecordVO {
     private String lastUserAgent;
 
     @Schema(description = "最后一次查看时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     private LocalDateTime updateTime;
 }

@@ -39,7 +39,7 @@ public class AnnouncementAddForm {
 
     @Schema(description = "发布时间")
     @NotNull(message = "发布时间不能为空")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     private LocalDateTime publishTime;
 
     @Schema(description = "纯文本内容")

@@ -6,11 +6,11 @@
 <template>
   <div class="height100">
     <a-row :gutter="16" class="height100">
-      <a-col :span="6">
+      <a-col :span="4">
         <HelpDocCatalogTree ref="helpDocCatalogTreeRef" />
       </a-col>
 
-      <a-col :span="18" class="height100">
+      <a-col :span="20" class="height100">
         <div class="help-doc-box height100">
           <HelpDocList :helpDocCatalogId="selectedHelpDocCatalogId" />
         </div>

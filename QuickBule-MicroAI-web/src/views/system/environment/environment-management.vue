@@ -635,7 +635,7 @@ async function handleCreateEnvironment() {
 
 // 格式化日期
 function formatDate(dateStr) {
-  return dayjs(dateStr).format('YYYY-MM-DD HH:mm:ss');
+  return dayjs(dateStr).format('YYYY-MM-DD HH:mm');
 }
 
 // 获取数据库类型文本

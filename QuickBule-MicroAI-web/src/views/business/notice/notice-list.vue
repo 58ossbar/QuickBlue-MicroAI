@@ -78,7 +78,6 @@
       rowKey="noticeId"
       :columns="tableColumns"
       :dataSource="tableData"
-      :scroll="{ x: 1210 }"
       :pagination="false"
       :loading="tableLoading"
       size="small"
@@ -162,7 +161,7 @@
     {
       title: `标题`,
       dataIndex: 'title',
-      width: 300,
+      width: 260,
       ellipsis: true,
     },
     {
@@ -220,16 +219,6 @@
       title: '用户浏览量',
       dataIndex: 'userViewCount',
       width: 90,
-    },
-    {
-      title: '创建人',
-      dataIndex: 'createUserName',
-      width: 80,
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      width: 150,
     },
     {
       title: '操作',

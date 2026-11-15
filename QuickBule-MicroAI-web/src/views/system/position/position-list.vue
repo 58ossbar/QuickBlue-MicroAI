@@ -70,7 +70,6 @@
       bordered
       :loading="tableLoading"
       :pagination="false"
-      :scroll="{ x: 'max-content' }"
       :row-selection="{ selectedRowKeys: selectedRowKeyList, onChange: onSelectChange }"
       v-model:expandedRowKeys="expandedRowKeys"
       :childrenColumnName="'children'"
@@ -131,7 +130,7 @@
       title: '岗位编码',
       dataIndex: 'positionCode',
       ellipsis: true,
-      width: 130,
+      width: 100,
     },
     {
       title: '岗位类别',
@@ -161,13 +160,13 @@
       title: '创建时间',
       dataIndex: 'createTime',
       ellipsis: true,
-      width: 160,
+      width: 120,
     },
     {
       title: '操作',
       dataIndex: 'action',
       fixed: 'right',
-      width: 230,
+      width: 120,
     },
   ]);
 
