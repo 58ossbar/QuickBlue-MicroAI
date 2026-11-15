@@ -255,6 +255,57 @@ npm run dev                                                        # 监听 5173
 
 > 其余微服务（system / business / support / ai）可在安装完成后再逐个启动，启动命令见[手动部署](#manual) 6.5 节。
 
+### 5.7 开发者推荐：全程在 IntelliJ IDEA 中启动
+
+许多用户习惯在 IDEA 里启动服务和完成日常开发，QuickBlue 完全支持这条路径——**安装向导本身就是为开发期准备的**，无需先打包出 jar：
+
+**第 1 步：IDEA 导入后端工程**
+
+用 IDEA 打开 `QuickBlue-MicroAI/` 目录（Maven 父工程会自动识别），等待依赖索引构建完成。确保 Project SDK 为 **JDK 21**。
+
+**第 2 步：IDEA 中启动网关**
+
+直接运行网关启动类 `QuickBlue-gateway` 模块下的 **`GatewayApplication`**（监听 8080）。安装向导的全部后端接口都在网关里，只启动它就能跑向导。
+
+  <img src="docs/images/install.png" alt="IDEA 中启动 GatewayApplication" width="100%" />
+
+> 💡 无需先执行 `mvn package`，IDEA 直接编译运行源码即可。
+
+**第 3 步：启动前端，进入安装向导**
+
+```bash
+cd QuickBule-MicroAI-web
+npm install
+npm run dev        # 监听 5173
+```
+
+浏览器访问 **`http://localhost:5173/#/install`**，按 5.4 节的 10 步向导完成安装（填地址 → 测试连接 → 开始安装）。安装完成后**记下页面显示的管理员账号密码**。
+
+  <img src="docs/images/install1.png" alt="终端 npm run dev 启动前端" width="100%" />
+
+**第 4 步：IDEA 中启动其余微服务**
+
+安装完成后，在 IDEA 中依次运行各服务启动类（都在各自模块根包下）：
+
+| 启动类 | 所在模块 | 端口 |
+| --- | --- | --- |
+| `SystemApplication` | QuickBlue-modules/QuickBlue-system | 8081 |
+| `BusinessApplication` | QuickBlue-modules/QuickBlue-business | 8082 |
+| `SupportApplication` | QuickBlue-modules/QuickBlue-support | 8083 |
+| `AiApplication` | QuickBlue-modules/QuickBlue-ai | 8084 |
+| `QuickBlueAdminApplication` | QuickBlue-admin | 9090 监控中心 |
+
+> 建议在 IDEA Services 面板中统一管理这些 Run Configuration，开发期可按需只启动用到的服务。
+
+**第 5 步：重启验证，正常访问**
+
+各服务启动完成后（可在 `http://localhost:9090` 监控中心确认全部注册上线），访问：
+
+- 管理后台：`http://localhost:8080/admin` —— 用向导中设置的管理员账号登录，功能全部可用
+- API 文档中心：`http://localhost:8080/doc.html`
+
+✅ 到这里，"IDEA 启动 → 向导安装 → 重启各服务 → 正常访问"的完整开发闭环就跑通了，后续业务开发直接在 IDEA 中进行即可。
+
 ---
 
 ## 六、手动部署（想逐步掌控时用）<a id="manual"></a>
@@ -532,27 +583,9 @@ QuickBlue-MicroAI/
 
 ---
 
-## 十一、相关文档<a id="docs"></a>
-
-以下为配套的进阶文档，**具体链接地址后续补充**：
-
-| 文档名称 | 说明 | 链接 |
-| --- | --- | --- |
-| Nacos 配置手册 | Nacos 配置导入、命名空间、MySQL / PostgreSQL 双版本切换 | 待补充 |
-| 部署与运维指南 | 生产环境部署、进程守护、日志与备份策略 | 待补充 |
-| 环境变量（.env）说明 | 全部可配项的取值说明与多环境切换示例 | 待补充 |
-| 数据库脚本说明 | 01~05 脚本的执行顺序、账号与权限设计 | 待补充 |
-| AI 模块使用指南 | 模型接入、知识库与 RAG 配置、应用编排与会话 | 待补充 |
-| 权限与数据权限指南 | RBAC 模型、菜单按钮授权、部门数据隔离规则 | 待补充 |
-| Excel 模块说明 | `QuickBlue-common-excel` 导入导出用法 | 待补充 |
-| 前端开发指南 | 目录约定、路由与权限联动、多环境构建 | 待补充 |
-| 接口规范与网关说明 | 统一路由前缀、鉴权白名单、OpenAPI 3 聚合规则 | 待补充 |
-| 常见问题排查（FAQ） | 安装与运行期高频问题的定位与解决 | 待补充 |
-| 开源协议（LICENSE） | Apache License 2.0 开源协议，可免费用于商业与学习场景 | 待补充 |
-
 ---
 
-## 十二、常见问题
+## 十一、常见问题
 
 | 问题 | 排查方向 |
 | --- | --- |
@@ -583,7 +616,7 @@ git clone https://github.com/58ossbar/QuickBlue-MicroAI.git
 
 > 欢迎 **Star ⭐** 支持，使用中遇到问题请提 Issue。开源不易，感谢每一位同行者。
 
-**版本说明**：当前开源为 **MySQL 版**；官方同步提供 **PostgreSQL 版**（含 pgvector 向量检索），数据库类型通过 Nacos 配置中心切换，业务代码零侵入。
+**版本说明**：当前开源为 **MySQL 版**；官方同步提供 **PostgreSQL 版**（含 pgvector 向量检索），**满足企业级高并发、高安全和高性能的场景需求**
 
 ---
 
