@@ -1,0 +1,10 @@
+# 前端仓库 Docker 构建上下文排除清单
+.git
+node_modules
+dist
+*.md
+.env.development
+.env.localhost
+.env.pre
+.env.test
+.env.desktop

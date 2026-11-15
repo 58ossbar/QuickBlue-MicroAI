@@ -1,0 +1,28 @@
+# ============================================================
+# QuickBlue 前端镜像构建文件（Vue 3 + Vite + Nginx）
+# build context = 前端仓库根（QuickBule-MicroAI-web）
+# ============================================================
+
+# ---------- 阶段一：Node 构建 ----------
+FROM node:24-alpine AS build
+WORKDIR /build
+
+# 先装依赖（package 变动少时命中缓存）
+COPY package.json package-lock.json* ./
+RUN npm install
+
+COPY . .
+
+# 覆盖 .env.production 的线上地址：容器内走 nginx 同域代理 /api
+# （Vite 中进程环境变量优先级高于 .env 文件）
+ENV VITE_APP_API_URL=/api
+
+RUN npm run build:prod
+
+# ---------- 阶段二：Nginx 运行 ----------
+FROM nginx:1.27-alpine
+
+COPY --from=build /build/dist/ /usr/share/nginx/html/
+
+ENV TZ=Asia/Shanghai
+EXPOSE 80

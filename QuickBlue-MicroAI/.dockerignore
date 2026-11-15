@@ -1,0 +1,14 @@
+# 后端仓库 Docker 构建上下文排除清单（减小 context、加速构建传输）
+.git
+.idea
+**/target/
+database/
+nacos_config/
+deploy/
+docs/
+doc/
+demo/
+tools/
+*.md
+.env
+.env.example
